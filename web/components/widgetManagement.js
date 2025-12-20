@@ -1,8 +1,8 @@
-import state from './state.js';
-import { updatePropertiesPanel, selectWidget } from './propertiesPanel.js';
-import { setupEditorDrag, setupWidgetDrag } from './dragHandlers.js';
-import { updateWidgetList } from './propertiesPanel.js';
-import { generateProjectXML } from './projectManagement.js';
+import state from "./state.js";
+import { updatePropertiesPanel, selectWidget } from "./propertiesPanel.js";
+import { setupEditorDrag, setupWidgetDrag } from "./dragHandlers.js";
+import { updateWidgetList } from "./propertiesPanel.js";
+import { generateProjectXML } from "./projectManagement.js";
 
 export function createWidget(type, x, y, parent = null) {
   let newWidget = document.createElement("div");
@@ -88,7 +88,8 @@ export function createWidget(type, x, y, parent = null) {
       newWidget.className += " widget-progressbar";
       newWidget.style.width = "150px";
       newWidget.style.height = "10px";
-      newWidget.innerHTML = '<div class="progress-fill" style="width: 50%;"></div>';
+      newWidget.innerHTML =
+        '<div class="progress-fill" style="width: 50%;"></div>';
       break;
     case "Meter":
       newWidget.className += " widget-meter";
@@ -129,7 +130,7 @@ export function createWidget(type, x, y, parent = null) {
       placeholderV.className = "layout-placeholder";
       placeholderV.textContent = "Drop widgets here";
       newWidget.appendChild(placeholderV);
-    break;
+      break;
     case "HorizontalLayout":
       newWidget.className += " layout horizontal";
       newWidget.style.width = "300px";
@@ -141,17 +142,20 @@ export function createWidget(type, x, y, parent = null) {
       placeholderH.className = "layout-placeholder";
       placeholderH.textContent = "Drop widgets here";
       newWidget.appendChild(placeholderH);
-    break;
+      break;
     case "Container":
       newWidget.className += " layout container";
       newWidget.style.width = "200px";
       newWidget.style.height = "200px";
-      newWidget.style.position = "relative"; // Important for child positioning
+      newWidget.style.position = "relative";
+      newWidget.style.overflow = "hidden";
+
       const placeholderC = document.createElement("div");
       placeholderC.className = "layout-placeholder";
       placeholderC.textContent = "Drop widgets here";
       newWidget.appendChild(placeholderC);
-    break;
+      break;
+
     case "Overlay":
       newWidget.className += " widget-overlay";
       newWidget.textContent = "Overlay";
@@ -169,17 +173,38 @@ export function createWidget(type, x, y, parent = null) {
   newWidget.style.left = x + "px";
   newWidget.style.top = y + "px";
 
+  // Update the widget positioning logic when adding to parent:
   if (parent) {
     parent.appendChild(newWidget);
     const placeholder = parent.querySelector(".layout-placeholder");
     if (placeholder) {
       parent.removeChild(placeholder);
     }
-  } else {
-    state.previewContent.appendChild(newWidget);
-  }
 
-  if (type === "VerticalLayout" || type === "HorizontalLayout" || type === "Container") {
+    // Set proper positioning based on parent type
+    if (
+      parent.classList.contains("horizontal") ||
+      parent.classList.contains("vertical")
+    ) {
+      // Flexbox layouts - no manual positioning needed
+      newWidget.style.position = "";
+      newWidget.style.left = "";
+      newWidget.style.top = "";
+    } else if (parent.classList.contains("container")) {
+      // Container with absolute positioning
+      newWidget.style.position = "absolute";
+      // Keep the x,y coordinates but they'll be relative to container
+    }
+  } else {
+    // No parent - absolute positioning in preview content
+    state.previewContent.appendChild(newWidget);
+    newWidget.style.position = "absolute";
+  }
+  if (
+    type === "VerticalLayout" ||
+    type === "HorizontalLayout" ||
+    type === "Container"
+  ) {
     const resizeHandle = document.createElement("div");
     resizeHandle.className = "resize-handle";
     newWidget.appendChild(resizeHandle);
@@ -187,11 +212,15 @@ export function createWidget(type, x, y, parent = null) {
   }
 
   if (type === "List" && !state.isListInit) {
-    const listOptionAddButton = document.getElementById("list-option-add-button");
+    const listOptionAddButton = document.getElementById(
+      "list-option-add-button",
+    );
     listOptionAddButton.addEventListener("click", function listListener(e) {
       if (e) {
         const listItemName = document.getElementById("list-option-input").value;
-        const listItemDesc = document.getElementById("list-option-input-desc").value;
+        const listItemDesc = document.getElementById(
+          "list-option-input-desc",
+        ).value;
 
         let list = state.selectedWidget.dataset.listOptions
           ? JSON.parse(state.selectedWidget.dataset.listOptions)
@@ -220,27 +249,32 @@ export function createWidget(type, x, y, parent = null) {
   }
 
   if (type === "Dropdown" && !state.isDropdownInit) {
-    const dropdownOptionAddButton = document.getElementById("dropdown-option-add-button");
-    dropdownOptionAddButton.addEventListener("click", function dropdownListener(e) {
-      if (e) {
-        const optionInput = document.getElementById("dropdown-option-input");
-        const newItem = optionInput.value;
+    const dropdownOptionAddButton = document.getElementById(
+      "dropdown-option-add-button",
+    );
+    dropdownOptionAddButton.addEventListener(
+      "click",
+      function dropdownListener(e) {
+        if (e) {
+          const optionInput = document.getElementById("dropdown-option-input");
+          const newItem = optionInput.value;
 
-        let list = state.selectedWidget.dataset.dropdownOptions
-          ? state.selectedWidget.dataset.dropdownOptions.split(",")
-          : [];
-        list.push(newItem.trim());
+          let list = state.selectedWidget.dataset.dropdownOptions
+            ? state.selectedWidget.dataset.dropdownOptions.split(",")
+            : [];
+          list.push(newItem.trim());
 
-        state.selectedWidget.dataset.dropdownOptions = list.join(",");
+          state.selectedWidget.dataset.dropdownOptions = list.join(",");
 
-        if (newItem) {
-          document.getElementById("dropdown-options").innerHTML +=
-            generateListItemForDropdownOptions(list.length - 1, newItem);
+          if (newItem) {
+            document.getElementById("dropdown-options").innerHTML +=
+              generateListItemForDropdownOptions(list.length - 1, newItem);
+          }
+
+          optionInput.value = "";
         }
-
-        optionInput.value = "";
-      }
-    });
+      },
+    );
 
     state.isDropdownInit = true;
   }
@@ -271,7 +305,10 @@ export function createWidget(type, x, y, parent = null) {
   state.projectXml = generateProjectXML();
   const unformattedXMLCode = state.projectXml;
   try {
-    const formattedXMLCode = prettier.format(unformattedXMLCode, { parser: 'babel', plugins: prettierPlugins });
+    const formattedXMLCode = prettier.format(unformattedXMLCode, {
+      parser: "babel",
+      plugins: prettierPlugins,
+    });
     state.uiXmlEditor.setValue(formattedXMLCode);
   } catch (e) {
     console.error("Prettier formatting failed:", e);
@@ -329,7 +366,10 @@ export function deleteDropdownOption(id) {
     let dropdownOptionsUL = document.getElementById("dropdown-options");
     dropdownOptionsUL.innerHTML = "";
     list.forEach((item, idx) => {
-      dropdownOptionsUL.innerHTML += generateListItemForDropdownOptions(idx, item);
+      dropdownOptionsUL.innerHTML += generateListItemForDropdownOptions(
+        idx,
+        item,
+      );
     });
   }
 }
@@ -374,71 +414,75 @@ export function setupWidgetSelection(element) {
   });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
   // Initialize theme based on system preference or default to dark
-  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const initialTheme = prefersDark ? 'dark' : 'light';
-  document.documentElement.setAttribute('data-theme', initialTheme);
-  const themeToggle = document.getElementById('theme-toggle');
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const initialTheme = prefersDark ? "dark" : "light";
+  document.documentElement.setAttribute("data-theme", initialTheme);
+  const themeToggle = document.getElementById("theme-toggle");
   if (themeToggle) {
-    themeToggle.querySelector('.material-icons').textContent = initialTheme === 'dark' ? 'light_mode' : 'dark_mode';
+    themeToggle.querySelector(".material-icons").textContent =
+      initialTheme === "dark" ? "light_mode" : "dark_mode";
   }
 
   // Theme toggle button
   if (themeToggle) {
-    themeToggle.addEventListener('click', () => {
-      const currentTheme = document.documentElement.getAttribute('data-theme');
-      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', newTheme);
-      themeToggle.querySelector('.material-icons').textContent = newTheme === 'dark' ? 'light_mode' : 'dark_mode';
+    themeToggle.addEventListener("click", () => {
+      const currentTheme = document.documentElement.getAttribute("data-theme");
+      const newTheme = currentTheme === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", newTheme);
+      themeToggle.querySelector(".material-icons").textContent =
+        newTheme === "dark" ? "light_mode" : "dark_mode";
     });
   } else {
-    console.warn('Theme toggle button not found');
+    console.warn("Theme toggle button not found");
   }
 
   // Platform selection modal
-  const platformModal = document.getElementById('platform-selection-modal');
+  const platformModal = document.getElementById("platform-selection-modal");
   const showPlatformSelection = () => {
     if (platformModal) {
-      platformModal.classList.add('active');
+      platformModal.classList.add("active");
     }
   };
   window.showPlatformSelection = showPlatformSelection; // Expose for HTML onclick
-  const cancelButton = document.getElementById('cancel-platform-selection');
+  const cancelButton = document.getElementById("cancel-platform-selection");
   if (cancelButton) {
-    cancelButton.addEventListener('click', () => {
+    cancelButton.addEventListener("click", () => {
       if (platformModal) {
-        platformModal.classList.remove('active');
+        platformModal.classList.remove("active");
       }
     });
   }
 
   // Advanced settings panel
-  const settingsToggle = document.getElementById('advanced-settings-toggle');
-  const settingsToggleEditor = document.getElementById('advanced-settings-toggle-editor');
-  const settingsPanel = document.getElementById('advanced-settings-panel');
-  const closeSettingsButton = document.getElementById('close-settings-button');
+  const settingsToggle = document.getElementById("advanced-settings-toggle");
+  const settingsToggleEditor = document.getElementById(
+    "advanced-settings-toggle-editor",
+  );
+  const settingsPanel = document.getElementById("advanced-settings-panel");
+  const closeSettingsButton = document.getElementById("close-settings-button");
   if (settingsToggle && settingsPanel) {
-    settingsToggle.addEventListener('click', () => {
-      settingsPanel.classList.add('visible');
+    settingsToggle.addEventListener("click", () => {
+      settingsPanel.classList.add("visible");
     });
   }
   if (settingsToggleEditor && settingsPanel) {
-    settingsToggleEditor.addEventListener('click', () => {
-      settingsPanel.classList.add('visible');
+    settingsToggleEditor.addEventListener("click", () => {
+      settingsPanel.classList.add("visible");
     });
   }
   if (closeSettingsButton && settingsPanel) {
-    closeSettingsButton.addEventListener('click', () => {
-      settingsPanel.classList.remove('visible');
+    closeSettingsButton.addEventListener("click", () => {
+      settingsPanel.classList.remove("visible");
     });
   }
 
   // Mock function for documentation link
   window.openDocs = () => {
-    window.open('https://gooeyui.github.io/GooeyGUI/quickstart.html', '_blank');
+    window.open("https://gooeyui.github.io/GooeyGUI/quickstart.html", "_blank");
   };
 
   // Initialize preview content
-  state.previewContent = document.getElementById('preview-content');
+  state.previewContent = document.getElementById("preview-content");
 });

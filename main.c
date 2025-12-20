@@ -1,4 +1,3 @@
-#include "third_party/pico_logger/pico_logger.h"
 #include "webview/webview.h"
 #include <Gooey/common/gooey_common.h>
 #include <Gooey/core/gooey_timers.h>
@@ -26,20 +25,20 @@ char *read_file(const char *filename, size_t *out_len)
 {
   if (!filename)
   {
-    LOG_ERROR("Null filename provided\n");
+ //   //LOG_ERROR("Null filename provided\n");
     return NULL;
   }
 
   FILE *f = fopen(filename, "rb");
   if (!f)
   {
-    LOG_ERROR("Failed to open file '%s': %s\n", filename, strerror(errno));
+    ////LOG_ERROR("Failed to open file '%s': %s\n", filename, strerror(errno));
     return NULL;
   }
 
   if (fseek(f, 0, SEEK_END) != 0)
   {
-    LOG_ERROR("Failed to seek file '%s': %s\n", filename, strerror(errno));
+    //LOG_ERROR("Failed to seek file '%s': %s\n", filename, strerror(errno));
     fclose(f);
     return NULL;
   }
@@ -47,14 +46,14 @@ char *read_file(const char *filename, size_t *out_len)
   long len = ftell(f);
   if (len < 0)
   {
-    LOG_ERROR("Failed to get file size '%s': %s\n", filename, strerror(errno));
+    //LOG_ERROR("Failed to get file size '%s': %s\n", filename, strerror(errno));
     fclose(f);
     return NULL;
   }
 
   if (len > MAX_FILE_SIZE)
   {
-    LOG_ERROR("File '%s' too large (%ld bytes)\n", filename, len);
+    //LOG_ERROR("File '%s' too large (%ld bytes)\n", filename, len);
     fclose(f);
     return NULL;
   }
@@ -64,7 +63,7 @@ char *read_file(const char *filename, size_t *out_len)
   char *data = malloc(len + 1);
   if (!data)
   {
-    LOG_ERROR("Failed to allocate memory for file '%s'\n", filename);
+    //LOG_ERROR("Failed to allocate memory for file '%s'\n", filename);
     fclose(f);
     return NULL;
   }
@@ -72,7 +71,7 @@ char *read_file(const char *filename, size_t *out_len)
   size_t read_len = fread(data, 1, len, f);
   if (read_len != (size_t)len)
   {
-    LOG_ERROR("Read error in file '%s': expected %ld, got %zu\n", filename, len, read_len);
+    //LOG_ERROR("Read error in file '%s': expected %ld, got %zu\n", filename, len, read_len);
     free(data);
     fclose(f);
     return NULL;
@@ -126,7 +125,7 @@ int ensure_safe_dir()
   {
     if (mkdir(SAFE_DIR, 0777) != 0)
     {
-      LOG_ERROR("Failed to create directory '%s': %s\n", SAFE_DIR, strerror(errno));
+      //LOG_ERROR("Failed to create directory '%s': %s\n", SAFE_DIR, strerror(errno));
       return 0;
     }
   }
@@ -202,14 +201,14 @@ static void run_command(const char *id, const char *req, void *arg)
 {
   if (!req || strlen(req) < 3)
   {
-    LOG_ERROR("Invalid request\n");
+    //LOG_ERROR("Invalid request\n");
     return;
   }
 
   char *code = strdup(req + 2);
   if (!code)
   {
-    LOG_ERROR("Memory allocation failed\n");
+    //LOG_ERROR("Memory allocation failed\n");
     return;
   }
 
@@ -233,7 +232,7 @@ static void run_command(const char *id, const char *req, void *arg)
   char *full_path = malloc(PATH_MAX);
   if (!full_path)
   {
-    LOG_ERROR("Memory allocation failed\n");
+    //LOG_ERROR("Memory allocation failed\n");
     free(safe_filename);
     free(code);
     return;
@@ -245,7 +244,7 @@ static void run_command(const char *id, const char *req, void *arg)
   FILE *f = fopen(full_path, "w");
   if (!f)
   {
-    LOG_ERROR("Failed to open file '%s': %s\n", full_path, strerror(errno));
+    //LOG_ERROR("Failed to open file '%s': %s\n", full_path, strerror(errno));
     free(code);
     free(full_path);
     return;
@@ -280,7 +279,7 @@ char *combine_resources()
     contents[i] = read_file(resources[i], NULL);
     if (!contents[i])
     {
-      LOG_ERROR("Failed to load resource: %s\n", resources[i]);
+      //LOG_ERROR("Failed to load resource: %s\n", resources[i]);
       goto cleanup;
     }
     total_size += strlen(contents[i]);
@@ -289,7 +288,7 @@ char *combine_resources()
   char *full_html = malloc(total_size);
   if (!full_html)
   {
-    LOG_ERROR("Failed to allocate memory for HTML\n");
+    //LOG_ERROR("Failed to allocate memory for HTML\n");
     goto cleanup;
   }
 
@@ -361,7 +360,7 @@ int main()
     char *full_html = combine_resources();
     if (!full_html)
     {
-      LOG_ERROR("Failed to build HTML document\n");
+      //LOG_ERROR("Failed to build HTML document\n");
       return 1;
     }
 
@@ -369,7 +368,7 @@ int main()
     free(full_html);
     if (!encoded)
     {
-      LOG_ERROR("Failed to encode HTML\n");
+      //LOG_ERROR("Failed to encode HTML\n");
       return 1;
     }
 
@@ -386,7 +385,7 @@ int main()
     if (!w)
     {
       free(data_uri);
-      LOG_ERROR("Failed to create webview\n");
+      //LOG_ERROR("Failed to create webview\n");
       return 1;
     }
 
