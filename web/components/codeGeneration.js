@@ -108,7 +108,7 @@ export async function generateC() {
                 break;
 
             case "Label":
-                widgetCode = `${indent}GooeyLabel *${widgetVar} = GooeyLabel_Create("${text}", 0.26f, ${x}, ${y});\n`;
+                widgetCode = `${indent}GooeyLabel *${widgetVar} = GooeyLabel_Create("${text}", 18.0f, ${x}, ${y});\n`;
                 break;
 
             case "Canvas":
