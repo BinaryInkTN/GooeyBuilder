@@ -5,9 +5,8 @@ import { setupEditorDrag, setupPreviewWindowDrag, setupWidgetDrag } from './comp
 import { createWidget, setupWidgetSelection, deleteListOption, deleteDropdownOption } from './components/widgetManagement.js';
 import { updatePropertiesPanel, updateWidgetList, applyWidgetProperties, selectWidget, deleteSelectedWidget, applyWindowSettings } from './components/propertiesPanel.js';
 import { generateC } from './components/codeGeneration.js';
-import { saveProjectToXML, loadProjectFromXML } from './components/projectManagement.js';
+import { saveProjectToXML, loadProjectFromXML, generateProjectXML } from './components/projectManagement.js';
 import { showEditor, showStartScreen, openDocs, showPlatformSelection } from './components/uiHelpers.js';
-import { initializeChatbot } from './components/chatbot.js'; // Add this import
 
 // Initialize the app
 function init() {
@@ -19,9 +18,6 @@ function init() {
     state.editor = editor;
     state.callbackEditor = callbackEditor;
     state.uiXmlEditor = uiXmlEditor;
-    
-    // Initialize chatbot
-    //  initializeChatbot(); // Add this line
 
     // Set up drag handlers
     setupEditorDrag(document.getElementById("code-editor"));
@@ -36,7 +32,11 @@ function init() {
     state.previewTitleBar.className = "preview-title-bar";
     state.previewTitleBar.innerHTML = `
         <div class="preview-title-text">My Window</div>
-       
+        <div class="window-controls">
+            <div class="window-control"></div>
+            <div class="window-control"></div>
+            <div class="window-control"></div>
+        </div>
     `;
 
     state.previewContent = document.createElement("div");
@@ -97,6 +97,14 @@ function init() {
         if (e.key === "Delete") {
             deleteSelectedWidget();
         }
+        if (e.ctrlKey && e.key === 's') {
+            e.preventDefault();
+            saveProjectToXML();
+        }
+        if (e.ctrlKey && e.key === 'e') {
+            e.preventDefault();
+            document.getElementById("export-button").click();
+        }
     });
 
     // Click on preview content to deselect widgets
@@ -107,24 +115,17 @@ function init() {
                 state.selectedWidget = null;
             }
             document.getElementById("widget-properties").style.display = "none";
+            document.getElementById("window-properties").style.display = "block";
         }
     });
 
     // Project card event listeners
-    document.querySelectorAll('.project-card').forEach(card => {
-        if (card.onclick) {
-            const originalOnClick = card.onclick;
-            card.onclick = null;
-            card.addEventListener('click', function () {
-                if (this.id === 'load-xml-button' || this.id === 'import-project-button') {
-                    originalOnClick();
-                } else {
-                    const language = this.querySelector('.project-name').textContent.toLowerCase().includes('python') ? 'python' : 'c';
-                    showPlatformSelection(language);
-                }
-            });
-        }
-    });
+    const newProjectBtn = document.getElementById("new-project-btn");
+    if (newProjectBtn) {
+        newProjectBtn.addEventListener("click", () => {
+            showPlatformSelection("c");
+        });
+    }
 
     // Settings panel toggle
     const settingsToggle = document.getElementById('advanced-settings-toggle');
@@ -135,16 +136,58 @@ function init() {
         settingsPanel.classList.toggle('visible');
     }
 
-    settingsToggle.addEventListener('click', toggleSettings);
-    closeSettings.addEventListener('click', toggleSettings);
+    if (settingsToggle) {
+        settingsToggle.addEventListener('click', toggleSettings);
+    }
+    if (closeSettings) {
+        closeSettings.addEventListener('click', toggleSettings);
+    }
 
     // Initialize status text
     document.getElementById("status-text").textContent = "Ready";
+
+    // Initialize theme
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const initialTheme = prefersDark ? "dark" : "light";
+    document.documentElement.setAttribute("data-theme", initialTheme);
+    
+    const themeToggle = document.getElementById("theme-toggle");
+    if (themeToggle) {
+        themeToggle.querySelector(".material-icons").textContent =
+            initialTheme === "dark" ? "light_mode" : "dark_mode";
+            
+        themeToggle.addEventListener("click", () => {
+            const currentTheme = document.documentElement.getAttribute("data-theme");
+            const newTheme = currentTheme === "dark" ? "light" : "dark";
+            document.documentElement.setAttribute("data-theme", newTheme);
+            themeToggle.querySelector(".material-icons").textContent =
+                newTheme === "dark" ? "light_mode" : "dark_mode";
+        });
+    }
 }
 
-// Make some functions globally available for HTML onclick handlers
+// Make functions globally available for HTML onclick handlers
 window.deleteListOption = deleteListOption;
 window.deleteDropdownOption = deleteDropdownOption;
+window.showPlatformSelection = function(language = "c") {
+    showPlatformSelection(language);
+};
 
-// Start the app
-init();
+window.openDocs = function() {
+    openDocs().catch(error => {
+        console.error("Failed to open docs:", error);
+        window.open("https://gooeyui.github.io/GooeyGUI/quickstart.html", "_blank");
+    });
+};
+
+window.selectWidget = selectWidget;
+window.updatePropertiesPanel = updatePropertiesPanel;
+window.updateWidgetList = updateWidgetList;
+window.generateProjectXML = generateProjectXML;
+
+// Start the app when DOM is loaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
+}

@@ -1,42 +1,74 @@
 import eel
-import platform
-import traceback
-import sys
+import subprocess
+import tempfile
+import os
 
 eel.init('web')
 
 @eel.expose
-def save_code(filename, code):
+def execute_app(c_code):
     try:
-        with open(filename, "w", encoding="utf-8") as f:
-            f.write(code)
-        return f"Saved to {filename}"
+        temp_dir = tempfile.mkdtemp()
+        
+        c_file_path = os.path.join(temp_dir, "gui_app.c")
+        exe_path = os.path.join(temp_dir, "gui_app")
+        
+        with open(c_file_path, "w") as f:
+            f.write(c_code)
+        
+        compile_cmd = [
+                    "gcc", 
+                    c_file_path, 
+                    "-o", 
+                    exe_path, 
+                    "-lGooeyGUI-1",  
+                    "-lGLPS",       
+                    "-I/usr/local/include/Gooey",
+                    "-I/usr/local/include/GLPS",
+                    "-L/usr/local/lib"
+                ]
+                        
+        compile_result = subprocess.run(
+            compile_cmd,
+            capture_output=True,
+            text=True,
+            cwd=temp_dir
+        )
+        
+        if compile_result.returncode != 0:
+            return {
+                "success": False,
+                "error": f"Compilation failed: {compile_result.stderr}"
+            }
+        
+        run_result = subprocess.run(
+            [exe_path],
+            capture_output=True,
+            text=True,
+            cwd=temp_dir,        )
+        
+        return {
+            "success": True,
+            "output": run_result.stdout,
+            "return_code": run_result.returncode
+        }
+        
+    except subprocess.TimeoutExpired:
+        return {
+            "success": False,
+            "error": "Execution timed out after 10 seconds"
+        }
     except Exception as e:
-        return f"Save failed: {str(e)}"
-
-@eel.expose
-def run_code(cmd):
-    try:
-        os.system(cmd)
-        return f"Command executed: {cmd}"
-    except Exception as e:
-        return f"Execution failed: {str(e)}"
-
-def start_gui():
-    system = platform.system()
-    try:
-        if system != "Windows":
-            eel.start('index.html', port=8000, size=(800, 600))
-        else:
-            eel.start('index.html', port=8000, mode='edge')
-    except Exception:
-        print("Failed to launch GUI.")
-        traceback.print_exc()
-        eel.start('index.html', mode='none', port=8000, size=(800, 600))
+        return {
+            "success": False,
+            "error": str(e)
+        }
+    finally:
+        import shutil
+        try:
+            shutil.rmtree(temp_dir)
+        except:
+            pass
 
 if __name__ == "__main__":
-    try:
-        start_gui()
-    except KeyboardInterrupt:
-        print("\nExiting IDE...")
-        sys.exit(0)
+    eel.start('index.html', size=(1200, 800), port=5050)

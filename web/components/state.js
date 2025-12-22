@@ -1,8 +1,8 @@
 const state = {
     editor: null,
-    callbackEditor:null,
+    callbackEditor: null,
     uiXmlEditor: null,
-    projectXml : null,
+    projectXml: null,
     previewContent: null,
     previewWindow: null,
     previewTitleBar: null,
@@ -23,8 +23,35 @@ const state = {
     projectSettings: {
         name: null,
         platform: null,
-        language: 'c', // default to C
+        language: 'c',
         frameworkVersion: '1.0.1'
+    },
+    widgetTypes: {
+        'Button': 'GooeyButton',
+        'Canvas': 'GooeyCanvas',
+        'Checkbox': 'GooeyCheckbox',
+        'Container': 'GooeyContainer',
+        'DropSurface': 'GooeyDropSurface',
+        'Dropdown': 'GooeyDropdown',
+        'FDialog': 'GooeyFDialog',
+        'Image': 'GooeyImage',
+        'Label': 'GooeyLabel',
+        'Layout': 'GooeyLayout',
+        'List': 'GooeyList',
+        'Menu': 'GooeyMenu',
+        'Meter': 'GooeyMeter',
+        'NodeEditor': 'GooeyNodeEditor',
+        'Notifications': 'GooeyNotifications',
+        'Plot': 'GooeyPlot',
+        'Progressbar': 'GooeyProgressBar',
+        'RadioButtonGroup': 'GooeyRadioButtonGroup',
+        'Slider': 'GooeySlider',
+        'Switch': 'GooeySwitch',
+        'Tabs': 'GooeyTabs',
+        'Input': 'GooeyTextbox',
+        'Overlay': 'GooeyOverlay',
+        'VerticalLayout': 'GooeyLayout',
+        'HorizontalLayout': 'GooeyLayout'
     }
 };
 

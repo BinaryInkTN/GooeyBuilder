@@ -32,6 +32,10 @@
             href="/favicon-16x16.png"
         />
         <link rel="manifest" href="/site.webmanifest" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/xml/xml.min.js"></script>
+            <script type="text/javascript" src="/eel.js"></script>
+
+
     </head>
 
     <body>
@@ -425,13 +429,13 @@
                                 Tabs
                             </div>
                         </div>
-                        <div class="toolbox-section">
+                        <!--div class="toolbox-section">
                             <h4>Debug & Dev</h4>
                             <div class="toolbox-item" data-type="Overlay">
                                 <span class="material-icons">bug_report</span>
                                 Overlay
                             </div>
-                        </div>
+                        </div -->
                         <div class="toolbox-section">
                             <h4>Primitive Drawing</h4>
                             <div class="toolbox-item" data-type="Canvas">
@@ -439,7 +443,7 @@
                                 Canvas
                             </div>
                         </div>
-                        <div class="toolbox-section">
+                        <!-- div class="toolbox-section">
                             <h4>Layouts</h4>
                             <div
                                 class="toolbox-item"
@@ -459,7 +463,7 @@
                                 >
                                 Horizontal Layout
                             </div>
-                        </div>
+                        </div -->
                     </div>
                     <div class="workspace-container">
                         <div class="document-tabs">
@@ -654,7 +658,7 @@
                                     placeholder="my_callback"
                                 />
                             </div>
-                            <div class="property-item">
+                            <!--div class="property-item">
                                 <label>Action:</label>
                                 <select id="prop-action">
                                     <option value="">None</option>
@@ -663,10 +667,115 @@
                                     >Select an action to associate with this
                                     widget.</span
                                 >
-                            </div>
+                            </div -->
                             <div id="menu-properties" style="display: none">
                                 <h4>Menu Properties</h4>
                             </div>
+
+                            <div id="progressbar-properties" style="display: none">
+    <h4>Progressbar Properties</h4>
+    <div class="property-item">
+        <label>Value:</label>
+        <input type="number" id="progressbar-value" value="50" min="0" max="100" />
+    </div>
+</div>
+
+<div id="meter-properties" style="display: none">
+    <h4>Meter Properties</h4>
+    <div class="property-item">
+        <label>Value:</label>
+        <input type="number" id="meter-value" value="50" />
+    </div>
+    <div class="property-item">
+        <label>Label:</label>
+        <input type="text" id="meter-label" value="Meter" />
+    </div>
+</div>
+
+<div id="switch-properties" style="display: none">
+    <h4>Switch Properties</h4>
+    <div class="property-item">
+        <label>State:</label>
+        <input type="checkbox" id="switch-state" />
+    </div>
+    <div class="property-item">
+        <label>Show Hints:</label>
+        <select id="switch-show-hints">
+            <option value="true">Enabled</option>
+            <option value="false">Disabled</option>
+        </select>
+    </div>
+</div>
+
+<div id="tabs-properties" style="display: none">
+    <h4>Tabs Properties</h4>
+    <div class="property-item">
+        <label>Is Sidebar:</label>
+        <input type="checkbox" id="tabs-is-sidebar" />
+    </div>
+</div>
+
+<div id="radiobutton-properties" style="display: none">
+    <h4>RadioButton Properties</h4>
+    <div id="radiobutton-options">
+        <ul></ul>
+    </div>
+    <div class="property-item">
+        <label>Add more options:</label>
+        <div class="property-input-group">
+            <input type="text" id="radiobutton-option-input" placeholder="Ex: Option 1.." />
+            <button id="radiobutton-option-add-button" class="button">
+                <span class="material-icons">add</span>
+                Add
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="plot-properties" style="display: none">
+    <h4>Plot Properties</h4>
+    <div class="property-item">
+        <label>Plot Type:</label>
+        <select id="plot-type">
+            <option value="line">Line Chart</option>
+            <option value="bar">Bar Chart</option>
+            <option value="scatter">Scatter Plot</option>
+        </select>
+    </div>
+</div>
+
+<div id="canvas-properties" style="display: none">
+    <h4>Canvas Properties</h4>
+    <div class="property-item">
+        <label>Background Color:</label>
+        <input type="color" id="canvas-bg-color" value="#ffffff" />
+    </div>
+    <div class="property-item">
+        <label>Grid Enabled:</label>
+        <input type="checkbox" id="canvas-show-grid" />
+    </div>
+</div>
+
+<div id="container-properties" style="display: none">
+    <h4>Container Properties</h4>
+    <div class="property-item">
+        <label>Border Width:</label>
+        <input type="number" id="container-border-width" value="1" min="0" max="10" />
+    </div>
+    <div class="property-item">
+        <label>Border Radius:</label>
+        <input type="number" id="container-border-radius" value="4" min="0" max="20" />
+    </div>
+</div>
+
+<div id="overlay-properties" style="display: none">
+    <h4>Overlay Properties</h4>
+    <div class="property-item">
+        <label>Opacity:</label>
+        <input type="range" id="overlay-opacity" min="0" max="100" value="70" />
+        <span id="overlay-opacity-value">70%</span>
+    </div>
+</div>
                             <div id="slider-properties" style="display: none">
                                 <h4>Slider Properties</h4>
                                 <div class="property-item">

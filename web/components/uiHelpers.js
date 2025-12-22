@@ -1,13 +1,11 @@
 import state from "./state.js";
 import nativeBridge from "./nativeBridge.js";
 
-// Store references to elements
 let platformCards = [];
 let confirmButton = null;
 let cancelButton = null;
 let modal = null;
 
-// Initialize elements once DOM is ready
 function initializePlatformSelection() {
   modal = document.getElementById("platform-selection-modal");
   confirmButton = document.getElementById("confirm-platform-selection");
@@ -19,33 +17,24 @@ function initializePlatformSelection() {
     return;
   }
 
-  // Set up platform card click handlers
   platformCards.forEach((card) => {
     card.addEventListener("click", handlePlatformSelect);
   });
 
-  // Set up button handlers
   cancelButton.addEventListener("click", handleCancelSelection);
   confirmButton.addEventListener("click", handleConfirmSelection);
 
-  // Initially disable confirm button
   confirmButton.disabled = true;
 }
 
 function handlePlatformSelect(event) {
   const card = event.currentTarget;
-
-  // Remove selection from all cards
   platformCards.forEach((c) => c.classList.remove("selected"));
-
-  // Add selection to clicked card
   card.classList.add("selected");
 
-  // Update state
   state.selectedPlatform = card.dataset.platform;
   state.projectSettings.platform = card.dataset.platform;
 
-  // Enable confirm button
   confirmButton.disabled = false;
 }
 
@@ -53,8 +42,6 @@ function handleCancelSelection() {
   modal.classList.remove("active");
   state.selectedPlatform = null;
   state.projectSettings.platform = null;
-
-  // Reset UI
   platformCards.forEach((c) => c.classList.remove("selected"));
   confirmButton.disabled = true;
 }
@@ -68,9 +55,27 @@ function handleConfirmSelection() {
   modal.classList.remove("active");
   createNewProject();
 
-  // Reset for next time
   platformCards.forEach((c) => c.classList.remove("selected"));
   confirmButton.disabled = true;
+}
+
+function createNewProject() {
+  if (!state.projectSettings.language || !state.projectSettings.platform) {
+    console.error("Missing language or platform for project creation");
+    return;
+  }
+
+  updateUIForPlatform();
+  document.getElementById("start-screen").style.display = "none";
+  document.getElementById("editor-screen").style.display = "block";
+}
+
+function updateUIForPlatform() {
+  const platformIndicator = document.getElementById("platform-indicator");
+  if (platformIndicator) {
+    platformIndicator.style.display = "block";
+    platformIndicator.textContent = `${state.projectSettings.platform} | ${state.projectSettings.language}`;
+  }
 }
 
 export function showEditor(language) {
@@ -89,65 +94,35 @@ export function showStartScreen() {
 }
 
 export async function openDocs() {
-  await nativeBridge.docsCommand();
+  try {
+    await nativeBridge.docsCommand();
+  } catch (error) {
+    console.error("Failed to open docs:", error);
+    window.open("https://gooeyui.github.io/GooeyGUI/quickstart.html", "_blank");
+  }
 }
 
-export function showPlatformSelection(language) {
-  // Initialize if not done yet
+export function showPlatformSelection(language = "c") {
   if (!modal) {
     initializePlatformSelection();
   }
 
   state.projectSettings.language = language;
 
-  // Reset state
   state.selectedPlatform = null;
   state.projectSettings.platform = null;
 
-  // Reset UI
-  if (platformCards.length > 0) {
-    platformCards.forEach((c) => c.classList.remove("selected"));
-  }
+  platformCards.forEach((c) => c.classList.remove("selected"));
   if (confirmButton) {
     confirmButton.disabled = true;
   }
 
-  // Show modal
   modal.classList.add("active");
 }
 
-function createNewProject() {
-  // Validate that we have both language and platform
-  if (!state.projectSettings.language || !state.projectSettings.platform) {
-    console.error("Missing language or platform for project creation");
-    return;
-  }
-
-  console.log(
-    `Creating new ${state.projectSettings.language} project for ${state.projectSettings.platform} platform`,
-  );
-
-  // Update UI and show editor
-  updateUIForPlatform();
-
-  // Hide start screen and show editor screen
-  document.getElementById("start-screen").style.display = "none";
-  document.getElementById("editor-screen").style.display = "block";
-}
-
-function updateUIForPlatform() {
-  const platformIndicator = document.getElementById("platform-indicator");
-  if (platformIndicator) {
-    platformIndicator.style.display = "block";
-    platformIndicator.textContent = `${state.projectSettings.platform} | ${state.projectSettings.language}`;
-  }
-}
-
-// Initialize when module loads
 document.addEventListener("DOMContentLoaded", function () {
   initializePlatformSelection();
 
-  // Initialize modal section toggles
   document.querySelectorAll(".section-toggle").forEach((toggle) => {
     toggle.addEventListener("click", () => {
       const sectionId = toggle.getAttribute("data-section");
@@ -158,17 +133,13 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  // Handle backend toggle switches
-  document
-    .querySelectorAll('.backend-toggle input[type="checkbox"]')
-    .forEach((toggle) => {
-      toggle.addEventListener("change", (e) => {
-        alert("Backend configuration is coming soon!");
-        e.target.checked = false;
-      });
+  document.querySelectorAll('.backend-toggle input[type="checkbox"]').forEach((toggle) => {
+    toggle.addEventListener("change", (e) => {
+      alert("Backend configuration is coming soon!");
+      e.target.checked = false;
     });
+  });
 
-  // Handle configuration buttons
   document.querySelectorAll(".backend-config-btn").forEach((button) => {
     button.addEventListener("click", () => {
       alert("Backend configuration is coming soon!");
