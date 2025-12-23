@@ -868,12 +868,17 @@ body {
 }
 
 .widget-image {
-    background: linear-gradient(45deg, var(--border-color) 25%, transparent 25%),
-                linear-gradient(-45deg, var(--border-color) 25%, transparent 25%),
-                linear-gradient(45deg, transparent 75%, var(--border-color) 75%),
-                linear-gradient(-45deg, transparent 75%, var(--border-color) 75%);
+    background:
+        linear-gradient(45deg, var(--border-color) 25%, transparent 25%),
+        linear-gradient(-45deg, var(--border-color) 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, var(--border-color) 75%),
+        linear-gradient(-45deg, transparent 75%, var(--border-color) 75%);
     background-size: 20px 20px;
-    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    background-position:
+        0 0,
+        0 10px,
+        10px -10px,
+        -10px 0px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1202,15 +1207,20 @@ body {
     background: var(--scrollbar-hover);
 }
 
-
 .code-editor {
     height: 100% !important;
     width: 100% !important;
 }
 
 .code-editor-container {
-    height: 100vh !important;
+    height: 100% !important;
     width: 100% !important;
+}
+
+.code-editor-content {
+    height: 78vh !important;
+    width: 100% !important;
+    overflow-y: auto;
 }
 
 /* Tab Content */
@@ -1329,7 +1339,11 @@ body {
 
 .hero-section {
     flex: 1;
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--button-primary-hover) 100%);
+    background: linear-gradient(
+        135deg,
+        var(--primary-color) 0%,
+        var(--button-primary-hover) 100%
+    );
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1700,9 +1714,15 @@ body {
 
 /* Animation for widget drag */
 @keyframes pulse {
-    0% { box-shadow: 0 0 0 0 rgba(61, 139, 242, 0.4); }
-    70% { box-shadow: 0 0 0 10px rgba(61, 139, 242, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(61, 139, 242, 0); }
+    0% {
+        box-shadow: 0 0 0 0 rgba(61, 139, 242, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(61, 139, 242, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(61, 139, 242, 0);
+    }
 }
 
 .widget.dragging {
@@ -1764,13 +1784,15 @@ body {
 }
 
 /* Radio and Checkbox Groups in Properties */
-.radio-group, .checkbox-group {
+.radio-group,
+.checkbox-group {
     display: flex;
     flex-direction: column;
     gap: 8px;
 }
 
-.radio-option, .checkbox-option {
+.radio-option,
+.checkbox-option {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -1890,7 +1912,9 @@ select {
 }
 
 @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 /* Success/Error Messages */
@@ -1991,8 +2015,12 @@ select {
 
 /* Progress Bar Animation */
 @keyframes progress {
-    0% { background-position: 0 0; }
-    100% { background-position: 40px 0; }
+    0% {
+        background-position: 0 0;
+    }
+    100% {
+        background-position: 40px 0;
+    }
 }
 
 .widget-progressbar .progress-fill.indeterminate {
@@ -2083,7 +2111,7 @@ select {
 }
 
 .canvas-grid {
-    background-image: 
+    background-image:
         linear-gradient(var(--border-color) 1px, transparent 1px),
         linear-gradient(90deg, var(--border-color) 1px, transparent 1px);
     background-size: 20px 20px;
@@ -2271,12 +2299,12 @@ select {
     .document-tabs {
         display: none !important;
     }
-    
+
     .workspace {
         border: none !important;
         margin: 0 !important;
     }
-    
+
     .preview-window {
         position: static !important;
         box-shadow: none !important;
@@ -2291,7 +2319,7 @@ select {
         --shadow-color: rgba(0, 0, 0, 0.8);
         --accent-light: rgba(61, 139, 242, 0.3);
     }
-    
+
     .widget.selected {
         border: 3px solid var(--primary-color);
         box-shadow: 0 0 0 2px rgba(61, 139, 242, 0.5);
@@ -2307,11 +2335,11 @@ select {
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
     }
-    
+
     .widget.dragging {
         animation: none;
     }
-    
+
     .widget-progressbar .progress-fill.indeterminate {
         animation: none;
         background: var(--primary-color);
@@ -2363,12 +2391,12 @@ select {
     body * {
         visibility: hidden;
     }
-    
+
     #code-editor,
     #code-editor * {
         visibility: visible;
     }
-    
+
     #code-editor {
         position: absolute;
         left: 0;
@@ -2391,7 +2419,7 @@ select {
         padding: 12px 16px;
         min-height: 44px;
     }
-    
+
     .resize-handle {
         width: 20px;
         height: 20px;

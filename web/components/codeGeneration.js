@@ -1,7 +1,7 @@
-import state from './state.js';
+import state from "./state.js";
 
 export async function generateC() {
-    let cCode = '';
+    let cCode = "";
 
     if (state.projectSettings.platform == "embedded") {
         cCode = `#include <gooey.h>\n`;
@@ -24,7 +24,7 @@ export async function generateC() {
         const widgetType = widget.dataset.type;
 
         Object.entries(callbacks).forEach(([callbackType, callbackData]) => {
-            if (callbackType.endsWith('_code') && callbackData) {
+            if (callbackType.endsWith("_code") && callbackData) {
                 cCode += `${callbackData}\n\n`;
             }
         });
@@ -54,13 +54,11 @@ export async function generateC() {
 
     if (state.previewWindow.dataset.is_visible === "true")
         cCode += `    GooeyWindow_MakeVisible(win, true);\n`;
-    else 
-        cCode += `    GooeyWindow_MakeVisible(win, false);\n`;
+    else cCode += `    GooeyWindow_MakeVisible(win, false);\n`;
 
     if (state.previewWindow.dataset.is_resizable === "true")
         cCode += `    GooeyWindow_MakeResizable(win, true);\n`;
-    else 
-        cCode += `    GooeyWindow_MakeResizable(win, false);\n\n`;
+    else cCode += `    GooeyWindow_MakeResizable(win, false);\n\n`;
 
     let widgetCount = 0;
     let widgetVars = [];
@@ -80,7 +78,9 @@ export async function generateC() {
         let callbackData = state.widgetCallbacks[widgetId];
         let callbackName = callbackData?.callbackName || "";
 
-        let callbackWithData = callbackName ? `${callbackName}, NULL` : "NULL, NULL";
+        let callbackWithData = callbackName
+            ? `${callbackName}, NULL`
+            : "NULL, NULL";
 
         let widgetVar = `${type.toLowerCase()}_${widgetCount++}`;
         widgetVars.push(widgetVar);
@@ -116,19 +116,25 @@ export async function generateC() {
                 break;
 
             case "Image":
-                let imagePath = widget.dataset.relativePath || "./assets/example.png";
+                let imagePath =
+                    widget.dataset.relativePath || "./assets/example.png";
                 widgetCode = `${indent}GooeyImage *${widgetVar} = GooeyImage_Create("${imagePath}", ${x}, ${y}, ${width}, ${height}, ${callbackWithData});\n`;
                 break;
 
             case "DropSurface":
-                let message = widget.dataset.dropsurfaceMessage || "Drop files here..";
+                let message =
+                    widget.dataset.dropsurfaceMessage || "Drop files here..";
                 widgetCode = `${indent}GooeyDropSurface *${widgetVar} = GooeyDropSurface_Create(${x}, ${y}, ${width}, ${height}, "${message}", ${callbackWithData});\n`;
                 break;
 
             case "Dropdown":
-                let dropdownOptionsList = widget.dataset.dropdownOptions ? widget.dataset.dropdownOptions.split(",") : [];
+                let dropdownOptionsList = widget.dataset.dropdownOptions
+                    ? widget.dataset.dropdownOptions.split(",")
+                    : [];
                 let dropdownOptionsListLength = dropdownOptionsList.length;
-                dropdownOptionsList = dropdownOptionsList.map(option => `"${option.trim()}"`);
+                dropdownOptionsList = dropdownOptionsList.map(
+                    (option) => `"${option.trim()}"`,
+                );
 
                 if (dropdownOptionsListLength > 0) {
                     widgetCode = `${indent}const char* options_${widgetVar}[${dropdownOptionsListLength}] = {${dropdownOptionsList.join(", ")}};\n`;
@@ -139,7 +145,9 @@ export async function generateC() {
                 break;
 
             case "List":
-                let listOptionsList = widget.dataset.listOptions ? JSON.parse(widget.dataset.listOptions) : [];
+                let listOptionsList = widget.dataset.listOptions
+                    ? JSON.parse(widget.dataset.listOptions)
+                    : [];
                 widgetCode = `${indent}GooeyList *${widgetVar} = GooeyList_Create(${x}, ${y}, ${width}, ${height}, ${callbackWithData});\n`;
 
                 listOptionsList.forEach((item) => {
@@ -167,7 +175,9 @@ export async function generateC() {
                 break;
 
             case "GSwitch":
-                let isToggled = widget.classList.contains("checked") ? "true" : "false";
+                let isToggled = widget.classList.contains("checked")
+                    ? "true"
+                    : "false";
                 let showSwitchHints = widget.dataset.showHints || "false";
                 widgetCode = `${indent}GooeySwitch *${widgetVar} = GooeySwitch_Create(${x}, ${y}, ${isToggled}, ${showSwitchHints}, ${callbackWithData});\n`;
                 break;
@@ -182,17 +192,79 @@ export async function generateC() {
                 break;
 
             case "Plot":
-                widgetCode = `${indent}GooeyPlot *${widgetVar} = GooeyPlot_Create(GOOEY_PLOT_LINE, NULL, ${x}, ${y}, ${width}, ${height});\n`;
+                /*
+                typedef struct
+                {
+                float *x_data;
+                float *y_data;
+                size_t data_count;
+                char *x_label;
+                float x_step;
+                char *y_label;
+                float y_step;
+                char *title;
+                float max_x_value;
+                float min_x_value;
+                float max_y_value;
+                float min_y_value;
+                const char **bar_labels;
+                GOOEY_PLOT_TYPE plot_type;
+                float custom_x_step;
+                float custom_y_step;
+                } GooeyPlotData;
+                */
+                console.log(
+                    "Generating code for widget:",
+                    widget.dataset.plotType,
+                );
+                widgetCode = `${indent}float x_data[]  = {${widget.dataset.xAxisDataList}};`;
+                widgetCode += `${indent}float y_data[]  = {${widget.dataset.yAxisDataList}};`;
+                widgetCode += `${indent}float x_step = 1.0f;`;
+                widgetCode += `${indent}float y_step = 1.0f;`;
+                console.log(widget.dataset.plotType);
+                let selectedType;
+                switch (widget.dataset.plotType) {
+                    case "line":
+                        selectedType = "GOOEY_PLOT_LINE";
+                        break;
+                    case "scatter":
+                        selectedType = "GOOEY_PLOT_SCATTER";
+                        break;
+                    case "bar":
+                        selectedType = "GOOEY_PLOT_BAR";
+                        break;
+                    case "pie":
+                        selectedType = "GOOEY_PLOT_PIE";
+                        break;
+                    default:
+                        selectedType = "GOOEY_PLOT_LINE";
+                        break;
+                }
+
+                widgetCode += `${indent} GooeyPlotData* plotData = malloc(sizeof(GooeyPlotData));\n`;
+                widgetCode += `${indent} *plotData = (GooeyPlotData) {x_data, y_data, ${widget.dataset.xAxisDataList.split(",").length}, "${widget.dataset.xAxisLabel}", x_step, "${widget.dataset.yAxisLabel}", y_step, "${widget.dataset.plotTitle}", -1, -1, -1, -1, NULL,  ${selectedType}};`;
+                widgetCode += `${indent} GooeyPlot *${widgetVar} = GooeyPlot_Create( ${selectedType}  , plotData, ${x}, ${y}, ${width}, ${height});\n`;
+
                 break;
 
             case "VerticalLayout":
             case "HorizontalLayout":
-                let layoutType = type === "VerticalLayout" ? "LAYOUT_VERTICAL" : "LAYOUT_HORIZONTAL";
+                let layoutType =
+                    type === "VerticalLayout"
+                        ? "LAYOUT_VERTICAL"
+                        : "LAYOUT_HORIZONTAL";
                 widgetCode = `${indent}GooeyLayout *${widgetVar} = GooeyLayout_Create(${layoutType}, ${x}, ${y}, ${width}, ${height});\n`;
 
                 Array.from(widget.children).forEach((child) => {
-                    if (child.classList.contains("widget") && !child.classList.contains("resize-handle")) {
-                        widgetCode += processWidgetC(child, indent + "    ", widgetVar);
+                    if (
+                        child.classList.contains("widget") &&
+                        !child.classList.contains("resize-handle")
+                    ) {
+                        widgetCode += processWidgetC(
+                            child,
+                            indent + "    ",
+                            widgetVar,
+                        );
                         widgetCode += `${indent}GooeyLayout_AddChild(win, ${widgetVar}, ${widgetVars[widgetVars.length - 1]});\n`;
                     }
                 });
@@ -201,10 +273,16 @@ export async function generateC() {
                 break;
         }
 
-        if (type !== "Menu" && type !== "RadioButtonGroup" && type !== "Container") {
+        if (
+            type !== "Menu" &&
+            type !== "RadioButtonGroup" &&
+            type !== "Container"
+        ) {
             if (parentVar) {
             } else {
-                widgetRegistrations.push(`${indent}GooeyWindow_RegisterWidget(win, ${widgetVar});\n`);
+                widgetRegistrations.push(
+                    `${indent}GooeyWindow_RegisterWidget(win, ${widgetVar});\n`,
+                );
             }
         }
 
@@ -237,15 +315,18 @@ export async function generateC() {
     try {
         const result = await eel.execute_app(cCode)();
         if (result.success) {
-            document.getElementById("status-text").textContent = "C code executed successfully";
+            document.getElementById("status-text").textContent =
+                "C code executed successfully";
             console.log("Execution output:", result.output);
         } else {
-            document.getElementById("status-text").textContent = "Error executing C code";
+            document.getElementById("status-text").textContent =
+                "Error executing C code";
             console.error("Execution error:", result.error);
         }
     } catch (e) {
         console.error("Failed to execute via Python:", e);
-        document.getElementById("status-text").textContent = "Error connecting to Python backend";
+        document.getElementById("status-text").textContent =
+            "Error connecting to Python backend";
     }
 
     document.getElementById("status-text").textContent = "App Executed";

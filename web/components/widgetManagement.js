@@ -115,7 +115,8 @@ export function createWidget(type, x, y, parent = null) {
             newWidget.className += " widget-progressbar";
             newWidget.style.width = "150px";
             newWidget.style.height = "10px";
-            newWidget.innerHTML = '<div class="progress-fill" style="width: 50%;"></div>';
+            newWidget.innerHTML =
+                '<div class="progress-fill" style="width: 50%;"></div>';
             newWidget.dataset.value = "50";
             break;
 
@@ -200,6 +201,11 @@ export function createWidget(type, x, y, parent = null) {
             newWidget.style.width = "200px";
             newWidget.style.height = "150px";
             newWidget.dataset.plotType = "line";
+            newWidget.dataset.xAxisDataList = "1.0f,2.0f,3.0f";
+            newWidget.dataset.yAxisDataList = "1.0f,2.0f,3.0f";
+            newWidget.dataset.xAxisLabel = "X-Axis Label";
+            newWidget.dataset.yAxisLabel = "Y-Axis Label";
+            newWidget.dataset.plotTitle = "Plot Title";
             break;
 
         case "Overlay":
@@ -246,7 +252,10 @@ export function createWidget(type, x, y, parent = null) {
             parent.removeChild(placeholder);
         }
 
-        if (parent.classList.contains("horizontal") || parent.classList.contains("vertical")) {
+        if (
+            parent.classList.contains("horizontal") ||
+            parent.classList.contains("vertical")
+        ) {
             newWidget.style.position = "";
             newWidget.style.left = "";
             newWidget.style.top = "";
@@ -279,7 +288,7 @@ export function createWidget(type, x, y, parent = null) {
         overlay: "",
         plot: "",
         radiobutton: "",
-        canvas: ""
+        canvas: "",
     };
 
     if (window.updateWidgetList) {
@@ -293,52 +302,79 @@ export function createWidget(type, x, y, parent = null) {
 }
 
 function initializeDropdownListeners() {
-    const dropdownOptionAddButton = document.getElementById("dropdown-option-add-button");
+    const dropdownOptionAddButton = document.getElementById(
+        "dropdown-option-add-button",
+    );
     if (dropdownOptionAddButton) {
-        dropdownOptionAddButton.addEventListener("click", function dropdownListener(e) {
-            if (!state.selectedWidget || state.selectedWidget.dataset.type !== "Dropdown") return;
+        dropdownOptionAddButton.addEventListener(
+            "click",
+            function dropdownListener(e) {
+                if (
+                    !state.selectedWidget ||
+                    state.selectedWidget.dataset.type !== "Dropdown"
+                )
+                    return;
 
-            const optionInput = document.getElementById("dropdown-option-input");
-            const newItem = optionInput.value.trim();
+                const optionInput = document.getElementById(
+                    "dropdown-option-input",
+                );
+                const newItem = optionInput.value.trim();
 
-            if (!newItem) return;
+                if (!newItem) return;
 
-            let list = state.selectedWidget.dataset.dropdownOptions ?
-                state.selectedWidget.dataset.dropdownOptions.split(",").filter(item => item.trim()) : [];
+                let list = state.selectedWidget.dataset.dropdownOptions
+                    ? state.selectedWidget.dataset.dropdownOptions
+                          .split(",")
+                          .filter((item) => item.trim())
+                    : [];
 
-            list.push(newItem);
-            state.selectedWidget.dataset.dropdownOptions = list.join(",");
+                list.push(newItem);
+                state.selectedWidget.dataset.dropdownOptions = list.join(",");
 
-            const dropdownOptionsUL = document.getElementById("dropdown-options");
-            if (dropdownOptionsUL) {
-                dropdownOptionsUL.innerHTML = "";
-                list.forEach((item, idx) => {
-                    dropdownOptionsUL.innerHTML += generateListItemForDropdownOptions(idx, item);
-                });
-            }
+                const dropdownOptionsUL =
+                    document.getElementById("dropdown-options");
+                if (dropdownOptionsUL) {
+                    dropdownOptionsUL.innerHTML = "";
+                    list.forEach((item, idx) => {
+                        dropdownOptionsUL.innerHTML +=
+                            generateListItemForDropdownOptions(idx, item);
+                    });
+                }
 
-            optionInput.value = "";
-        });
+                optionInput.value = "";
+            },
+        );
     }
 }
 
 function initializeListListeners() {
-    const listOptionAddButton = document.getElementById("list-option-add-button");
+    const listOptionAddButton = document.getElementById(
+        "list-option-add-button",
+    );
     if (listOptionAddButton) {
         listOptionAddButton.addEventListener("click", function listListener(e) {
-            if (!state.selectedWidget || state.selectedWidget.dataset.type !== "List") return;
+            if (
+                !state.selectedWidget ||
+                state.selectedWidget.dataset.type !== "List"
+            )
+                return;
 
-            const listItemName = document.getElementById("list-option-input").value.trim();
-            const listItemDesc = document.getElementById("list-option-input-desc").value.trim();
+            const listItemName = document
+                .getElementById("list-option-input")
+                .value.trim();
+            const listItemDesc = document
+                .getElementById("list-option-input-desc")
+                .value.trim();
 
             if (!listItemName) return;
 
-            let list = state.selectedWidget.dataset.listOptions ?
-                JSON.parse(state.selectedWidget.dataset.listOptions) : [];
+            let list = state.selectedWidget.dataset.listOptions
+                ? JSON.parse(state.selectedWidget.dataset.listOptions)
+                : [];
 
             const newItem = {
                 name: listItemName,
-                description: listItemDesc
+                description: listItemDesc,
             };
 
             list.push(newItem);
@@ -348,7 +384,10 @@ function initializeListListeners() {
             if (listOptionsUL) {
                 listOptionsUL.innerHTML = "";
                 list.forEach((item, idx) => {
-                    listOptionsUL.innerHTML += generateListItemForListOptions(idx, item);
+                    listOptionsUL.innerHTML += generateListItemForListOptions(
+                        idx,
+                        item,
+                    );
                 });
             }
 
@@ -359,38 +398,55 @@ function initializeListListeners() {
 }
 
 function initializeRadioListeners() {
-    const radioOptionAddButton = document.getElementById("radiobutton-option-add-button");
+    const radioOptionAddButton = document.getElementById(
+        "radiobutton-option-add-button",
+    );
     if (radioOptionAddButton) {
-        radioOptionAddButton.addEventListener("click", function radioListener(e) {
-            if (!state.selectedWidget || state.selectedWidget.dataset.type !== "RadioButtonGroup") return;
+        radioOptionAddButton.addEventListener(
+            "click",
+            function radioListener(e) {
+                if (
+                    !state.selectedWidget ||
+                    state.selectedWidget.dataset.type !== "RadioButtonGroup"
+                )
+                    return;
 
-            const optionInput = document.getElementById("radiobutton-option-input");
-            const newItem = optionInput.value.trim();
+                const optionInput = document.getElementById(
+                    "radiobutton-option-input",
+                );
+                const newItem = optionInput.value.trim();
 
-            if (!newItem) return;
+                if (!newItem) return;
 
-            let options = state.selectedWidget.dataset.radioOptions ?
-                JSON.parse(state.selectedWidget.dataset.radioOptions) : [];
+                let options = state.selectedWidget.dataset.radioOptions
+                    ? JSON.parse(state.selectedWidget.dataset.radioOptions)
+                    : [];
 
-            options.push(newItem);
-            state.selectedWidget.dataset.radioOptions = JSON.stringify(options);
+                options.push(newItem);
+                state.selectedWidget.dataset.radioOptions =
+                    JSON.stringify(options);
 
-            const radioOptionsUL = document.getElementById("radiobutton-options");
-            if (radioOptionsUL) {
-                radioOptionsUL.innerHTML = "";
-                options.forEach((item, idx) => {
-                    radioOptionsUL.innerHTML += generateListItemForRadioOptions(idx, item);
-                });
-            }
+                const radioOptionsUL = document.getElementById(
+                    "radiobutton-options",
+                );
+                if (radioOptionsUL) {
+                    radioOptionsUL.innerHTML = "";
+                    options.forEach((item, idx) => {
+                        radioOptionsUL.innerHTML +=
+                            generateListItemForRadioOptions(idx, item);
+                    });
+                }
 
-            optionInput.value = "";
-        });
+                optionInput.value = "";
+            },
+        );
     }
 
     const overlayOpacity = document.getElementById("overlay-opacity");
     if (overlayOpacity) {
-        overlayOpacity.addEventListener("input", function(e) {
-            document.getElementById("overlay-opacity-value").textContent = e.target.value + "%";
+        overlayOpacity.addEventListener("input", function (e) {
+            document.getElementById("overlay-opacity-value").textContent =
+                e.target.value + "%";
         });
     }
 }
@@ -420,10 +476,12 @@ function generateListItemForRadioOptions(id, item) {
 }
 
 export function deleteListOption(id) {
-    if (!state.selectedWidget || state.selectedWidget.dataset.type !== "List") return;
+    if (!state.selectedWidget || state.selectedWidget.dataset.type !== "List")
+        return;
 
-    let list = state.selectedWidget.dataset.listOptions ?
-        JSON.parse(state.selectedWidget.dataset.listOptions) : [];
+    let list = state.selectedWidget.dataset.listOptions
+        ? JSON.parse(state.selectedWidget.dataset.listOptions)
+        : [];
 
     if (id >= 0 && id < list.length) {
         list.splice(id, 1);
@@ -433,17 +491,27 @@ export function deleteListOption(id) {
         if (listOptionsUL) {
             listOptionsUL.innerHTML = "";
             list.forEach((item, idx) => {
-                listOptionsUL.innerHTML += generateListItemForListOptions(idx, item);
+                listOptionsUL.innerHTML += generateListItemForListOptions(
+                    idx,
+                    item,
+                );
             });
         }
     }
 }
 
 export function deleteDropdownOption(id) {
-    if (!state.selectedWidget || state.selectedWidget.dataset.type !== "Dropdown") return;
+    if (
+        !state.selectedWidget ||
+        state.selectedWidget.dataset.type !== "Dropdown"
+    )
+        return;
 
-    let list = state.selectedWidget.dataset.dropdownOptions ?
-        state.selectedWidget.dataset.dropdownOptions.split(",").filter(item => item.trim()) : [];
+    let list = state.selectedWidget.dataset.dropdownOptions
+        ? state.selectedWidget.dataset.dropdownOptions
+              .split(",")
+              .filter((item) => item.trim())
+        : [];
 
     if (id >= 0 && id < list.length) {
         list.splice(id, 1);
@@ -453,7 +521,8 @@ export function deleteDropdownOption(id) {
         if (dropdownOptionsUL) {
             dropdownOptionsUL.innerHTML = "";
             list.forEach((item, idx) => {
-                dropdownOptionsUL.innerHTML += generateListItemForDropdownOptions(idx, item);
+                dropdownOptionsUL.innerHTML +=
+                    generateListItemForDropdownOptions(idx, item);
             });
         }
     }
@@ -505,7 +574,6 @@ export function setupWidgetSelection(element) {
 
 function updateProjectXML() {
     try {
-
         if (window.generateProjectXML && state.uiXmlEditor) {
             const xmlCode = window.generateProjectXML();
             state.uiXmlEditor.setValue(xmlCode);

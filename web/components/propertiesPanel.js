@@ -1,25 +1,33 @@
-import state from './state.js';
+import state from "./state.js";
 
 export function updatePropertiesPanel() {
     if (!state.selectedWidget) return;
 
     const widgetType = state.selectedWidget.dataset.type;
-    
 
     document.getElementById("prop-type").value = widgetType;
-    document.getElementById("prop-x").value = parseInt(state.selectedWidget.style.left) || 0;
-    document.getElementById("prop-y").value = parseInt(state.selectedWidget.style.top) || 0;
-    document.getElementById("prop-width").value = parseInt(state.selectedWidget.style.width) || 100;
-    document.getElementById("prop-height").value = parseInt(state.selectedWidget.style.height) || 30;
-
+    document.getElementById("prop-x").value =
+        parseInt(state.selectedWidget.style.left) || 0;
+    document.getElementById("prop-y").value =
+        parseInt(state.selectedWidget.style.top) || 0;
+    document.getElementById("prop-width").value =
+        parseInt(state.selectedWidget.style.width) || 100;
+    document.getElementById("prop-height").value =
+        parseInt(state.selectedWidget.style.height) || 30;
 
     const textInput = document.getElementById("prop-text");
     if (textInput) {
-        if (widgetType !== "Slider" && widgetType !== "Image" && 
-            widgetType !== "DropSurface" && widgetType !== "Canvas" &&
-            widgetType !== "Plot" && widgetType !== "Progressbar" &&
-            widgetType !== "Meter" && widgetType !== "Overlay" &&
-            widgetType !== "Container") {
+        if (
+            widgetType !== "Slider" &&
+            widgetType !== "Image" &&
+            widgetType !== "DropSurface" &&
+            widgetType !== "Canvas" &&
+            widgetType !== "Plot" &&
+            widgetType !== "Progressbar" &&
+            widgetType !== "Meter" &&
+            widgetType !== "Overlay" &&
+            widgetType !== "Container"
+        ) {
             textInput.value = state.selectedWidget.textContent || "";
             textInput.disabled = false;
         } else {
@@ -31,112 +39,145 @@ export function updatePropertiesPanel() {
     const widgetId = state.selectedWidget.dataset.id;
     const callbackInput = document.getElementById("prop-callback");
     if (callbackInput && state.widgetCallbacks[widgetId]) {
-        callbackInput.value = state.widgetCallbacks[widgetId].callbackName || "";
+        callbackInput.value =
+            state.widgetCallbacks[widgetId].callbackName || "";
     }
 
     const specialSections = [
-        'menu-properties', 'slider-properties', 'image-properties',
-        'dropsurface-properties', 'dropdown-properties', 'list-properties',
-        'progressbar-properties', 'meter-properties', 'switch-properties',
-        'tabs-properties', 'radiobutton-properties', 'plot-properties',
-        'canvas-properties', 'container-properties', 'overlay-properties'
+        "menu-properties",
+        "slider-properties",
+        "image-properties",
+        "dropsurface-properties",
+        "dropdown-properties",
+        "list-properties",
+        "progressbar-properties",
+        "meter-properties",
+        "switch-properties",
+        "tabs-properties",
+        "radiobutton-properties",
+        "plot-properties",
+        "canvas-properties",
+        "container-properties",
+        "overlay-properties",
     ];
-    
-    specialSections.forEach(sectionId => {
+
+    specialSections.forEach((sectionId) => {
         const section = document.getElementById(sectionId);
-        if (section) section.style.display = 'none';
+        if (section) section.style.display = "none";
     });
 
     switch (widgetType) {
         case "Slider":
-            showSection('slider-properties');
-            document.getElementById("slider-min-value").value = state.selectedWidget.dataset.minValue || 0;
-            document.getElementById("slider-max-value").value = state.selectedWidget.dataset.maxValue || 100;
-            document.getElementById("slider-show-hints").value = state.selectedWidget.dataset.showHints || "false";
-            break;
-            
-        case "Image":
-            showSection('image-properties');
-            document.getElementById("image-relative-path").value = 
-                state.selectedWidget.dataset.relativePath || "./assets/example.png";
-            break;
-            
-        case "DropSurface":
-            showSection('dropsurface-properties');
-            document.getElementById("dropsurface-message").value = 
-                state.selectedWidget.dataset.dropsurfaceMessage || "Drop files here..";
-            break;
-            
-        case "Dropdown":
-            showSection('dropdown-properties');
-            updateDropdownOptions();
-            break;
-            
-        case "List":
-            showSection('list-properties');
-            updateListOptions();
-            break;
-            
-        case "Progressbar":
-            showSection('progressbar-properties');
-            document.getElementById("progressbar-value").value = 
-                state.selectedWidget.dataset.value || 50;
-            break;
-            
-        case "Meter":
-            showSection('meter-properties');
-            document.getElementById("meter-value").value = 
-                state.selectedWidget.dataset.value || 50;
-            document.getElementById("meter-label").value = 
-                state.selectedWidget.dataset.label || "Meter";
-            break;
-            
-        case "GSwitch":
-            showSection('switch-properties');
-            document.getElementById("switch-state").checked = 
-                state.selectedWidget.classList.contains("checked");
-            document.getElementById("switch-show-hints").value = 
+            showSection("slider-properties");
+            document.getElementById("slider-min-value").value =
+                state.selectedWidget.dataset.minValue || 0;
+            document.getElementById("slider-max-value").value =
+                state.selectedWidget.dataset.maxValue || 100;
+            document.getElementById("slider-show-hints").value =
                 state.selectedWidget.dataset.showHints || "false";
             break;
-            
+
+        case "Image":
+            showSection("image-properties");
+            document.getElementById("image-relative-path").value =
+                state.selectedWidget.dataset.relativePath ||
+                "./assets/example.png";
+            break;
+
+        case "DropSurface":
+            showSection("dropsurface-properties");
+            document.getElementById("dropsurface-message").value =
+                state.selectedWidget.dataset.dropsurfaceMessage ||
+                "Drop files here..";
+            break;
+
+        case "Dropdown":
+            showSection("dropdown-properties");
+            updateDropdownOptions();
+            break;
+
+        case "List":
+            showSection("list-properties");
+            updateListOptions();
+            break;
+
+        case "Progressbar":
+            showSection("progressbar-properties");
+            document.getElementById("progressbar-value").value =
+                state.selectedWidget.dataset.value || 50;
+            break;
+
+        case "Meter":
+            showSection("meter-properties");
+            document.getElementById("meter-value").value =
+                state.selectedWidget.dataset.value || 50;
+            document.getElementById("meter-label").value =
+                state.selectedWidget.dataset.label || "Meter";
+            break;
+
+        case "GSwitch":
+            showSection("switch-properties");
+            document.getElementById("switch-state").checked =
+                state.selectedWidget.classList.contains("checked");
+            document.getElementById("switch-show-hints").value =
+                state.selectedWidget.dataset.showHints || "false";
+            break;
+
         case "Tabs":
-            showSection('tabs-properties');
-            document.getElementById("tabs-is-sidebar").checked = 
+            showSection("tabs-properties");
+            document.getElementById("tabs-is-sidebar").checked =
                 state.selectedWidget.dataset.isSidebar === "true";
             break;
-            
+
         case "RadioButtonGroup":
-            showSection('radiobutton-properties');
+            showSection("radiobutton-properties");
             updateRadioButtonOptions();
             break;
-            
+
         case "Plot":
-            showSection('plot-properties');
-            document.getElementById("plot-type").value = 
+            showSection("plot-properties");
+            document.getElementById("plot-type").value =
                 state.selectedWidget.dataset.plotType || "line";
+
+            document.getElementById("x-axis-data-list").value =
+                state.selectedWidget.dataset.xAxisDataList ||
+                "1.0f, 2.0f, 3.0f";
+
+            document.getElementById("y-axis-data-list").value =
+                state.selectedWidget.dataset.yAxisDataList ||
+                "1.0f, 2.0f, 3.0f";
+
+            document.getElementById("x-axis-label").value =
+                state.selectedWidget.dataset.xAxisLabel || "X-Axis Label";
+
+            document.getElementById("y-axis-label").value =
+                state.selectedWidget.dataset.yAxisLabel || "Y-Axis Label";
+
+            document.getElementById("plot-title").value =
+                state.selectedWidget.dataset.plotTitle || "Plot Title";
             break;
-            
+
         case "Canvas":
-            showSection('canvas-properties');
-            document.getElementById("canvas-bg-color").value = 
+            showSection("canvas-properties");
+            document.getElementById("canvas-bg-color").value =
                 state.selectedWidget.dataset.bgColor || "#ffffff";
-            document.getElementById("canvas-show-grid").checked = 
+            document.getElementById("canvas-show-grid").checked =
                 state.selectedWidget.dataset.showGrid === "true";
             break;
-            
+
         case "Container":
-            showSection('container-properties');
-            document.getElementById("container-border-width").value = 
+            showSection("container-properties");
+            document.getElementById("container-border-width").value =
                 state.selectedWidget.dataset.borderWidth || 1;
-            document.getElementById("container-border-radius").value = 
+            document.getElementById("container-border-radius").value =
                 state.selectedWidget.dataset.borderRadius || 4;
             break;
-            
+
         case "Overlay":
-            showSection('overlay-properties');
-            document.getElementById("overlay-opacity").value = 
+            showSection("overlay-properties");
+            document.getElementById("overlay-opacity").value =
                 state.selectedWidget.dataset.opacity || 70;
-            document.getElementById("overlay-opacity-value").textContent = 
+            document.getElementById("overlay-opacity-value").textContent =
                 (state.selectedWidget.dataset.opacity || 70) + "%";
             break;
     }
@@ -144,44 +185,58 @@ export function updatePropertiesPanel() {
 
 function showSection(sectionId) {
     const section = document.getElementById(sectionId);
-    if (section) section.style.display = 'block';
+    if (section) section.style.display = "block";
 }
 
 function updateDropdownOptions() {
-    let dropdownOptions = state.selectedWidget.dataset.dropdownOptions ?
-        state.selectedWidget.dataset.dropdownOptions.split(",").filter(item => item.trim()) : [];
+    let dropdownOptions = state.selectedWidget.dataset.dropdownOptions
+        ? state.selectedWidget.dataset.dropdownOptions
+              .split(",")
+              .filter((item) => item.trim())
+        : [];
     let dropdownOptionsUL = document.getElementById("dropdown-options");
-    
+
     if (dropdownOptionsUL) {
         dropdownOptionsUL.innerHTML = "";
         dropdownOptions.forEach((item, idx) => {
-            dropdownOptionsUL.innerHTML += generateListItemForDropdownOptions(idx, item);
+            dropdownOptionsUL.innerHTML += generateListItemForDropdownOptions(
+                idx,
+                item,
+            );
         });
     }
 }
 
 function updateListOptions() {
-    let listOptions = state.selectedWidget.dataset.listOptions ?
-        JSON.parse(state.selectedWidget.dataset.listOptions) : [];
+    let listOptions = state.selectedWidget.dataset.listOptions
+        ? JSON.parse(state.selectedWidget.dataset.listOptions)
+        : [];
     let listOptionsUL = document.getElementById("list-options");
-    
+
     if (listOptionsUL) {
         listOptionsUL.innerHTML = "";
         listOptions.forEach((item, idx) => {
-            listOptionsUL.innerHTML += generateListItemForListOptions(idx, item);
+            listOptionsUL.innerHTML += generateListItemForListOptions(
+                idx,
+                item,
+            );
         });
     }
 }
 
 function updateRadioButtonOptions() {
-    let radioOptions = state.selectedWidget.dataset.radioOptions ?
-        JSON.parse(state.selectedWidget.dataset.radioOptions) : [];
+    let radioOptions = state.selectedWidget.dataset.radioOptions
+        ? JSON.parse(state.selectedWidget.dataset.radioOptions)
+        : [];
     let radioOptionsUL = document.getElementById("radiobutton-options");
-    
+
     if (radioOptionsUL) {
         radioOptionsUL.innerHTML = "";
         radioOptions.forEach((item, idx) => {
-            radioOptionsUL.innerHTML += generateListItemForRadioOptions(idx, item);
+            radioOptionsUL.innerHTML += generateListItemForRadioOptions(
+                idx,
+                item,
+            );
         });
     }
 }
@@ -190,7 +245,7 @@ function generateListItemForListOptions(id, item) {
     return `<li class="option-item" id="list-option-${id}">
         <div class="option-content">
             <span class="option-name">${item.name || item}</span>
-            <span class="option-desc">${item.description || ''}</span>
+            <span class="option-desc">${item.description || ""}</span>
         </div>
         <button class="button" onclick="deleteListOption(${id})">delete</button>
     </li>`;
@@ -214,11 +269,15 @@ export function applyWidgetProperties() {
     if (!state.selectedWidget) return;
 
     const widgetType = state.selectedWidget.dataset.type;
-    
-    state.selectedWidget.style.left = document.getElementById("prop-x").value + "px";
-    state.selectedWidget.style.top = document.getElementById("prop-y").value + "px";
-    state.selectedWidget.style.width = document.getElementById("prop-width").value + "px";
-    state.selectedWidget.style.height = document.getElementById("prop-height").value + "px";
+
+    state.selectedWidget.style.left =
+        document.getElementById("prop-x").value + "px";
+    state.selectedWidget.style.top =
+        document.getElementById("prop-y").value + "px";
+    state.selectedWidget.style.width =
+        document.getElementById("prop-width").value + "px";
+    state.selectedWidget.style.height =
+        document.getElementById("prop-height").value + "px";
 
     const textInput = document.getElementById("prop-text");
     if (textInput && !textInput.disabled) {
@@ -233,39 +292,55 @@ export function applyWidgetProperties() {
 
     switch (widgetType) {
         case "Slider":
-            state.selectedWidget.dataset.minValue = document.getElementById("slider-min-value").value;
-            state.selectedWidget.dataset.maxValue = document.getElementById("slider-max-value").value;
-            state.selectedWidget.dataset.showHints = document.getElementById("slider-show-hints").value;
+            state.selectedWidget.dataset.minValue =
+                document.getElementById("slider-min-value").value;
+            state.selectedWidget.dataset.maxValue =
+                document.getElementById("slider-max-value").value;
+            state.selectedWidget.dataset.showHints =
+                document.getElementById("slider-show-hints").value;
             break;
-            
+
         case "Image":
-            const imagePath = document.getElementById("image-relative-path").value;
+            const imagePath = document.getElementById(
+                "image-relative-path",
+            ).value;
             state.selectedWidget.dataset.relativePath = imagePath;
-            state.selectedWidget.textContent = imagePath.split("/").pop().split("\\").pop();
+            state.selectedWidget.textContent = imagePath
+                .split("/")
+                .pop()
+                .split("\\")
+                .pop();
             break;
-            
+
         case "DropSurface":
-            const message = document.getElementById("dropsurface-message").value;
+            const message = document.getElementById(
+                "dropsurface-message",
+            ).value;
             state.selectedWidget.dataset.dropsurfaceMessage = message;
             state.selectedWidget.textContent = message;
             break;
-            
+
         case "Progressbar":
-            const progressValue = document.getElementById("progressbar-value").value;
+            const progressValue =
+                document.getElementById("progressbar-value").value;
             state.selectedWidget.dataset.value = progressValue;
-            const progressFill = state.selectedWidget.querySelector(".progress-fill");
+            const progressFill =
+                state.selectedWidget.querySelector(".progress-fill");
             if (progressFill) {
                 progressFill.style.width = `${Math.min(100, Math.max(0, progressValue))}%`;
             }
             break;
-            
+
         case "Meter":
-            state.selectedWidget.dataset.value = document.getElementById("meter-value").value;
-            state.selectedWidget.dataset.label = document.getElementById("meter-label").value;
+            state.selectedWidget.dataset.value =
+                document.getElementById("meter-value").value;
+            state.selectedWidget.dataset.label =
+                document.getElementById("meter-label").value;
             break;
-            
+
         case "GSwitch":
-            state.selectedWidget.dataset.showHints = document.getElementById("switch-show-hints").value;
+            state.selectedWidget.dataset.showHints =
+                document.getElementById("switch-show-hints").value;
             const isChecked = document.getElementById("switch-state").checked;
             if (isChecked) {
                 state.selectedWidget.classList.add("checked");
@@ -273,33 +348,58 @@ export function applyWidgetProperties() {
                 state.selectedWidget.classList.remove("checked");
             }
             break;
-            
+
         case "Tabs":
-            state.selectedWidget.dataset.isSidebar = document.getElementById("tabs-is-sidebar").checked ? "true" : "false";
+            state.selectedWidget.dataset.isSidebar = document.getElementById(
+                "tabs-is-sidebar",
+            ).checked
+                ? "true"
+                : "false";
             break;
-            
+
         case "Plot":
-            state.selectedWidget.dataset.plotType = document.getElementById("plot-type").value;
+            state.selectedWidget.dataset.plotType =
+                document.getElementById("plot-type").value;
+            state.selectedWidget.dataset.xAxisDataList =
+                document.getElementById("x-axis-data-list").value;
+            state.selectedWidget.dataset.yAxisDataList =
+                document.getElementById("y-axis-data-list").value;
+            state.selectedWidget.dataset.xAxisLabel =
+                document.getElementById("x-axis-label").value;
+            state.selectedWidget.dataset.yAxisLabel =
+                document.getElementById("y-axis-label").value;
+            state.selectedWidget.dataset.plotTitle =
+                document.getElementById("plot-title").value;
             break;
-            
+
         case "Canvas":
-            state.selectedWidget.dataset.bgColor = document.getElementById("canvas-bg-color").value;
-            state.selectedWidget.dataset.showGrid = document.getElementById("canvas-show-grid").checked ? "true" : "false";
+            state.selectedWidget.dataset.bgColor =
+                document.getElementById("canvas-bg-color").value;
+            state.selectedWidget.dataset.showGrid = document.getElementById(
+                "canvas-show-grid",
+            ).checked
+                ? "true"
+                : "false";
             break;
-            
+
         case "Container":
-            const borderWidth = document.getElementById("container-border-width").value;
-            const borderRadius = document.getElementById("container-border-radius").value;
+            const borderWidth = document.getElementById(
+                "container-border-width",
+            ).value;
+            const borderRadius = document.getElementById(
+                "container-border-radius",
+            ).value;
             state.selectedWidget.dataset.borderWidth = borderWidth;
             state.selectedWidget.dataset.borderRadius = borderRadius;
             state.selectedWidget.style.borderWidth = borderWidth + "px";
             state.selectedWidget.style.borderRadius = borderRadius + "px";
             break;
-            
+
         case "Overlay":
             const opacity = document.getElementById("overlay-opacity").value;
             state.selectedWidget.dataset.opacity = opacity;
-            document.getElementById("overlay-opacity-value").textContent = opacity + "%";
+            document.getElementById("overlay-opacity-value").textContent =
+                opacity + "%";
             break;
     }
 
@@ -322,9 +422,13 @@ export function deleteSelectedWidget() {
         if (state.selectedWidget.classList.contains("layout")) {
             const children = Array.from(state.selectedWidget.children);
             children.forEach((child) => {
-                if (child.classList.contains("widget") && !child.classList.contains("resize-handle")) {
+                if (
+                    child.classList.contains("widget") &&
+                    !child.classList.contains("resize-handle")
+                ) {
                     const rect = child.getBoundingClientRect();
-                    const previewRect = state.previewContent.getBoundingClientRect();
+                    const previewRect =
+                        state.previewContent.getBoundingClientRect();
                     child.style.left = rect.left - previewRect.left + "px";
                     child.style.top = rect.top - previewRect.top + "px";
                     child.style.position = "absolute";
@@ -335,10 +439,10 @@ export function deleteSelectedWidget() {
 
         state.selectedWidget.remove();
         state.selectedWidget = null;
-        
+
         document.getElementById("widget-properties").style.display = "none";
         document.getElementById("status-text").textContent = "Widget deleted";
-        
+
         setTimeout(() => {
             document.getElementById("status-text").textContent = "Ready";
         }, 2000);
@@ -352,21 +456,34 @@ export function applyWindowSettings() {
     const width = document.getElementById("win-width").value;
     const height = document.getElementById("win-height").value;
 
-    state.previewTitleBar.querySelector(".preview-title-text").textContent = title;
+    state.previewTitleBar.querySelector(".preview-title-text").textContent =
+        title;
     state.previewWindow.style.width = width + "px";
     state.previewWindow.style.height = height + "px";
 
-    const window_hint_debug_overlay = document.getElementById("window-debug-enable-overlay").checked;
-    const window_hint_cont_redraw = document.getElementById("window-debug-enable-cont-redraw").checked;
-    const window_hint_is_visible = document.getElementById("window-debug-is-visible").checked;
-    const window_hint_is_resizable = document.getElementById("window-debug-is-resizable").checked;
+    const window_hint_debug_overlay = document.getElementById(
+        "window-debug-enable-overlay",
+    ).checked;
+    const window_hint_cont_redraw = document.getElementById(
+        "window-debug-enable-cont-redraw",
+    ).checked;
+    const window_hint_is_visible = document.getElementById(
+        "window-debug-is-visible",
+    ).checked;
+    const window_hint_is_resizable = document.getElementById(
+        "window-debug-is-resizable",
+    ).checked;
 
-    state.previewWindow.dataset.debug_overlay = window_hint_debug_overlay.toString();
-    state.previewWindow.dataset.cont_redraw = window_hint_cont_redraw.toString();
+    state.previewWindow.dataset.debug_overlay =
+        window_hint_debug_overlay.toString();
+    state.previewWindow.dataset.cont_redraw =
+        window_hint_cont_redraw.toString();
     state.previewWindow.dataset.is_visible = window_hint_is_visible.toString();
-    state.previewWindow.dataset.is_resizable = window_hint_is_resizable.toString();
-    
-    document.getElementById("status-text").textContent = "Window settings updated";
+    state.previewWindow.dataset.is_resizable =
+        window_hint_is_resizable.toString();
+
+    document.getElementById("status-text").textContent =
+        "Window settings updated";
     setTimeout(() => {
         document.getElementById("status-text").textContent = "Ready";
     }, 2000);
@@ -385,13 +502,14 @@ export function selectWidget(widget) {
 
     updateCallbackSelector(widget.dataset.id);
 
-    document.getElementById("status-text").textContent = `Selected: ${widget.dataset.type}`;
+    document.getElementById("status-text").textContent =
+        `Selected: ${widget.dataset.type}`;
 }
 
 export function updateWidgetList() {
     const widgetList = document.getElementById("widget-list");
     if (!widgetList) return;
-    
+
     widgetList.innerHTML = "";
 
     state.previewContent.querySelectorAll(".widget").forEach((widget) => {
@@ -399,7 +517,8 @@ export function updateWidgetList() {
             const widgetId = widget.dataset.id;
             const widgetType = widget.dataset.type;
             const widgetText = widget.textContent || widgetType;
-            const callbackName = state.widgetCallbacks[widgetId]?.callbackName || "";
+            const callbackName =
+                state.widgetCallbacks[widgetId]?.callbackName || "";
 
             const listItem = document.createElement("div");
             listItem.className = "widget-list-item";
@@ -411,9 +530,11 @@ export function updateWidgetList() {
             `;
 
             listItem.addEventListener("click", function () {
-                document.querySelectorAll(".widget-list-item").forEach((item) => {
-                    item.classList.remove("selected");
-                });
+                document
+                    .querySelectorAll(".widget-list-item")
+                    .forEach((item) => {
+                        item.classList.remove("selected");
+                    });
                 this.classList.add("selected");
                 state.currentEditingWidget = widgetId;
                 updateCallbackSelector(widgetId);
@@ -427,7 +548,7 @@ export function updateWidgetList() {
 function updateCallbackSelector(widgetId) {
     const selector = document.getElementById("callback-selector");
     if (!selector) return;
-    
+
     selector.innerHTML = '<option value="">Select a callback to edit</option>';
 
     if (!widgetId) return;
@@ -476,7 +597,8 @@ function updateCallbackSelector(widgetId) {
             selector.innerHTML += `<option value="plot" ${callbacks.plot ? "selected" : ""}>Plot Interaction</option>`;
             break;
         default:
-            selector.innerHTML += '<option value="">No callbacks available for this widget type</option>';
+            selector.innerHTML +=
+                '<option value="">No callbacks available for this widget type</option>';
     }
     selector.addEventListener("change", function () {
         const callbackType = this.value;
@@ -487,10 +609,11 @@ function updateCallbackSelector(widgetId) {
             return;
         }
 
-        const callbackName = state.widgetCallbacks[widgetId]?.callbackName || "";
+        const callbackName =
+            state.widgetCallbacks[widgetId]?.callbackName || "";
         if (callbackName) {
             let callbackSignature = "";
-            
+
             switch (callbackType) {
                 case "button":
                     callbackSignature = `void ${callbackName}(void* user_data) {\n    // Your code here\n}`;
@@ -529,7 +652,9 @@ function updateCallbackSelector(widgetId) {
 
             if (state.widgetCallbacks[widgetId][`${callbackType}_code`]) {
                 if (state.callbackEditor) {
-                    state.callbackEditor.setValue(state.widgetCallbacks[widgetId][`${callbackType}_code`]);
+                    state.callbackEditor.setValue(
+                        state.widgetCallbacks[widgetId][`${callbackType}_code`],
+                    );
                 }
             } else if (state.callbackEditor) {
                 state.callbackEditor.setValue(callbackSignature);
@@ -540,7 +665,7 @@ function updateCallbackSelector(widgetId) {
     });
     const saveCallbackBtn = document.getElementById("save-callback");
     if (saveCallbackBtn) {
-        saveCallbackBtn.onclick = function() {
+        saveCallbackBtn.onclick = function () {
             if (!state.currentEditingWidget) return;
 
             const selector = document.getElementById("callback-selector");
@@ -553,11 +678,15 @@ function updateCallbackSelector(widgetId) {
                     state.widgetCallbacks[state.currentEditingWidget] = {};
                 }
 
-                state.widgetCallbacks[state.currentEditingWidget][`${callbackType}_code`] = code;
+                state.widgetCallbacks[state.currentEditingWidget][
+                    `${callbackType}_code`
+                ] = code;
 
-                document.getElementById("status-text").textContent = "Callback saved";
+                document.getElementById("status-text").textContent =
+                    "Callback saved";
                 setTimeout(() => {
-                    document.getElementById("status-text").textContent = "Ready";
+                    document.getElementById("status-text").textContent =
+                        "Ready";
                 }, 2000);
             }
         };
@@ -566,12 +695,17 @@ function updateCallbackSelector(widgetId) {
     selector.dispatchEvent(new Event("change"));
 }
 
-window.deleteRadioOption = function(id) {
-    if (!state.selectedWidget || state.selectedWidget.dataset.type !== "RadioButtonGroup") return;
-    
-    let options = state.selectedWidget.dataset.radioOptions ?
-        JSON.parse(state.selectedWidget.dataset.radioOptions) : [];
-    
+window.deleteRadioOption = function (id) {
+    if (
+        !state.selectedWidget ||
+        state.selectedWidget.dataset.type !== "RadioButtonGroup"
+    )
+        return;
+
+    let options = state.selectedWidget.dataset.radioOptions
+        ? JSON.parse(state.selectedWidget.dataset.radioOptions)
+        : [];
+
     if (id >= 0 && id < options.length) {
         options.splice(id, 1);
         state.selectedWidget.dataset.radioOptions = JSON.stringify(options);
