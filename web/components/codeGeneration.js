@@ -1,4 +1,5 @@
 import state from "./state.js";
+import { getWidgetsInContainer, getWidgetsInTab } from "./hierarchyManager.js";
 
 export async function generateC() {
     let cCode = "";
@@ -60,11 +61,41 @@ export async function generateC() {
         cCode += `    GooeyWindow_MakeResizable(win, true);\n`;
     else cCode += `    GooeyWindow_MakeResizable(win, false);\n\n`;
 
-    let widgetCount = 0;
-    let widgetVars = [];
+    // Reset widget counter and tracking sets
+    state.widgetCounter = 0;
+    let widgetVars = new Set();
     let widgetRegistrations = [];
+    let processedWidgetIds = new Set(); // Track which widgets have been processed
 
-    function processWidgetC(widget, indent, parentVar = null) {
+    // Helper function to generate unique variable name
+    function generateUniqueVarName(baseName) {
+        let counter = 1;
+        let varName = baseName;
+
+        while (widgetVars.has(varName)) {
+            varName = `${baseName}_${counter++}`;
+        }
+
+        widgetVars.add(varName);
+        return varName;
+    }
+
+    function processWidgetC(
+        widget,
+        indent,
+        parentVar = null,
+        containerId = null,
+        tabId = null,
+    ) {
+        const widgetId = widget.dataset.id;
+
+        // Skip if already processed
+        if (processedWidgetIds.has(widgetId)) {
+            return "";
+        }
+
+        processedWidgetIds.add(widgetId);
+
         let type = widget.dataset.type;
         let x = parseInt(widget.style.left) || 0;
         let y = parseInt(widget.style.top) || 0;
@@ -74,7 +105,6 @@ export async function generateC() {
         let text = widget.textContent || "";
         text = text.replace(/"/g, '\\"');
 
-        const widgetId = widget.dataset.id;
         let callbackData = state.widgetCallbacks[widgetId];
         let callbackName = callbackData?.callbackName || "";
 
@@ -82,8 +112,16 @@ export async function generateC() {
             ? `${callbackName}, NULL`
             : "NULL, NULL";
 
-        let widgetVar = `${type.toLowerCase()}_${widgetCount++}`;
-        widgetVars.push(widgetVar);
+        // Use existing widgetVar or generate a new unique one
+        let widgetVar = widget.dataset.widgetVar;
+        if (!widgetVar || widgetVars.has(widgetVar)) {
+            widgetVar = generateUniqueVarName(
+                `${type.toLowerCase()}_${state.widgetCounter++}`,
+            );
+            widget.dataset.widgetVar = widgetVar; // Store it for future use
+        } else {
+            widgetVars.add(widgetVar);
+        }
 
         let widgetCode = "";
 
@@ -182,46 +220,86 @@ export async function generateC() {
                 widgetCode = `${indent}GooeySwitch *${widgetVar} = GooeySwitch_Create(${x}, ${y}, ${isToggled}, ${showSwitchHints}, ${callbackWithData});\n`;
                 break;
 
-            case "Tabs":
-                let isSidebar = widget.dataset.isSidebar || "false";
-                widgetCode = `${indent}GooeyTabs *${widgetVar} = GooeyTabs_Create(${x}, ${y}, ${width}, ${height}, ${isSidebar});\n`;
+            case "Container":
+                widgetCode = `${indent}GooeyContainer *${widgetVar} = GooeyContainer_Create(${x}, ${y}, ${width}, ${height});\n`;
+
+                // Get container names
+                const containerNames = JSON.parse(
+                    widget.dataset.containerNames || '["Container 0"]',
+                );
+
+                // Create containers
+                containerNames.forEach((name, index) => {
+                    widgetCode += `${indent}GooeyContainer_InsertContainer(${widgetVar}); // ${name}\n`;
+                });
+
+                // Set active container
+                const activeContainer = parseInt(
+                    widget.dataset.activeContainer || "0",
+                );
+                widgetCode += `${indent}GooeyContainer_SetActiveContainer(${widgetVar}, ${activeContainer});\n`;
+
+                // Get widgets in each container and add them
+                containerNames.forEach((name, index) => {
+                    const containerWidgets = getWidgetsInContainer(
+                        widget,
+                        index,
+                    );
+                    containerWidgets.forEach((childData) => {
+                        const childCode = processWidgetC(
+                            childData.widget,
+                            indent + "    ",
+                            widgetVar,
+                            index,
+                            null,
+                        );
+                        widgetCode += childCode;
+                        widgetCode += `${indent}GooeyContainer_AddWidget(win, ${widgetVar}, ${index}, ${childData.widget.dataset.widgetVar});\n`;
+                    });
+                });
                 break;
 
-            case "Container":
-                widgetCode = `${indent}GooeyContainers *${widgetVar} = GooeyContainer_Create(${x}, ${y}, ${width}, ${height});\n`;
+            case "Tabs":
+                const isSidebar = widget.dataset.isSidebar || "false";
+                widgetCode = `${indent}GooeyTabs *${widgetVar} = GooeyTabs_Create(${x}, ${y}, ${width}, ${height}, ${isSidebar});\n`;
+
+                // Get tab names
+                const tabNames = JSON.parse(
+                    widget.dataset.tabNames || '["Tab 1", "Tab 2"]',
+                );
+
+                // Create tabs
+                tabNames.forEach((name, index) => {
+                    widgetCode += `${indent}GooeyTabs_InsertTab(${widgetVar}, "${name}");\n`;
+                });
+
+                // Set active tab
+                const activeTab = parseInt(widget.dataset.activeTab || "0");
+                widgetCode += `${indent}GooeyTabs_SetActiveTab(${widgetVar}, ${activeTab});\n`;
+
+                // Get widgets in each tab and add them
+                tabNames.forEach((name, index) => {
+                    const tabWidgets = getWidgetsInTab(widget, index);
+                    tabWidgets.forEach((childData) => {
+                        const childCode = processWidgetC(
+                            childData.widget,
+                            indent + "    ",
+                            widgetVar,
+                            null,
+                            index,
+                        );
+                        widgetCode += childCode;
+                        widgetCode += `${indent}GooeyTabs_AddWidget(win, ${widgetVar}, ${index}, ${childData.widget.dataset.widgetVar});\n`;
+                    });
+                });
                 break;
 
             case "Plot":
-                /*
-                typedef struct
-                {
-                float *x_data;
-                float *y_data;
-                size_t data_count;
-                char *x_label;
-                float x_step;
-                char *y_label;
-                float y_step;
-                char *title;
-                float max_x_value;
-                float min_x_value;
-                float max_y_value;
-                float min_y_value;
-                const char **bar_labels;
-                GOOEY_PLOT_TYPE plot_type;
-                float custom_x_step;
-                float custom_y_step;
-                } GooeyPlotData;
-                */
-                console.log(
-                    "Generating code for widget:",
-                    widget.dataset.plotType,
-                );
-                widgetCode = `${indent}float x_data[]  = {${widget.dataset.xAxisDataList}};`;
-                widgetCode += `${indent}float y_data[]  = {${widget.dataset.yAxisDataList}};`;
-                widgetCode += `${indent}float x_step = 1.0f;`;
-                widgetCode += `${indent}float y_step = 1.0f;`;
-                console.log(widget.dataset.plotType);
+                widgetCode = `${indent}float x_data_${widgetVar}[]  = {${widget.dataset.xAxisDataList}};\n`;
+                widgetCode += `${indent}float y_data_${widgetVar}[]  = {${widget.dataset.yAxisDataList}};\n`;
+                widgetCode += `${indent}float x_step_${widgetVar} = 1.0f;\n`;
+                widgetCode += `${indent}float y_step_${widgetVar} = 1.0f;\n`;
+
                 let selectedType;
                 switch (widget.dataset.plotType) {
                     case "line":
@@ -241,10 +319,9 @@ export async function generateC() {
                         break;
                 }
 
-                widgetCode += `${indent} GooeyPlotData* plotData = malloc(sizeof(GooeyPlotData));\n`;
-                widgetCode += `${indent} *plotData = (GooeyPlotData) {x_data, y_data, ${widget.dataset.xAxisDataList.split(",").length}, "${widget.dataset.xAxisLabel}", x_step, "${widget.dataset.yAxisLabel}", y_step, "${widget.dataset.plotTitle}", -1, -1, -1, -1, NULL,  ${selectedType}};`;
-                widgetCode += `${indent} GooeyPlot *${widgetVar} = GooeyPlot_Create( ${selectedType}  , plotData, ${x}, ${y}, ${width}, ${height});\n`;
-
+                widgetCode += `${indent}GooeyPlotData* plotData_${widgetVar} = malloc(sizeof(GooeyPlotData));\n`;
+                widgetCode += `${indent}*plotData_${widgetVar} = (GooeyPlotData) {x_data_${widgetVar}, y_data_${widgetVar}, ${widget.dataset.xAxisDataList.split(",").length}, "${widget.dataset.xAxisLabel}", x_step_${widgetVar}, "${widget.dataset.yAxisLabel}", y_step_${widgetVar}, "${widget.dataset.plotTitle}", -1, -1, -1, -1, NULL, ${selectedType}};\n`;
+                widgetCode += `${indent}GooeyPlot *${widgetVar} = GooeyPlot_Create(${selectedType}, plotData_${widgetVar}, ${x}, ${y}, ${width}, ${height});\n`;
                 break;
 
             case "VerticalLayout":
@@ -260,12 +337,13 @@ export async function generateC() {
                         child.classList.contains("widget") &&
                         !child.classList.contains("resize-handle")
                     ) {
-                        widgetCode += processWidgetC(
+                        const childCode = processWidgetC(
                             child,
                             indent + "    ",
                             widgetVar,
                         );
-                        widgetCode += `${indent}GooeyLayout_AddChild(win, ${widgetVar}, ${widgetVars[widgetVars.length - 1]});\n`;
+                        widgetCode += childCode;
+                        widgetCode += `${indent}GooeyLayout_AddChild(win, ${widgetVar}, ${child.dataset.widgetVar});\n`;
                     }
                 });
 
@@ -273,13 +351,8 @@ export async function generateC() {
                 break;
         }
 
-        if (
-            type !== "Menu" &&
-            type !== "RadioButtonGroup" &&
-            type !== "Container"
-        ) {
-            if (parentVar) {
-            } else {
+        if (type !== "Menu" && type !== "RadioButtonGroup") {
+            if (!parentVar) {
                 widgetRegistrations.push(
                     `${indent}GooeyWindow_RegisterWidget(win, ${widgetVar});\n`,
                 );
@@ -289,9 +362,45 @@ export async function generateC() {
         return widgetCode;
     }
 
+    // Track all widget IDs in the entire hierarchy
+    const allWidgetIds = new Set();
+    state.previewContent.querySelectorAll(".widget").forEach((widget) => {
+        allWidgetIds.add(widget.dataset.id);
+    });
+
+    // Process Container and Tabs widgets first (they contain other widgets)
+    const containerTabWidgets = Array.from(
+        state.previewContent.querySelectorAll(".widget"),
+    ).filter((widget) => {
+        const type = widget.dataset.type;
+        return type === "Container" || type === "Tabs";
+    });
+
+    // Process container/tab widgets first
+    containerTabWidgets.forEach((widget) => {
+        cCode += processWidgetC(widget, "    ");
+    });
+
+    // Process remaining widgets (not in containers/tabs and not containers/tabs themselves)
     state.previewContent.querySelectorAll(".widget").forEach((widget) => {
         if (!widget.parentElement.classList.contains("layout")) {
-            cCode += processWidgetC(widget, "    ");
+            const widgetId = widget.dataset.id;
+
+            // Skip if already processed or if it's a container/tab
+            if (processedWidgetIds.has(widgetId)) {
+                return;
+            }
+
+            const type = widget.dataset.type;
+            if (type === "Container" || type === "Tabs") {
+                return; // Already processed
+            }
+
+            // Check if widget is in a container or tab
+            const hierarchy = state.widgetHierarchy.get(widgetId);
+            if (!hierarchy || (!hierarchy.containerId && !hierarchy.tabId)) {
+                cCode += processWidgetC(widget, "    ");
+            }
         }
     });
 

@@ -2,14 +2,12 @@ import state from "./state.js";
 import { updateWidgetList } from "./propertiesPanel.js";
 import { showEditor } from "./uiHelpers.js";
 import { createWidget } from "./widgetManagement.js";
-
 export function generateProjectXML() {
     const xmlDoc = document.implementation.createDocument(null, "project");
     const root = xmlDoc.documentElement;
     root.setAttribute("version", "1.0");
     root.setAttribute("platform", state.projectSettings.platform || "desktop");
     root.setAttribute("language", state.projectSettings.language || "c");
-
     const windowElement = xmlDoc.createElement("window");
     windowElement.setAttribute(
         "title",
@@ -36,10 +34,8 @@ export function generateProjectXML() {
         state.previewWindow.dataset.is_resizable || "true",
     );
     root.appendChild(windowElement);
-
     const widgetsElement = xmlDoc.createElement("widgets");
     root.appendChild(widgetsElement);
-
     function saveWidget(widget, parentElement) {
         const widgetElement = xmlDoc.createElement("widget");
         widgetElement.setAttribute("type", widget.dataset.type);
@@ -48,7 +44,6 @@ export function generateProjectXML() {
         widgetElement.setAttribute("y", widget.style.top || "0");
         widgetElement.setAttribute("width", widget.style.width);
         widgetElement.setAttribute("height", widget.style.height);
-
         switch (widget.dataset.type) {
             case "Slider":
                 widgetElement.setAttribute(
@@ -127,7 +122,6 @@ export function generateProjectXML() {
                 );
                 break;
         }
-
         if (
             widget.dataset.type !== "Slider" &&
             widget.dataset.type !== "Image" &&
@@ -139,14 +133,12 @@ export function generateProjectXML() {
         ) {
             widgetElement.setAttribute("text", widget.textContent || "");
         }
-
         if (state.widgetCallbacks[widget.dataset.id]) {
             const callbackElement = xmlDoc.createElement("callback");
             callbackElement.setAttribute(
                 "name",
                 state.widgetCallbacks[widget.dataset.id].callbackName || "",
             );
-
             for (const type in state.widgetCallbacks[widget.dataset.id]) {
                 if (type.endsWith("_code")) {
                     const codeElement = xmlDoc.createElement(type);
@@ -155,12 +147,9 @@ export function generateProjectXML() {
                     callbackElement.appendChild(codeElement);
                 }
             }
-
             widgetElement.appendChild(callbackElement);
         }
-
         parentElement.appendChild(widgetElement);
-
         if (
             widget.dataset.type === "VerticalLayout" ||
             widget.dataset.type === "HorizontalLayout" ||
@@ -168,7 +157,6 @@ export function generateProjectXML() {
         ) {
             const childrenElement = xmlDoc.createElement("children");
             widgetElement.appendChild(childrenElement);
-
             Array.from(widget.children).forEach((child) => {
                 if (
                     child.classList.contains("widget") &&
@@ -179,25 +167,20 @@ export function generateProjectXML() {
             });
         }
     }
-
     state.previewContent.querySelectorAll(".widget").forEach((widget) => {
         if (!widget.parentElement.classList.contains("layout")) {
             saveWidget(widget, widgetsElement);
         }
     });
-
     const serializer = new XMLSerializer();
     return serializer.serializeToString(xmlDoc);
 }
-
 export function saveProjectToXML() {
     try {
         const xmlString = generateProjectXML();
-
         if (state.uiXmlEditor) {
             state.uiXmlEditor.setValue(xmlString);
         }
-
         const blob = new Blob([xmlString], { type: "application/xml" });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
@@ -207,7 +190,6 @@ export function saveProjectToXML() {
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-
         document.getElementById("status-text").textContent =
             "Project saved to XML";
         setTimeout(() => {
@@ -219,16 +201,13 @@ export function saveProjectToXML() {
             "Error saving project";
     }
 }
-
 export function loadProjectFromXML() {
     const input = document.createElement("input");
     input.type = "file";
     input.accept = ".xml";
-
     input.onchange = (e) => {
         const file = e.target.files[0];
         if (!file) return;
-
         const reader = new FileReader();
         reader.onload = (event) => {
             try {
@@ -237,10 +216,8 @@ export function loadProjectFromXML() {
                     event.target.result,
                     "application/xml",
                 );
-
                 state.previewContent.innerHTML = "";
                 state.widgetCallbacks = {};
-
                 const windowElement = xmlDoc.querySelector("window");
                 if (windowElement) {
                     state.previewTitleBar.querySelector(
@@ -255,7 +232,6 @@ export function loadProjectFromXML() {
                         windowElement.getAttribute("x") || "0px";
                     state.previewWindow.style.top =
                         windowElement.getAttribute("y") || "0px";
-
                     document.getElementById("win-title").value =
                         windowElement.getAttribute("title") || "My Window";
                     document.getElementById("win-width").value = parseInt(
@@ -264,7 +240,6 @@ export function loadProjectFromXML() {
                     document.getElementById("win-height").value = parseInt(
                         windowElement.getAttribute("height") || "600",
                     );
-
                     state.previewWindow.dataset.debug_overlay =
                         windowElement.getAttribute("debug_overlay") || "false";
                     state.previewWindow.dataset.cont_redraw =
@@ -274,7 +249,6 @@ export function loadProjectFromXML() {
                     state.previewWindow.dataset.is_resizable =
                         windowElement.getAttribute("is_resizable") || "true";
                 }
-
                 const widgetsElement = xmlDoc.querySelector("widgets");
                 if (widgetsElement) {
                     function loadWidget(widgetElement, parent = null) {
@@ -289,12 +263,9 @@ export function loadProjectFromXML() {
                             widgetElement.getAttribute("width") || "100px";
                         const height =
                             widgetElement.getAttribute("height") || "30px";
-
                         const widget = createWidget(type, x, y, parent);
-
                         widget.style.width = width;
                         widget.style.height = height;
-
                         switch (type) {
                             case "Slider":
                                 widget.dataset.minValue =
@@ -363,7 +334,6 @@ export function loadProjectFromXML() {
                                     "line";
                                 break;
                         }
-
                         if (
                             type !== "Slider" &&
                             type !== "Image" &&
@@ -372,7 +342,6 @@ export function loadProjectFromXML() {
                             widget.textContent =
                                 widgetElement.getAttribute("text") || "";
                         }
-
                         const callbackElement =
                             widgetElement.querySelector("callback");
                         if (callbackElement) {
@@ -381,14 +350,12 @@ export function loadProjectFromXML() {
                             state.widgetCallbacks[
                                 widget.dataset.id
                             ].callbackName = callbackName;
-
                             for (const codeElement of callbackElement.children) {
                                 const type = codeElement.tagName;
                                 state.widgetCallbacks[widget.dataset.id][type] =
                                     codeElement.textContent;
                             }
                         }
-
                         if (
                             type === "VerticalLayout" ||
                             type === "HorizontalLayout" ||
@@ -404,24 +371,19 @@ export function loadProjectFromXML() {
                                     });
                             }
                         }
-
                         return widget;
                     }
-
                     widgetsElement
                         .querySelectorAll("widget")
                         .forEach((widgetElement) => {
                             loadWidget(widgetElement);
                         });
                 }
-
                 if (state.uiXmlEditor) {
                     state.uiXmlEditor.setValue(event.target.result);
                 }
-
                 updateWidgetList();
                 showEditor();
-
                 document.getElementById("status-text").textContent =
                     "Project loaded from XML";
                 setTimeout(() => {
@@ -440,10 +402,8 @@ export function loadProjectFromXML() {
         };
         reader.readAsText(file);
     };
-
     input.click();
 }
-
 export function setupEditors() {
     const editor = CodeMirror.fromTextArea(document.getElementById("editor"), {
         mode: "text/x-csrc",
@@ -456,7 +416,6 @@ export function setupEditors() {
             "Ctrl-Space": "autocomplete",
         },
     });
-
     const callbackEditor = CodeMirror.fromTextArea(
         document.getElementById("callback-editor"),
         {
@@ -471,7 +430,6 @@ export function setupEditors() {
             },
         },
     );
-
     const uiXmlEditor = CodeMirror.fromTextArea(
         document.getElementById("ui-xml-editor"),
         {
@@ -486,7 +444,6 @@ export function setupEditors() {
             },
         },
     );
-
     CodeMirror.registerHelper("hint", "c", (cm) => {
         const cur = cm.getCursor();
         const token = cm.getTokenAt(cur);
@@ -517,7 +474,6 @@ export function setupEditors() {
             to: CodeMirror.Pos(cur.line, token.end),
         };
     });
-
     CodeMirror.registerHelper("hint", "xml", (cm) => {
         const cur = cm.getCursor();
         const token = cm.getTokenAt(cur);
@@ -567,14 +523,11 @@ export function setupEditors() {
             to: CodeMirror.Pos(cur.line, token.end),
         };
     });
-
     state.editor = editor;
     state.callbackEditor = callbackEditor;
     state.uiXmlEditor = uiXmlEditor;
-
     return { editor, callbackEditor, uiXmlEditor };
 }
-
 document.querySelectorAll(".document-tab").forEach((tab) => {
     tab.addEventListener("click", () => {
         document

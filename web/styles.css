@@ -1,6 +1,4 @@
-/* Java Swing-inspired theme */
 :root {
-    /* Classic Swing gray color palette */
     --primary-color: #3d8bf2;
     --secondary-color: #6c757d;
     --accent-color: #495057;
@@ -1006,56 +1004,214 @@ body {
 .widget-gswitch.checked .switch-toggle {
     transform: translateX(calc(100% + 2px));
 }
+/* Container Styles */
+.widget-container {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+}
 
+.container-header {
+    background: var(--toolbar-bg);
+    border-bottom: 1px solid var(--border-color);
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.container-controls {
+    display: flex;
+    gap: 5px;
+    justify-content: flex-end;
+}
+
+.container-add-btn,
+.container-remove-btn,
+.tab-add-btn,
+.tab-remove-btn {
+    width: 20px;
+    height: 20px;
+    border: 1px solid var(--border-color);
+    background: var(--button-bg);
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-color);
+}
+
+.container-add-btn:hover,
+.container-remove-btn:hover,
+.tab-add-btn:hover,
+.tab-remove-btn:hover {
+    background: var(--button-hover);
+}
+
+.container-tabs {
+    display: flex;
+    overflow-x: auto;
+    gap: 2px;
+}
+
+.container-tab {
+    padding: 3px 8px;
+    font-size: 11px;
+    cursor: pointer;
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
+    background: var(--button-bg);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.container-tab.active {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.container-contents {
+    position: relative;
+    height: calc(100% - 60px);
+}
+
+.container-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: 5px;
+    display: none;
+    overflow: auto;
+}
+
+.container-content.active {
+    display: block;
+}
+
+.container-placeholder {
+    color: var(--text-secondary);
+    font-style: italic;
+    text-align: center;
+    padding: 20px;
+    font-size: 12px;
+    border: 1px dashed var(--border-color);
+    border-radius: 4px;
+    margin: 5px;
+}
+
+/* Tabs Styles */
 .widget-tabs {
     background: var(--card-bg);
     border: 1px solid var(--border-color);
     border-radius: 4px;
     overflow: hidden;
-    display: flex;
-    flex-direction: column;
+    position: relative;
 }
 
-.widget-tabs .tab-header {
-    display: flex;
+.tab-header {
     background: var(--toolbar-bg);
     border-bottom: 1px solid var(--border-color);
-}
-
-.widget-tabs .tab-item {
-    padding: 8px 16px;
-    cursor: pointer;
-    font-size: 13px;
-    color: var(--text-color);
-    border-right: 1px solid var(--border-color);
-    transition: none;
-    white-space: nowrap;
-}
-
-.widget-tabs .tab-item.active {
-    background: var(--primary-color);
-    color: white;
-}
-
-.widget-tabs .tab-content {
-    padding: 10px;
-    flex: 1;
-    color: var(--text-color);
-    font-size: 13px;
-}
-
-.widget-plot {
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    color: var(--text-color);
-    font-size: 13px;
+    padding: 5px;
     display: flex;
     align-items: center;
-    justify-content: center;
-    overflow: hidden;
+    gap: 5px;
 }
 
+.tab-item {
+    padding: 5px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
+    background: var(--button-bg);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.tab-item.active {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.tab-controls {
+    display: flex;
+    gap: 5px;
+    margin-left: auto;
+}
+
+.tab-contents {
+    position: relative;
+    height: calc(100% - 40px);
+}
+
+.tab-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: 5px;
+    display: none;
+    overflow: auto;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.tab-placeholder {
+    color: var(--text-secondary);
+    font-style: italic;
+    text-align: center;
+    padding: 20px;
+    font-size: 12px;
+    border: 1px dashed var(--border-color);
+    border-radius: 4px;
+    margin: 5px;
+}
+/* Add to styles.css */
+.widget-container .container-header,
+.widget-tabs .tab-header {
+    cursor: move;
+    user-select: none;
+}
+
+.widget-container .container-tab,
+.widget-tabs .tab-item {
+    cursor: pointer;
+    user-select: none;
+}
+
+.widget-container .container-controls button,
+.widget-tabs .tab-controls button {
+    cursor: pointer !important;
+}
+
+/* Make it clear what parts are draggable */
+.widget-container:not(.selected) .container-header:hover,
+.widget-tabs:not(.selected) .tab-header:hover {
+    background-color: rgba(61, 139, 242, 0.1);
+}
+
+/* Container/Tab content areas should not be draggable */
+.container-content,
+.tab-content {
+    cursor: default;
+}
+
+/* But widgets inside them should be */
+.container-content .widget,
+.tab-content .widget {
+    cursor: move;
+}
 .widget-overlay {
     background: rgba(0, 0, 0, 0.7);
     border: 1px solid var(--border-color);

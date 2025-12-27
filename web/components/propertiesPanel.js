@@ -26,7 +26,8 @@ export function updatePropertiesPanel() {
             widgetType !== "Progressbar" &&
             widgetType !== "Meter" &&
             widgetType !== "Overlay" &&
-            widgetType !== "Container"
+            widgetType !== "Container" &&
+            widgetType !== "Tabs"
         ) {
             textInput.value = state.selectedWidget.textContent || "";
             textInput.disabled = false;
@@ -127,6 +128,64 @@ export function updatePropertiesPanel() {
             showSection("tabs-properties");
             document.getElementById("tabs-is-sidebar").checked =
                 state.selectedWidget.dataset.isSidebar === "true";
+
+            // Add dynamic tab management
+            const tabsContainer = document.getElementById("tabs-properties");
+            if (tabsContainer) {
+                let tabsManagementHTML = `
+                    <h4>Tab Management</h4>
+                    <div class="property-item">
+                        <label>Current Tabs:</label>
+                        <div id="current-tabs-list" style="margin: 10px 0; max-height: 150px; overflow-y: auto;">
+                `;
+
+                const tabNames = JSON.parse(
+                    state.selectedWidget.dataset.tabNames ||
+                        '["Tab 1", "Tab 2"]',
+                );
+                const activeTab = parseInt(
+                    state.selectedWidget.dataset.activeTab || "0",
+                );
+
+                tabNames.forEach((name, index) => {
+                    const isActive = index === activeTab;
+                    tabsManagementHTML += `
+                        <div class="tab-management-item ${isActive ? "active" : ""}" style="padding: 5px; border-bottom: 1px solid var(--border-color);">
+                            <span>${name} ${isActive ? "(Active)" : ""}</span>
+                            <div style="float: right;">
+                                <button onclick="setActiveTab(document.querySelector('.widget.selected'), ${index})" style="font-size: 11px; padding: 2px 5px; margin-left: 5px;">Activate</button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                tabsManagementHTML += `
+                        </div>
+                    </div>
+                    <div class="property-actions" style="margin-top: 10px;">
+                        <button onclick="addTab(document.querySelector('.widget.selected'))" class="button" style="font-size: 12px; padding: 5px 10px;">
+                            <span class="material-icons" style="font-size: 14px;">add</span>
+                            Add Tab
+                        </button>
+                        <button onclick="removeTab(document.querySelector('.widget.selected'))" class="button danger" style="font-size: 12px; padding: 5px 10px;">
+                            <span class="material-icons" style="font-size: 14px;">remove</span>
+                            Remove Tab
+                        </button>
+                    </div>
+                `;
+
+                const existingManagement = tabsContainer.querySelector(
+                    ".tabs-management-section",
+                );
+                if (existingManagement) {
+                    existingManagement.innerHTML = tabsManagementHTML;
+                } else {
+                    const managementSection = document.createElement("div");
+                    managementSection.className = "tabs-management-section";
+                    managementSection.innerHTML = tabsManagementHTML;
+                    tabsContainer.appendChild(managementSection);
+                }
+            }
             break;
 
         case "RadioButtonGroup":
@@ -171,6 +230,67 @@ export function updatePropertiesPanel() {
                 state.selectedWidget.dataset.borderWidth || 1;
             document.getElementById("container-border-radius").value =
                 state.selectedWidget.dataset.borderRadius || 4;
+
+            // Add dynamic container management
+            const containerContainer = document.getElementById(
+                "container-properties",
+            );
+            if (containerContainer) {
+                let containerManagementHTML = `
+                    <h4>Container Management</h4>
+                    <div class="property-item">
+                        <label>Current Containers:</label>
+                        <div id="current-containers-list" style="margin: 10px 0; max-height: 150px; overflow-y: auto;">
+                `;
+
+                const containerNames = JSON.parse(
+                    state.selectedWidget.dataset.containerNames ||
+                        '["Container 0"]',
+                );
+                const activeContainer = parseInt(
+                    state.selectedWidget.dataset.activeContainer || "0",
+                );
+
+                containerNames.forEach((name, index) => {
+                    const isActive = index === activeContainer;
+                    containerManagementHTML += `
+                        <div class="container-management-item ${isActive ? "active" : ""}" style="padding: 5px; border-bottom: 1px solid var(--border-color);">
+                            <span>${name} ${isActive ? "(Active)" : ""}</span>
+                            <div style="float: right;">
+                                <button onclick="setActiveContainer(document.querySelector('.widget.selected'), ${index})" style="font-size: 11px; padding: 2px 5px; margin-left: 5px;">Activate</button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                containerManagementHTML += `
+                        </div>
+                    </div>
+                    <div class="property-actions" style="margin-top: 10px;">
+                        <button onclick="addContainer(document.querySelector('.widget.selected'))" class="button" style="font-size: 12px; padding: 5px 10px;">
+                            <span class="material-icons" style="font-size: 14px;">add</span>
+                            Add Container
+                        </button>
+                        <button onclick="removeContainer(document.querySelector('.widget.selected'))" class="button danger" style="font-size: 12px; padding: 5px 10px;">
+                            <span class="material-icons" style="font-size: 14px;">remove</span>
+                            Remove Container
+                        </button>
+                    </div>
+                `;
+
+                const existingManagement = containerContainer.querySelector(
+                    ".container-management-section",
+                );
+                if (existingManagement) {
+                    existingManagement.innerHTML = containerManagementHTML;
+                } else {
+                    const managementSection = document.createElement("div");
+                    managementSection.className =
+                        "container-management-section";
+                    managementSection.innerHTML = containerManagementHTML;
+                    containerContainer.appendChild(managementSection);
+                }
+            }
             break;
 
         case "Overlay":
@@ -393,6 +513,17 @@ export function applyWidgetProperties() {
             state.selectedWidget.dataset.borderRadius = borderRadius;
             state.selectedWidget.style.borderWidth = borderWidth + "px";
             state.selectedWidget.style.borderRadius = borderRadius + "px";
+
+            // Update container header if border width is 0
+            const containerHeader =
+                state.selectedWidget.querySelector(".container-header");
+            if (containerHeader) {
+                if (borderWidth === "0") {
+                    containerHeader.style.display = "none";
+                } else {
+                    containerHeader.style.display = "block";
+                }
+            }
             break;
 
         case "Overlay":
@@ -596,6 +727,12 @@ function updateCallbackSelector(widgetId) {
         case "Plot":
             selector.innerHTML += `<option value="plot" ${callbacks.plot ? "selected" : ""}>Plot Interaction</option>`;
             break;
+        case "Tabs":
+            selector.innerHTML += `<option value="tabs" ${callbacks.tabs ? "selected" : ""}>Tab Changed</option>`;
+            break;
+        case "Container":
+            selector.innerHTML += `<option value="container" ${callbacks.container ? "selected" : ""}>Container Changed</option>`;
+            break;
         default:
             selector.innerHTML +=
                 '<option value="">No callbacks available for this widget type</option>';
@@ -647,6 +784,12 @@ function updateCallbackSelector(widgetId) {
                     break;
                 case "canvas":
                     callbackSignature = `void ${callbackName}(int x, int y, void* user_data) {\n    // x, y: coordinates of click on canvas\n}`;
+                    break;
+                case "tabs":
+                    callbackSignature = `void ${callbackName}(int tab_index, void* user_data) {\n    // tab_index: Index of selected tab\n}`;
+                    break;
+                case "container":
+                    callbackSignature = `void ${callbackName}(int container_index, void* user_data) {\n    // container_index: Index of selected container\n}`;
                     break;
             }
 

@@ -35,9 +35,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/xml/xml.min.js"></script>
         <script type="text/javascript" src="/eel.js"></script>
     </head>
-
     <body>
-        <!-- Platform Selection Modal -->
         <div class="platform-selection-modal" id="platform-selection-modal">
             <div class="modal-content">
                 <div class="modal-header">
@@ -47,8 +45,6 @@
                         platform
                     </p>
                 </div>
-
-                <!-- Target Platform -->
                 <div class="modal-section">
                     <h3 class="section-toggle" data-section="platform">
                         Target Platform
@@ -68,7 +64,6 @@
                                 </div>
                                 <div class="platform-badge">Native</div>
                             </div>
-
                             <div class="platform-card" data-platform="embedded">
                                 <div class="platform-icon">
                                     <span class="material-icons">memory</span>
@@ -82,8 +77,6 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Toolchain Configuration -->
                 <div class="modal-section">
                     <h3 class="section-toggle" data-section="toolchain">
                         Toolchain Configuration
@@ -119,8 +112,6 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Project Template -->
                 <div class="modal-section">
                     <h3 class="section-toggle" data-section="template">
                         Project Template
@@ -148,8 +139,6 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Modal Footer -->
                 <div class="modal-footer">
                     <button
                         class="btn-secondary"
@@ -170,8 +159,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- Start Screen -->
         <div class="start-screen" id="start-screen">
             <div class="ide-splash-container">
                 <div class="hero-section">
@@ -295,8 +282,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- Editor Screen -->
         <div class="editor-screen" id="editor-screen">
             <div class="container">
                 <div class="toolbar">
@@ -414,7 +399,6 @@
                                 <span class="material-icons">speed</span>
                                 Meter
                             </div>
-
                             <div class="toolbox-item" data-type="Container">
                                 <span class="material-icons">view_compact</span>
                                 Container
@@ -428,13 +412,6 @@
                                 Tabs
                             </div>
                         </div>
-                        <!--div class="toolbox-section">
-                            <h4>Debug & Dev</h4>
-                            <div class="toolbox-item" data-type="Overlay">
-                                <span class="material-icons">bug_report</span>
-                                Overlay
-                            </div>
-                        </div -->
                         <div class="toolbox-section">
                             <h4>Primitive Drawing</h4>
                             <div class="toolbox-item" data-type="Canvas">
@@ -442,27 +419,6 @@
                                 Canvas
                             </div>
                         </div>
-                        <!-- div class="toolbox-section">
-                            <h4>Layouts</h4>
-                            <div
-                                class="toolbox-item"
-                                data-type="VerticalLayout"
-                            >
-                                <span class="material-icons"
-                                    >vertical_distribute</span
-                                >
-                                Vertical Layout
-                            </div>
-                            <div
-                                class="toolbox-item"
-                                data-type="HorizontalLayout"
-                            >
-                                <span class="material-icons"
-                                    >horizontal_distribute</span
-                                >
-                                Horizontal Layout
-                            </div>
-                        </div -->
                     </div>
                     <div class="workspace-container">
                         <div class="document-tabs">
@@ -657,20 +613,9 @@
                                     placeholder="my_callback"
                                 />
                             </div>
-                            <!--div class="property-item">
-                                <label>Action:</label>
-                                <select id="prop-action">
-                                    <option value="">None</option>
-                                </select>
-                                <span class="help-text"
-                                    >Select an action to associate with this
-                                    widget.</span
-                                >
-                            </div -->
                             <div id="menu-properties" style="display: none">
                                 <h4>Menu Properties</h4>
                             </div>
-
                             <div
                                 id="progressbar-properties"
                                 style="display: none"
@@ -687,7 +632,6 @@
                                     />
                                 </div>
                             </div>
-
                             <div id="meter-properties" style="display: none">
                                 <h4>Meter Properties</h4>
                                 <div class="property-item">
@@ -707,7 +651,6 @@
                                     />
                                 </div>
                             </div>
-
                             <div id="switch-properties" style="display: none">
                                 <h4>Switch Properties</h4>
                                 <div class="property-item">
@@ -722,7 +665,6 @@
                                     </select>
                                 </div>
                             </div>
-
                             <div id="tabs-properties" style="display: none">
                                 <h4>Tabs Properties</h4>
                                 <div class="property-item">
@@ -733,7 +675,6 @@
                                     />
                                 </div>
                             </div>
-
                             <div
                                 id="radiobutton-properties"
                                 style="display: none"
@@ -762,7 +703,6 @@
                                     </div>
                                 </div>
                             </div>
-
                             <div id="plot-properties" style="display: none">
                                 <h4>Plot Properties</h4>
                                 <div class="property-item">
@@ -772,7 +712,6 @@
                                     >
                                     <input type="text" id="plot-title" />
                                 </div>
-
                                 <div class="property-item">
                                     <label
                                         >X-Axis Label (eg: Egg
@@ -780,22 +719,18 @@
                                     >
                                     <input type="text" id="x-axis-label" />
                                 </div>
-
                                 <div class="property-item">
                                     <label>X-Axis Data List (eg: 1,2,3):</label>
                                     <input type="text" id="x-axis-data-list" />
                                 </div>
-
                                 <div class="property-item">
                                     <label>Y-Axis Label (eg: Sales):</label>
                                     <input type="text" id="y-axis-label" />
                                 </div>
-
                                 <div class="property-item">
                                     <label>Y-Axis Data List (eg: 1,2,3):</label>
                                     <input type="text" id="y-axis-data-list" />
                                 </div>
-
                                 <div class="property-item">
                                     <label>Plot Type:</label>
                                     <select id="plot-type">
@@ -807,7 +742,6 @@
                                     </select>
                                 </div>
                             </div>
-
                             <div id="canvas-properties" style="display: none">
                                 <h4>Canvas Properties</h4>
                                 <div class="property-item">
@@ -826,7 +760,6 @@
                                     />
                                 </div>
                             </div>
-
                             <div
                                 id="container-properties"
                                 style="display: none"
@@ -853,7 +786,6 @@
                                     />
                                 </div>
                             </div>
-
                             <div id="overlay-properties" style="display: none">
                                 <h4>Overlay Properties</h4>
                                 <div class="property-item">
@@ -1010,11 +942,9 @@
                 <div class="code-editor-content">
                     <textarea id="editor">
 #include <Gooey/gooey.h>
-
 int main() {
     Gooey_Init();
     GooeyWindow *win = GooeyWindow_Create("My Window", 800, 600, true);
-
     GooeyWindow_Run(1, win);
     GooeyWindow_Cleanup(1, win);
     return 0;
@@ -1023,7 +953,6 @@ int main() {
                 </div>
             </div>
         </div>
-
         <script src="https://cdnjs.cloudflare.com/ajax/libs/prettier/2.0.3/standalone.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/prettier/2.0.3/parser-babel.js"></script>
         <script src="codemirror.min.js"></script>
