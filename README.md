@@ -1,6 +1,6 @@
 # Gooey Builder
 
-An complete IDE for the Gooey GUI Toolkit.
+A complete IDE for the Gooey GUI Toolkit.
 
 One liner installation:
 
