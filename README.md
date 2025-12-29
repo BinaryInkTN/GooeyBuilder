@@ -2,7 +2,7 @@
 
 An complete IDE for the Gooey GUI Toolkit.
 
-<img src="./mockup.png">
+<img src="./mockup.png" height="400">
 
 One liner installation:
 
