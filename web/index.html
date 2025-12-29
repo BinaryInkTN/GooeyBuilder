@@ -36,14 +36,37 @@
         <script type="text/javascript" src="/eel.js"></script>
     </head>
     <body>
+        <!-- Top Menu Bar -->
+        <div class="top-menu-bar" id="top-menu-bar">
+            <div class="menu-left">
+                <div class="menu-title">GooeyDesigner</div>
+                <div id="platform-indicator"></div>
+            </div>
+            <div class="menu-right">
+                <div class="menu-item" id="help-menu">
+                    <span>Help</span>
+                    <div class="menu-dropdown">
+                        <a href="#" id="quickstart-guide">Quickstart Guide</a>
+                        <a href="#" id="api-documentation">API Documentation</a>
+                        <a href="#" id="user-manual">User Manual</a>
+                        <div class="menu-divider"></div>
+                        <a href="#" id="report-issue">Report Issue</a>
+                        <a href="#" id="request-feature">Request Feature</a>
+                        <div class="menu-divider"></div>
+                        <a href="#" id="check-updates">Check for Updates</a>
+                        <a href="#" id="keyboard-shortcuts"
+                            >Keyboard Shortcuts</a
+                        >
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="platform-selection-modal" id="platform-selection-modal">
             <div class="modal-content">
                 <div class="modal-header">
                     <h2>Create New Project</h2>
-                    <p>
-                        Configure your project settings and select a target
-                        platform
-                    </p>
+                    <p>Select a target platform</p>
                 </div>
                 <div class="modal-section">
                     <h3 class="section-toggle" data-section="platform">
@@ -74,68 +97,6 @@
                                 </div>
                                 <div class="platform-badge">ARM</div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-section">
-                    <h3 class="section-toggle" data-section="toolchain">
-                        Toolchain Configuration
-                        <span class="material-icons">expand_more</span>
-                    </h3>
-                    <div class="section-content" id="toolchain-settings">
-                        <div class="setting-item">
-                            <label for="toolkit-version"
-                                >Toolkit Version:</label
-                            >
-                            <select id="toolkit-version">
-                                <option value="gcc-12.2">
-                                    GCC 12.2 (Default)
-                                </option>
-                                <option value="gcc-11.4">GCC 11.4</option>
-                                <option value="clang-15">Clang 15</option>
-                                <option value="custom">Custom Path...</option>
-                            </select>
-                        </div>
-                        <div class="setting-item">
-                            <label for="python-interpreter"
-                                >Python Interpreter (for Python
-                                projects):</label
-                            >
-                            <select id="python-interpreter">
-                                <option value="none">
-                                    None (C/C++ Project)
-                                </option>
-                                <option value="python3.11">Python 3.11</option>
-                                <option value="python3.10">Python 3.10</option>
-                                <option value="python3.9">Python 3.9</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-section">
-                    <h3 class="section-toggle" data-section="template">
-                        Project Template
-                        <span class="material-icons">expand_more</span>
-                    </h3>
-                    <div class="section-content" id="template-settings">
-                        <div class="setting-item">
-                            <label for="project-template">Template:</label>
-                            <select id="project-template">
-                                <option value="empty">Empty Project</option>
-                                <option value="basic-gui">
-                                    Basic GUI Application
-                                </option>
-                                <option value="data-viz">
-                                    Data Visualization
-                                </option>
-                                <option value="iot">
-                                    IoT Device (Embedded)
-                                </option>
-                            </select>
-                            <span class="help-text"
-                                >Select a template to pre-configure your project
-                                structure.</span
-                            >
                         </div>
                     </div>
                 </div>
@@ -285,7 +246,6 @@
         <div class="editor-screen" id="editor-screen">
             <div class="container">
                 <div class="toolbar">
-                    <div id="platform-indicator"></div>
                     <button
                         class="toolbar-button"
                         id="save-xml-button"
@@ -304,6 +264,7 @@
                         class="toolbar-button"
                         id="run-button"
                         title="Preview Code"
+                        style="display: none !important"
                     >
                         <span class="material-icons">visibility</span>
                     </button>
@@ -314,13 +275,7 @@
                     >
                         <span class="material-icons">home</span>
                     </button>
-                    <button
-                        class="toolbar-button"
-                        onclick="openDocs()"
-                        title="Help"
-                    >
-                        <span class="material-icons">help_outline</span>
-                    </button>
+
                     <button
                         class="toolbar-button"
                         id="theme-toggle"

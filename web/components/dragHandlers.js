@@ -144,12 +144,15 @@ export function setupWidgetDrag(element) {
     });
 }
 function onWidgetDragMove(e) {
+    e.preventDefault();
+
     if (
         !state.draggedWidget ||
         state.draggedWidget.classList.contains("widget-menu")
-    )
+    ) {
         return;
-    e.preventDefault();
+    }
+
     const previewContent =
         state.previewContent || document.querySelector(".preview-content");
     if (!previewContent) return;
@@ -216,7 +219,11 @@ function onWidgetDragMove(e) {
     }
 }
 function onWidgetDragEnd(e) {
-    if (!state.draggedWidget) return;
+    if (
+        !state.draggedWidget ||
+        state.draggedWidget.classList.contains("widget-menu")
+    )
+        return;
     document.removeEventListener("mousemove", onWidgetDragMove);
     document.removeEventListener("mouseup", onWidgetDragEnd);
     const previewContent =
