@@ -5,7 +5,7 @@ A complete IDE for the Gooey GUI Toolkit.
 One liner installation:
 
 ```bash
-curl -sSL https://github.com/BinaryInkTN/GooeyBuilder/blob/main/installer.sh | bash
+curl -sSL https://raw.githubusercontent.com/BinaryInkTN/GooeyBuilder/refs/heads/main/installer.sh | bash
 ```
 
 ## Features
