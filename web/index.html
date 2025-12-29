@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>GooeyDesigner</title>
+        <title>GooeyBuilder</title>
         <link rel="stylesheet" href="styles.css" />
         <link rel="stylesheet" href="codemirror.min.css" />
         <link
@@ -39,23 +39,32 @@
         <!-- Top Menu Bar -->
         <div class="top-menu-bar" id="top-menu-bar">
             <div class="menu-left">
-                <div class="menu-title">GooeyDesigner</div>
+                <div class="menu-title">GooeyBuilder</div>
                 <div id="platform-indicator"></div>
             </div>
             <div class="menu-right">
                 <div class="menu-item" id="help-menu">
                     <span>Help</span>
                     <div class="menu-dropdown">
-                        <a href="#" id="quickstart-guide">Quickstart Guide</a>
-                        <a href="#" id="api-documentation">API Documentation</a>
-                        <a href="#" id="user-manual">User Manual</a>
+                        <a
+                            href="https://binaryinktn.github.io/GooeyGUI/docs/index.html#guides"
+                            target="_blank"
+                            id="quickstart-guide"
+                            >Quickstart Guide</a
+                        >
+                        <a
+                            href="https://binaryinktn.github.io/GooeyGUI/docs/index.html"
+                            target="_blank"
+                            id="api-documentation"
+                            >API Documentation</a
+                        >
+
                         <div class="menu-divider"></div>
-                        <a href="#" id="report-issue">Report Issue</a>
-                        <a href="#" id="request-feature">Request Feature</a>
-                        <div class="menu-divider"></div>
-                        <a href="#" id="check-updates">Check for Updates</a>
-                        <a href="#" id="keyboard-shortcuts"
-                            >Keyboard Shortcuts</a
+                        <a
+                            href="https://github.com/BinaryInkTN/GooeyBuilder/issues"
+                            target="_blank"
+                            id="report-issue"
+                            >Report Issue</a
                         >
                     </div>
                 </div>
@@ -75,28 +84,35 @@
                     </h3>
                     <div class="section-content" id="platform-settings">
                         <div class="platform-grid">
-                            <div class="platform-card" data-platform="desktop">
+                            <button
+                                class="platform-card"
+                                data-platform="desktop"
+                            >
                                 <div class="platform-icon">
                                     <span class="material-icons"
                                         >desktop_windows</span
                                     >
                                 </div>
                                 <div class="platform-info">
-                                    <h3>Desktop</h3>
-                                    <p>Windows, macOS, Linux applications</p>
+                                    <h3>Desktop Development</h3>
+                                    <p>Windows, and Linux applications</p>
                                 </div>
-                                <div class="platform-badge">Native</div>
-                            </div>
-                            <div class="platform-card" data-platform="embedded">
+                                <div class="platform-badge">Desktop</div>
+                            </button>
+                            <button
+                                class="platform-card"
+                                data-platform="embedded"
+                                disabled
+                            >
                                 <div class="platform-icon">
                                     <span class="material-icons">memory</span>
                                 </div>
                                 <div class="platform-info">
-                                    <h3>Embedded</h3>
+                                    <h3>Embedded Development (Soon)</h3>
                                     <p>Microcontrollers and IoT devices</p>
                                 </div>
-                                <div class="platform-badge">ARM</div>
-                            </div>
+                                <div class="platform-badge">Embedded</div>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -124,7 +140,7 @@
             <div class="ide-splash-container">
                 <div class="hero-section">
                     <div class="hero-content">
-                        <h1 class="hero-title">GooeyDesigner Aqua</h1>
+                        <h1 class="hero-title">GooeyBuilder Beta</h1>
                         <p class="hero-subtitle">
                             Build stunning applications with ease. Create,
                             design, and deploy across platforms.
@@ -159,7 +175,8 @@
                     </div>
                     <div class="project-grid">
                         <a
-                            href="https://gooeyui.github.io/GooeyGUI/quickstart.html"
+                            target="_blank"
+                            href="https://binaryinktn.github.io/GooeyGUI/docs/index.html#guides"
                         >
                             <button class="project-card">
                                 <div class="project-icon">
@@ -171,16 +188,16 @@
                                     </div>
                                     <div class="project-description">
                                         A step-by-step guide to help you start
-                                        building your first project in
-                                        GooeyDesigner. Learn how to create a new
-                                        project.
+                                        building GooeyGUI. Learn how to create a
+                                        new project.
                                     </div>
                                 </div>
                                 <div class="project-badge">External Page</div>
                             </button>
                         </a>
                         <a
-                            href="https://gooeyui.github.io/GooeyGUI/docs/files.html"
+                            target="_blank"
+                            href="https://binaryinktn.github.io/GooeyGUI/docs/index.html"
                         >
                             <button class="project-card">
                                 <div class="project-icon">
@@ -192,16 +209,16 @@
                                     </div>
                                     <div class="project-description">
                                         Browse the complete API documentation
-                                        for GooeyDesigner, including widget
-                                        properties, callbacks, and platform
-                                        integration guides.
+                                        for GooeyGUI, including widget
+                                        properties, callbacks, etc.
                                     </div>
                                 </div>
                                 <div class="project-badge">External Page</div>
                             </button>
                         </a>
                         <a
-                            href="https://github.com/GooeyUI/GooeyBuilder/issues"
+                            target="_blank"
+                            href="https://github.com/BinaryInkTN/GooeyBuilder/issues"
                         >
                             <button class="project-card">
                                 <div class="project-icon">
@@ -213,32 +230,12 @@
                                         Found a bug or want to request a
                                         feature? Visit our GitHub repository to
                                         open an issue or contribute. Your
-                                        feedback helps us improve GooeyDesigner!
+                                        feedback helps us improve GooeyBuilder!
                                     </div>
                                 </div>
                                 <div class="project-badge">Github Repo</div>
                             </button>
                         </a>
-                        <button
-                            class="project-card"
-                            onclick="showPlatformSelection()"
-                            data-template="iot-device"
-                        >
-                            <div class="project-icon">
-                                <span class="material-icons">memory</span>
-                            </div>
-                            <div class="project-info">
-                                <div class="project-name">
-                                    Compatibility List
-                                </div>
-                                <div class="project-description">
-                                    Create an embedded project for
-                                    microcontrollers and IoT devices. See full
-                                    compatibility details in the documentation.
-                                </div>
-                            </div>
-                            <div class="project-badge">External Page</div>
-                        </button>
                     </div>
                 </div>
             </div>
