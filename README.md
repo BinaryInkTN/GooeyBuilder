@@ -2,10 +2,13 @@
 
 An complete IDE for the Gooey GUI Toolkit.
 
-<img src="./designer.png">
+<img src="./mockup.png">
 
-<img src="./code_editor.png">
+One liner installation:
 
+```bash
+curl -sSL https://github.com/BinaryInkTN/GooeyBuilder/blob/main/installer.sh | bash
+```
 
 ## Features
 
@@ -14,7 +17,6 @@ An complete IDE for the Gooey GUI Toolkit.
 - Callback function editor
 - C code generation & compilation
 - Multiple widget types supported
-- Layout management
 
 ## Widgets Available
 
