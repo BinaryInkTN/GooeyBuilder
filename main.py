@@ -1,10 +1,14 @@
 import os
 import subprocess
+import sys
 import tempfile
 
 import eel
 
-eel.init("web")
+script_dir = os.path.dirname(os.path.abspath(__file__))
+web_dir = os.path.join(script_dir, "web")
+
+eel.init(web_dir)
 
 
 @eel.expose
