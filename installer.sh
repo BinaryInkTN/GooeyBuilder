@@ -8,7 +8,9 @@ set -Eeuo pipefail
 # CONFIG
 ########################
 APP_NAME="GooeyBuilder"
-INSTALL_ROOT="$HOME/.local/share/gooey"
+
+XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
+INSTALL_ROOT="$XDG_DATA_HOME/gooey"
 BUILDER_DIR="$INSTALL_ROOT/GooeyBuilder"
 VENV_DIR="$INSTALL_ROOT/venv"
 BIN_DIR="$HOME/.local/bin"
@@ -38,48 +40,45 @@ success() { echo -e "${GREEN}[OK]${NC} $1"; }
 warn()    { echo -e "${YELLOW}[WARN]${NC} $1"; }
 error()   { echo -e "${RED}[ERROR]${NC} $1"; exit 1; }
 
-trap 'error "Installation failed. Check log: $LOG_FILE"' ERR
+trap 'echo -e "${RED}[ERROR]${NC} Installation failed. Check log: $LOG_FILE"' ERR
 
 ########################
 # PRECHECKS
 ########################
-info "Starting Gooey installation"
+info "Starting GooeyBuilder installation"
 
 for cmd in python3 git curl; do
     command -v "$cmd" &>/dev/null || error "$cmd is required but not installed"
 done
 
-python3 - <<EOF
+python3 - <<'EOF'
 import sys
-assert sys.version_info >= (3,8), "Python 3.8+ required"
+if sys.version_info < (3, 8):
+    raise SystemExit("Python 3.8+ required")
 EOF
 
 success "System requirements OK"
+
 ########################
 # CREATE VENV
 ########################
 if [[ ! -d "$VENV_DIR" ]]; then
     info "Creating Python virtual environment"
-
-    if ! python3 -m venv "$VENV_DIR"; then
-        error "Failed to create virtual environment.
-Please install python3-venv:
-  sudo apt install python3-venv
-(or equivalent for your distro)"
-    fi
+    python3 -m venv "$VENV_DIR" || error "Failed to create virtual environment.
+Install with:
+  sudo apt install python3-venv"
 fi
 
-if [[ ! -f "$VENV_DIR/bin/activate" ]]; then
-    error "Virtual environment is corrupted or incomplete.
-Try deleting:
-  rm -rf $VENV_DIR
-and re-running the installer."
-fi
+[[ -f "$VENV_DIR/bin/activate" ]] || error "Virtual environment corrupted.
+Try:
+  rm -rf $VENV_DIR"
 
 # shellcheck disable=SC1091
 source "$VENV_DIR/bin/activate"
 
-pip install --upgrade pip setuptools wheel
+command -v python >/dev/null || error "Python missing inside venv"
+
+python -m pip install --upgrade pip setuptools wheel
 success "Virtual environment ready"
 
 ########################
@@ -89,6 +88,9 @@ info "Installing GooeyGUI"
 
 TMP_DIR="$(mktemp -d)"
 curl -fsSL "$INSTALLER_URL" -o "$TMP_DIR/installer.py"
+
+[[ -s "$TMP_DIR/installer.py" ]] || error "Failed to download GooeyGUI installer"
+
 python "$TMP_DIR/installer.py" || warn "GooeyGUI installer returned non-zero"
 
 rm -rf "$TMP_DIR"
@@ -98,7 +100,8 @@ rm -rf "$TMP_DIR"
 ########################
 if [[ -d "$BUILDER_DIR/.git" ]]; then
     info "Updating GooeyBuilder"
-    git -C "$BUILDER_DIR" pull --ff-only
+    git -C "$BUILDER_DIR" fetch origin
+    git -C "$BUILDER_DIR" reset --hard origin/main
 else
     info "Cloning GooeyBuilder"
     git clone "$BUILDER_REPO" "$BUILDER_DIR"
@@ -111,7 +114,7 @@ fi
 ########################
 if [[ -f "$BUILDER_DIR/requirements.txt" ]]; then
     info "Installing Python dependencies"
-    pip install -r "$BUILDER_DIR/requirements.txt"
+    python -m pip install -r "$BUILDER_DIR/requirements.txt"
 else
     warn "No requirements.txt found"
 fi
@@ -125,6 +128,7 @@ mkdir -p "$BIN_DIR"
 
 cat > "$WRAPPER" <<EOF
 #!/usr/bin/env bash
+set -e
 source "$VENV_DIR/bin/activate"
 exec python "$BUILDER_DIR/main.py" "\$@"
 EOF
@@ -136,10 +140,15 @@ chmod +x "$WRAPPER"
 ########################
 if [[ ":$PATH:" != *":$BIN_DIR:"* ]]; then
     warn "$BIN_DIR not in PATH"
+
     for rc in "$HOME/.bashrc" "$HOME/.zshrc"; do
-        [[ -f "$rc" ]] && echo "export PATH=\"\$PATH:$BIN_DIR\"" >> "$rc"
+        [[ -f "$rc" ]] || continue
+        grep -qxF "export PATH=\"\$PATH:$BIN_DIR\"" "$rc" || \
+            echo "export PATH=\"\$PATH:$BIN_DIR\"" >> "$rc"
     done
-    warn "Restart terminal or run: export PATH=\"\$PATH:$BIN_DIR\""
+
+    warn "Restart terminal or run:"
+    warn "  export PATH=\"\$PATH:$BIN_DIR\""
 fi
 
 ########################
@@ -155,7 +164,7 @@ command -v gbuilder &>/dev/null \
 success "Installation complete"
 
 echo ""
-echo "Location:"
+echo "Installed locations:"
 echo "  App:   $BUILDER_DIR"
 echo "  Venv:  $VENV_DIR"
 echo "  Bin:   $WRAPPER"
