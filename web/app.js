@@ -497,10 +497,10 @@ function init() {
 
     document.getElementById("status-text").textContent = "Ready";
 
-    const prefersDark = window.matchMedia(
-        "(prefers-color-scheme: dark)",
-    ).matches;
-    const initialTheme = prefersDark ? "dark" : "light";
+    //  const prefersDark = window.matchMedia(
+    //      "(prefers-color-scheme: dark)",
+    //  ).matches;
+    const initialTheme = "dark";
     document.documentElement.setAttribute("data-theme", initialTheme);
 
     const themeToggle = document.getElementById("theme-toggle");

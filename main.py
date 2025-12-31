@@ -49,11 +49,6 @@ def js_console(payload):
 def frontend_ready():
     global _frontend_ready
     _frontend_ready = True
-    # for line in _console_buffer:
-    #    eel.jsConsoleOutput(line)
-
-    # _console_buffer.clear()
-    eel.jsConsoleOutput("[Python] Frontend ready, buffer flushed")
     return True
 
 

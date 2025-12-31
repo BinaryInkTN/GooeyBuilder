@@ -277,6 +277,7 @@
 /* Console panel states */
 .console-panel.collapsed {
     height: 36px;
+    bottom: 40px;
 }
 
 .console-panel.collapsed .console-content {
@@ -921,6 +922,9 @@ body {
 
 /* Status Bar */
 .status-bar {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
     height: 24px;
     background: var(--statusbar-bg);
     color: var(--statusbar-text);
@@ -930,6 +934,7 @@ body {
     font-size: 12px;
     font-weight: 500;
     border-top: 1px solid var(--border-color);
+    z-index: 1001;
 }
 
 /* Widget Styles */
@@ -1000,7 +1005,7 @@ body {
     font-size: 18px;
     font-weight: 600;
     color: var(--text-primary);
-    font-family: "Inter", sans-serif;
+    font-family: "JetBrains Mono", monospace;
 }
 
 .menu-right {
@@ -2863,7 +2868,6 @@ select {
     }
 }
 
-/* Dark Mode Media Query Fallback */
 @media (prefers-color-scheme: dark) {
     :root:not([data-theme]) {
         --primary-color: #0a84ff;
