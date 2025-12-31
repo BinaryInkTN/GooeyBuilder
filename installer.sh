@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# GooeyGUI + GooeyBuilder Production Installer
-# Safe, isolated, no system Python pollution
+# GooeyGUI + GooeyBuilder Installer
 
 set -Eeuo pipefail
 

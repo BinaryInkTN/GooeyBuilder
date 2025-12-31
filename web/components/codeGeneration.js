@@ -61,13 +61,11 @@ export async function generateC() {
         cCode += `    GooeyWindow_MakeResizable(win, true);\n`;
     else cCode += `    GooeyWindow_MakeResizable(win, false);\n\n`;
 
-    // Reset widget counter and tracking sets
     state.widgetCounter = 0;
     let widgetVars = new Set();
     let widgetRegistrations = [];
-    let processedWidgetIds = new Set(); // Track which widgets have been processed
+    let processedWidgetIds = new Set();
 
-    // Helper function to generate unique variable name
     function generateUniqueVarName(baseName) {
         let counter = 1;
         let varName = baseName;
@@ -89,7 +87,6 @@ export async function generateC() {
     ) {
         const widgetId = widget.dataset.id;
 
-        // Skip if already processed
         if (processedWidgetIds.has(widgetId)) {
             return "";
         }
@@ -112,13 +109,12 @@ export async function generateC() {
             ? `${callbackName}, NULL`
             : "NULL, NULL";
 
-        // Use existing widgetVar or generate a new unique one
         let widgetVar = widget.dataset.widgetVar;
         if (!widgetVar || widgetVars.has(widgetVar)) {
             widgetVar = generateUniqueVarName(
                 `${type.toLowerCase()}_${state.widgetCounter++}`,
             );
-            widget.dataset.widgetVar = widgetVar; // Store it for future use
+            widget.dataset.widgetVar = widgetVar;
         } else {
             widgetVars.add(widgetVar);
         }
@@ -223,23 +219,19 @@ export async function generateC() {
             case "Container":
                 widgetCode = `${indent}GooeyContainer *${widgetVar} = GooeyContainer_Create(${x}, ${y}, ${width}, ${height});\n`;
 
-                // Get container names
                 const containerNames = JSON.parse(
                     widget.dataset.containerNames || '["Container 0"]',
                 );
 
-                // Create containers
                 containerNames.forEach((name, index) => {
                     widgetCode += `${indent}GooeyContainer_InsertContainer(${widgetVar}); // ${name}\n`;
                 });
 
-                // Set active container
                 const activeContainer = parseInt(
                     widget.dataset.activeContainer || "0",
                 );
                 widgetCode += `${indent}GooeyContainer_SetActiveContainer(${widgetVar}, ${activeContainer});\n`;
 
-                // Get widgets in each container and add them
                 containerNames.forEach((name, index) => {
                     const containerWidgets = getWidgetsInContainer(
                         widget,
@@ -263,21 +255,17 @@ export async function generateC() {
                 const isSidebar = widget.dataset.isSidebar || "false";
                 widgetCode = `${indent}GooeyTabs *${widgetVar} = GooeyTabs_Create(${x}, ${y}, ${width}, ${height}, ${isSidebar});\n`;
 
-                // Get tab names
                 const tabNames = JSON.parse(
                     widget.dataset.tabNames || '["Tab 1", "Tab 2"]',
                 );
 
-                // Create tabs
                 tabNames.forEach((name, index) => {
                     widgetCode += `${indent}GooeyTabs_InsertTab(${widgetVar}, "${name}");\n`;
                 });
 
-                // Set active tab
                 const activeTab = parseInt(widget.dataset.activeTab || "0");
                 widgetCode += `${indent}GooeyTabs_SetActiveTab(${widgetVar}, ${activeTab});\n`;
 
-                // Get widgets in each tab and add them
                 tabNames.forEach((name, index) => {
                     const tabWidgets = getWidgetsInTab(widget, index);
                     tabWidgets.forEach((childData) => {
@@ -362,13 +350,11 @@ export async function generateC() {
         return widgetCode;
     }
 
-    // Track all widget IDs in the entire hierarchy
     const allWidgetIds = new Set();
     state.previewContent.querySelectorAll(".widget").forEach((widget) => {
         allWidgetIds.add(widget.dataset.id);
     });
 
-    // Process Container and Tabs widgets first (they contain other widgets)
     const containerTabWidgets = Array.from(
         state.previewContent.querySelectorAll(".widget"),
     ).filter((widget) => {
@@ -376,27 +362,23 @@ export async function generateC() {
         return type === "Container" || type === "Tabs";
     });
 
-    // Process container/tab widgets first
     containerTabWidgets.forEach((widget) => {
         cCode += processWidgetC(widget, "    ");
     });
 
-    // Process remaining widgets (not in containers/tabs and not containers/tabs themselves)
     state.previewContent.querySelectorAll(".widget").forEach((widget) => {
         if (!widget.parentElement.classList.contains("layout")) {
             const widgetId = widget.dataset.id;
 
-            // Skip if already processed or if it's a container/tab
             if (processedWidgetIds.has(widgetId)) {
                 return;
             }
 
             const type = widget.dataset.type;
             if (type === "Container" || type === "Tabs") {
-                return; // Already processed
+                return;
             }
 
-            // Check if widget is in a container or tab
             const hierarchy = state.widgetHierarchy.get(widgetId);
             if (!hierarchy || (!hierarchy.containerId && !hierarchy.tabId)) {
                 cCode += processWidgetC(widget, "    ");
@@ -421,25 +403,10 @@ export async function generateC() {
 
     state.editor.setValue(cCode);
 
-    try {
-        const result = await eel.execute_app(cCode)();
-        if (result.success) {
-            document.getElementById("status-text").textContent =
-                "C code executed successfully";
-            console.log("Execution output:", result.output);
-        } else {
-            document.getElementById("status-text").textContent =
-                "Error executing C code";
-            console.error("Execution error:", result.error);
-        }
-    } catch (e) {
-        console.error("Failed to execute via Python:", e);
-        document.getElementById("status-text").textContent =
-            "Error connecting to Python backend";
-    }
-
     document.getElementById("status-text").textContent = "App Executed";
     setTimeout(() => {
         document.getElementById("status-text").textContent = "Ready";
     }, 2000);
+
+    return cCode;
 }

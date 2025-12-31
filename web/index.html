@@ -33,9 +33,43 @@
         />
         <link rel="manifest" href="/site.webmanifest" />
         <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/xml/xml.min.js"></script>
-        <script type="text/javascript" src="/eel.js"></script>
     </head>
     <body>
+        <!-- Terminal Console Panel -->
+        <div class="console-panel" id="console-panel">
+            <div class="console-header">
+                <div class="console-title">
+                    <span class="material-icons">terminal</span>
+                    <span>Terminal Output</span>
+                    <div class="console-status" id="console-status">
+                        <span class="status-indicator idle"></span>
+                        <span class="status-text">Idle</span>
+                    </div>
+                </div>
+                <div class="console-controls">
+                    <button id="console-run" title="Run Program">
+                        <span class="material-icons">play_arrow</span>
+                    </button>
+                    <button id="console-stop" title="Stop Program" disabled>
+                        <span class="material-icons">stop</span>
+                    </button>
+                    <button id="console-clear" title="Clear Console">
+                        <span class="material-icons">delete_sweep</span>
+                    </button>
+                    <button id="console-toggle" title="Toggle Console">
+                        <span class="material-icons">keyboard_arrow_down</span>
+                    </button>
+                </div>
+            </div>
+            <div class="console-content" id="console-content">
+                <div class="console-line system">
+                    Terminal ready. Compile and run your C programs here.
+                </div>
+                <div class="console-line system">
+                    Use the Run button to execute your compiled application.
+                </div>
+            </div>
+        </div>
         <!-- Top Menu Bar -->
         <div class="top-menu-bar" id="top-menu-bar">
             <div class="menu-left">
@@ -250,27 +284,21 @@
                     >
                         <span class="material-icons">save</span>
                     </button>
-                    <button
-                        class="toolbar-button"
-                        id="export-button"
-                        title="Compile & Run"
-                    >
-                        <span class="material-icons">play_arrow</span>
-                    </button>
-                    <button
-                        class="toolbar-button"
-                        id="run-button"
-                        title="Preview Code"
-                        style="display: none !important"
-                    >
-                        <span class="material-icons">visibility</span>
-                    </button>
+
                     <button
                         class="toolbar-button"
                         id="start-screen-btn"
                         title="Back to Start"
                     >
                         <span class="material-icons">home</span>
+                    </button>
+
+                    <button
+                        class="toolbar-button console-toggle-btn"
+                        id="toolbar-console-toggle"
+                        title="Toggle Terminal (Ctrl+`)"
+                    >
+                        <span class="material-icons">terminal</span>
                     </button>
 
                     <button
@@ -877,11 +905,12 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="status-bar">
                     <span id="status-text">Ready</span>
                 </div>
             </div>
-            <div class="code-editor" id="code-editor">
+            <div class="code-editor" id="code-editor" style="display: none">
                 <div class="code-editor-header">
                     <div>
                         <span class="material-icons">code</span>
@@ -892,19 +921,12 @@
                     </button>
                 </div>
                 <div class="code-editor-content">
-                    <textarea id="editor">
-#include <Gooey/gooey.h>
-int main() {
-    Gooey_Init();
-    GooeyWindow *win = GooeyWindow_Create("My Window", 800, 600, true);
-    GooeyWindow_Run(1, win);
-    GooeyWindow_Cleanup(1, win);
-    return 0;
-}</textarea
-                    >
+                    <textarea id="editor"></textarea>
                 </div>
             </div>
         </div>
+        <script type="text/javascript" src="/eel.js"></script>
+
         <script src="https://cdnjs.cloudflare.com/ajax/libs/prettier/2.0.3/standalone.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/prettier/2.0.3/parser-babel.js"></script>
         <script src="codemirror.min.js"></script>
