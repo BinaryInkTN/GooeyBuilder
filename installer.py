@@ -63,7 +63,7 @@ def error(msg):
     LOG_FH.close()
     sys.exit(1)
 
-def run(cmd, cwd=None, check=True, capture_output=False):
+def run(cmd, cwd=None, check=True, capture_output=False, verbose=False):
     """Run a command and return the result."""
     log(f"RUN: {' '.join(cmd) if isinstance(cmd, list) else cmd}")
 
@@ -72,19 +72,40 @@ def run(cmd, cwd=None, check=True, capture_output=False):
             result = subprocess.run(
                 cmd,
                 cwd=cwd,
-                capture_output=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
                 text=True,
                 encoding='utf-8',
-                check=check
+                check=False  # Don't check here, we'll check manually
             )
         else:
-            result = subprocess.run(cmd, cwd=cwd, check=check)
+            if verbose:
+                # Show output for verbose commands
+                result = subprocess.run(cmd, cwd=cwd, check=check)
+            else:
+                # Suppress output for non-verbose commands
+                result = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, check=False)
+
+        # Log the output if we captured it
+        if capture_output or not verbose:
+            if result.stdout:
+                log(f"STDOUT: {result.stdout.strip()}")
+            if result.stderr:
+                log(f"STDERR: {result.stderr.strip()}")
+
+        # Check return code if requested
+        if check and result.returncode != 0:
+            error_msg = f"Command failed: {' '.join(cmd) if isinstance(cmd, list) else cmd}\n"
+            error_msg += f"Exit code: {result.returncode}\n"
+            if result.stdout:
+                error_msg += f"Stdout: {result.stdout[-500:]}\n"  # Last 500 chars
+            if result.stderr:
+                error_msg += f"Stderr: {result.stderr[-500:]}\n"
+            raise subprocess.CalledProcessError(result.returncode, cmd, result.stdout, result.stderr)
+
         return result
     except subprocess.CalledProcessError as e:
-        if check:
-            error(f"Command failed: {' '.join(cmd) if isinstance(cmd, list) else cmd}\nError: {e}")
-        else:
-            raise e
+        raise e
     except FileNotFoundError as e:
         error(f"Command not found: {cmd[0] if isinstance(cmd, list) else cmd}")
 
@@ -133,15 +154,64 @@ def create_virtual_environment():
     if not python_bin.exists():
         error(f"Python binary not found in virtual environment: {python_bin}")
 
-    # Upgrade pip and setuptools
+    # Try to upgrade pip and setuptools, but don't fail if it doesn't work
     info("Upgrading pip/setuptools/wheel")
     try:
-        run([str(python_bin), "-m", "pip", "install", "--upgrade",
-             "pip", "setuptools", "wheel"], capture_output=True)
-        success("Virtual environment ready")
-    except Exception as e:
-        warn(f"Failed to upgrade pip/setuptools: {e}")
+        # First check if pip is even available
+        check_result = subprocess.run(
+            [str(python_bin), "-m", "pip", "--version"],
+            capture_output=True,
+            text=True,
+            check=False
+        )
 
+        if check_result.returncode != 0:
+            warn(f"pip not available in virtual environment. Trying to ensure pip is installed...")
+
+            # Try to install pip using ensurepip
+            ensure_result = subprocess.run(
+                [str(python_bin), "-m", "ensurepip", "--upgrade"],
+                capture_output=True,
+                text=True,
+                check=False
+            )
+
+            if ensure_result.returncode != 0:
+                warn(f"Could not ensure pip is installed: {ensure_result.stderr}")
+                return python_bin
+
+        # Now try to upgrade pip
+        upgrade_result = subprocess.run(
+            [str(python_bin), "-m", "pip", "install", "--upgrade", "pip"],
+            capture_output=True,
+            text=True,
+            check=False
+        )
+
+        if upgrade_result.returncode == 0:
+            success("pip upgraded")
+
+            # Try to upgrade setuptools and wheel if pip succeeded
+            for package in ["setuptools", "wheel"]:
+                result = subprocess.run(
+                    [str(python_bin), "-m", "pip", "install", "--upgrade", package],
+                    capture_output=True,
+                    text=True,
+                    check=False
+                )
+                if result.returncode == 0:
+                    info(f"{package} upgraded")
+                else:
+                    warn(f"Failed to upgrade {package}: {result.stderr[:200]}")
+        else:
+            warn(f"Failed to upgrade pip: {upgrade_result.stderr[:200]}")
+            info("Continuing with existing pip version")
+
+    except Exception as e:
+        warn(f"Error during pip upgrade: {str(e)[:200]}")
+        info("Continuing with virtual environment setup")
+
+    success("Virtual environment ready")
     return python_bin
 
 def launch_gooeygui_installer(python_bin):
@@ -203,15 +273,15 @@ def install_gooeybuilder(python_bin):
     if (BUILDER_DIR / ".git").exists():
         info("Updating GooeyBuilder")
         try:
-            run(["git", "fetch", "origin"], cwd=BUILDER_DIR, capture_output=True)
-            run(["git", "reset", "--hard", "origin/main"], cwd=BUILDER_DIR, capture_output=True)
+            run(["git", "fetch", "origin"], cwd=BUILDER_DIR, capture_output=True, check=False)
+            run(["git", "reset", "--hard", "origin/main"], cwd=BUILDER_DIR, capture_output=True, check=False)
             success("GooeyBuilder updated")
         except Exception as e:
             warn(f"Failed to update GooeyBuilder: {e}")
     else:
         info("Cloning GooeyBuilder")
         try:
-            run(["git", "clone", BUILDER_REPO, str(BUILDER_DIR)], capture_output=True)
+            run(["git", "clone", BUILDER_REPO, str(BUILDER_DIR)], capture_output=True, check=False)
             success("GooeyBuilder cloned")
         except Exception as e:
             error(f"Failed to clone GooeyBuilder: {e}")
@@ -225,9 +295,34 @@ def install_gooeybuilder(python_bin):
     if reqs.exists():
         info("Installing Python dependencies")
         try:
-            run([str(python_bin), "-m", "pip", "install", "-r", str(reqs)],
-                capture_output=True)
-            success("Dependencies installed")
+            # Try with --user flag as fallback
+            result = subprocess.run(
+                [str(python_bin), "-m", "pip", "install", "-r", str(reqs)],
+                capture_output=True,
+                text=True,
+                check=False
+            )
+
+            if result.returncode == 0:
+                success("Dependencies installed")
+            else:
+                warn(f"Failed to install dependencies with virtual env pip: {result.stderr[:200]}")
+
+                # Try with --user flag
+                info("Trying with --user flag...")
+                result_user = subprocess.run(
+                    [str(python_bin), "-m", "pip", "install", "--user", "-r", str(reqs)],
+                    capture_output=True,
+                    text=True,
+                    check=False
+                )
+
+                if result_user.returncode == 0:
+                    success("Dependencies installed with --user flag")
+                else:
+                    warn(f"Failed to install dependencies even with --user flag")
+                    info("You may need to install dependencies manually")
+
         except Exception as e:
             warn(f"Failed to install some dependencies: {e}")
     else:
@@ -246,16 +341,12 @@ def create_wrapper(python_bin):
 call "{activate_script}"
 python "{BUILDER_DIR / "main.py"}" %*
 """
-        wrapper_ext = ".bat"
         wrapper_path = BIN_DIR / "gbuilder.bat"
     else:
-        activate_script = VENV_DIR / "bin" / "activate"
+        # For Unix-like systems, create a direct Python wrapper instead of using activate
         wrapper_content = f"""#!/usr/bin/env bash
-set -e
-source "{activate_script}"
-exec python "{BUILDER_DIR / "main.py"}" "$@"
+exec "{python_bin}" "{BUILDER_DIR / "main.py"}" "$@"
 """
-        wrapper_ext = ""
         wrapper_path = BIN_DIR / "gbuilder"
 
     try:
@@ -375,7 +466,7 @@ def main():
 
         # Test if command is available
         if os.name != "nt":
-            test_result = run(["which", "gbuilder"], check=False, capture_output=True)
+            test_result = subprocess.run(["which", "gbuilder"], capture_output=True, text=True, check=False)
             if test_result.returncode == 0:
                 success("gbuilder command is ready to use!")
             else:
