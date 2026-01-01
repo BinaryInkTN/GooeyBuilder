@@ -152,41 +152,81 @@ def launch_gooeygui_installer(python_bin):
     installer_path = tmp_dir / "installer.py"
 
     try:
-        run(["curl", "-fsSL", INSTALLER_URL, "-o", str(installer_path)],
-            capture_output=True)
+        result = run(["curl", "-fsSL", INSTALLER_URL, "-o", str(installer_path)],
+                    capture_output=True)
 
         if not installer_path.exists() or installer_path.stat().st_size == 0:
             warn("Failed to download GooeyGUI installer or file is empty")
             return
 
-        info("Launching GooeyGUI installer")
+        info("Launching GooeyGUI installer in a new window...")
+        print(f"{YELLOW}The GooeyGUI installer will now run separately.{NC}")
+        print(f"{YELLOW}Please follow its instructions in the new window.{NC}")
+        print()
 
         # Clean up temporary directory
         atexit.register(lambda: shutil.rmtree(tmp_dir, ignore_errors=True))
 
-        # Launch installer in background
+        # Launch installer in foreground with visible output
         if os.name == "nt":
-            subprocess.Popen(
-                [str(python_bin), str(installer_path)],
-                stdin=subprocess.DEVNULL,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                creationflags=subprocess.CREATE_NEW_PROCESS_GROUP,
-                close_fds=True
-            )
+            # On Windows, use start to open a new command window
+            print(f"{BLUE}Opening GooeyGUI installer in a new window...{NC}")
+            subprocess.run([
+                "cmd", "/c", "start", "cmd", "/k",
+                f'"{python_bin}" "{installer_path}"'
+            ], shell=True)
         else:
-            subprocess.Popen(
-                [str(python_bin), str(installer_path)],
-                stdin=subprocess.DEVNULL,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                start_new_session=True
-            )
+            # On Linux/macOS, use xterm, gnome-terminal, or similar
+            print(f"{BLUE}Attempting to open GooeyGUI installer in a new terminal...{NC}")
 
-        success("GooeyGUI installer launched in background")
+            # Try different terminal emulators
+            terminals = [
+                ["x-terminal-emulator", "-e"],
+                ["gnome-terminal", "--"],
+                ["konsole", "-e"],
+                ["xfce4-terminal", "-x"],
+                ["lxterminal", "-e"],
+                ["mate-terminal", "--command"],
+                ["terminator", "-x"],
+                ["urxvt", "-e"],
+                ["st", "-e"],
+                ["alacritty", "-e"],
+                ["kitty", "--"]
+            ]
+
+            terminal_found = False
+            for terminal in terminals:
+                if which(terminal[0]):
+                    cmd = terminal + [str(python_bin), str(installer_path)]
+                    try:
+                        subprocess.Popen(cmd)
+                        terminal_found = True
+                        break
+                    except Exception:
+                        continue
+
+            if not terminal_found:
+                # If no terminal found, run in background with output
+                print(f"{YELLOW}No terminal emulator found. Running in background.{NC}")
+                print(f"{YELLOW}Check {LOG_FILE} for installer output.{NC}")
+                subprocess.Popen(
+                    [str(python_bin), str(installer_path)],
+                    stdin=subprocess.DEVNULL,
+                    stdout=LOG_FH,
+                    stderr=subprocess.STDOUT,
+                    start_new_session=True
+                )
+
+        success("GooeyGUI installer launched")
 
     except Exception as e:
         warn(f"Failed to launch GooeyGUI installer: {e}")
+        # Try to run it directly as fallback
+        try:
+            print(f"{YELLOW}Trying to run installer directly...{NC}")
+            result = run([str(python_bin), str(installer_path)], capture_output=False)
+        except Exception as e2:
+            warn(f"Could not run installer at all: {e2}")
 
 def install_gooeybuilder(python_bin):
     """Install or update GooeyBuilder."""
@@ -315,6 +355,14 @@ def main():
 
         # Launch GooeyGUI installer
         launch_gooeygui_installer(python_bin)
+
+        # Wait a moment for the user to see the message
+        import time
+        time.sleep(2)
+
+        print()
+        print(f"{BLUE}Continuing with GooeyBuilder installation...{NC}")
+        print()
 
         # Install GooeyBuilder
         install_gooeybuilder(python_bin)
