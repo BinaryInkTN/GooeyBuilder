@@ -145,7 +145,7 @@ def create_virtual_environment():
     return python_bin
 
 def launch_gooeygui_installer(python_bin):
-    """Launch the GooeyGUI installer."""
+    """Launch the GooeyGUI installer in the foreground."""
     info("Downloading GooeyGUI installer")
 
     tmp_dir = Path(tempfile.mkdtemp())
@@ -157,76 +157,44 @@ def launch_gooeygui_installer(python_bin):
 
         if not installer_path.exists() or installer_path.stat().st_size == 0:
             warn("Failed to download GooeyGUI installer or file is empty")
-            return
+            return False
 
-        info("Launching GooeyGUI installer in a new window...")
-        print(f"{YELLOW}The GooeyGUI installer will now run separately.{NC}")
-        print(f"{YELLOW}Please follow its instructions in the new window.{NC}")
+        print()
+        print(f"{YELLOW}╔══════════════════════════════════════════════════════╗{NC}")
+        print(f"{YELLOW}║         STARTING GOOEYGUI INSTALLATION              ║{NC}")
+        print(f"{YELLOW}╚══════════════════════════════════════════════════════╝{NC}")
+        print()
+        print(f"{BLUE}The GooeyGUI installer will now run.{NC}")
+        print(f"{BLUE}Please follow its instructions below.{NC}")
         print()
 
         # Clean up temporary directory
         atexit.register(lambda: shutil.rmtree(tmp_dir, ignore_errors=True))
 
-        # Launch installer in foreground with visible output
-        if os.name == "nt":
-            # On Windows, use start to open a new command window
-            print(f"{BLUE}Opening GooeyGUI installer in a new window...{NC}")
-            subprocess.run([
-                "cmd", "/c", "start", "cmd", "/k",
-                f'"{python_bin}" "{installer_path}"'
-            ], shell=True)
-        else:
-            # On Linux/macOS, use xterm, gnome-terminal, or similar
-            print(f"{BLUE}Attempting to open GooeyGUI installer in a new terminal...{NC}")
+        # Run installer in the foreground with visible output
+        info("Running GooeyGUI installer...")
+        try:
+            result = subprocess.run(
+                [str(python_bin), str(installer_path)],
+                check=False  # Don't exit if installer fails
+            )
 
-            # Try different terminal emulators
-            terminals = [
-                ["x-terminal-emulator", "-e"],
-                ["gnome-terminal", "--"],
-                ["konsole", "-e"],
-                ["xfce4-terminal", "-x"],
-                ["lxterminal", "-e"],
-                ["mate-terminal", "--command"],
-                ["terminator", "-x"],
-                ["urxvt", "-e"],
-                ["st", "-e"],
-                ["alacritty", "-e"],
-                ["kitty", "--"]
-            ]
+            print()
+            if result.returncode == 0:
+                success("GooeyGUI installer completed successfully")
+                return True
+            else:
+                warn(f"GooeyGUI installer exited with code {result.returncode}")
+                print(f"{YELLOW}Continuing with GooeyBuilder installation...{NC}")
+                return False
 
-            terminal_found = False
-            for terminal in terminals:
-                if which(terminal[0]):
-                    cmd = terminal + [str(python_bin), str(installer_path)]
-                    try:
-                        subprocess.Popen(cmd)
-                        terminal_found = True
-                        break
-                    except Exception:
-                        continue
-
-            if not terminal_found:
-                # If no terminal found, run in background with output
-                print(f"{YELLOW}No terminal emulator found. Running in background.{NC}")
-                print(f"{YELLOW}Check {LOG_FILE} for installer output.{NC}")
-                subprocess.Popen(
-                    [str(python_bin), str(installer_path)],
-                    stdin=subprocess.DEVNULL,
-                    stdout=LOG_FH,
-                    stderr=subprocess.STDOUT,
-                    start_new_session=True
-                )
-
-        success("GooeyGUI installer launched")
+        except Exception as e:
+            warn(f"Failed to run GooeyGUI installer: {e}")
+            return False
 
     except Exception as e:
         warn(f"Failed to launch GooeyGUI installer: {e}")
-        # Try to run it directly as fallback
-        try:
-            print(f"{YELLOW}Trying to run installer directly...{NC}")
-            result = run([str(python_bin), str(installer_path)], capture_output=False)
-        except Exception as e2:
-            warn(f"Could not run installer at all: {e2}")
+        return False
 
 def install_gooeybuilder(python_bin):
     """Install or update GooeyBuilder."""
@@ -353,15 +321,19 @@ def main():
         # Create virtual environment
         python_bin = create_virtual_environment()
 
-        # Launch GooeyGUI installer
-        launch_gooeygui_installer(python_bin)
+        # Launch GooeyGUI installer in foreground
+        print()
+        print(f"{BLUE}╔══════════════════════════════════════════════════════╗{NC}")
+        print(f"{BLUE}║       Step 1: Installing GooeyGUI                    ║{NC}")
+        print(f"{BLUE}╚══════════════════════════════════════════════════════╝{NC}")
+        print()
 
-        # Wait a moment for the user to see the message
-        import time
-        time.sleep(2)
+        gooeygui_installed = launch_gooeygui_installer(python_bin)
 
         print()
-        print(f"{BLUE}Continuing with GooeyBuilder installation...{NC}")
+        print(f"{BLUE}╔══════════════════════════════════════════════════════╗{NC}")
+        print(f"{BLUE}║       Step 2: Installing GooeyBuilder                ║{NC}")
+        print(f"{BLUE}╚══════════════════════════════════════════════════════╝{NC}")
         print()
 
         # Install GooeyBuilder
@@ -372,12 +344,21 @@ def main():
 
         # Final message
         print()
-        print(f"{GREEN}=== Installation Complete ==={NC}")
+        print(f"{GREEN}╔══════════════════════════════════════════════════════╗{NC}")
+        print(f"{GREEN}║           INSTALLATION COMPLETE                     ║{NC}")
+        print(f"{GREEN}╚══════════════════════════════════════════════════════╝{NC}")
         print()
         print("Installed locations:")
-        print(f"  Application: {BUILDER_DIR}")
-        print(f"  Virtual Env: {VENV_DIR}")
-        print(f"  Wrapper:     {wrapper_path}")
+        print(f"  {BLUE}Application:{NC} {BUILDER_DIR}")
+        print(f"  {BLUE}Virtual Env:{NC} {VENV_DIR}")
+        print(f"  {BLUE}Wrapper:{NC}     {wrapper_path}")
+        print()
+
+        if gooeygui_installed:
+            print(f"{GREEN}✓ GooeyGUI was successfully installed{NC}")
+        else:
+            print(f"{YELLOW}⚠ GooeyGUI installation may have failed or was skipped{NC}")
+
         print()
         print("To run GooeyBuilder:")
 
