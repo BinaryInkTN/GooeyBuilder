@@ -82,6 +82,12 @@ export const createTerminalConsoleManager = () => {
         }
     };
 
+    const close = () => {
+        terminalState.isConsoleVisible = false;
+        clear();
+        terminalState.consolePanel.classList.remove("active");
+        terminalState.toolbarConsoleBtn?.classList.remove("active");
+    };
     const clear = () => {
         if (terminalState.consoleContent) {
             terminalState.consoleContent.innerHTML = "";
@@ -204,7 +210,7 @@ export const createTerminalConsoleManager = () => {
                 return;
             }
 
-            addLine("✓ C code generated", "system");
+            addLine("C code generated", "system");
 
             if (window.eel) {
                 terminalState.currentProcessId = Date.now().toString();
@@ -326,10 +332,6 @@ export const createTerminalConsoleManager = () => {
         exposeToPython();
         updateStatus("idle");
         updateToggleIcon();
-        addLine(
-            'Terminal ready. Click "Run" to execute your program.',
-            "system",
-        );
     };
 
     return {
@@ -337,6 +339,7 @@ export const createTerminalConsoleManager = () => {
         toggle,
         addLine,
         clear,
+        close,
         runProgram,
         stopProgram,
     };
@@ -418,11 +421,8 @@ function init() {
     document
         .getElementById("start-screen-btn")
         .addEventListener("click", () => {
+            window.terminalConsole.close();
             showStartScreen();
-            window.terminalConsole.addLine(
-                "Returned to start screen",
-                "system",
-            );
         });
 
     document.querySelectorAll(".document-tab").forEach((tab) => {
