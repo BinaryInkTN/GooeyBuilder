@@ -1727,15 +1727,75 @@ body {
 ::-webkit-scrollbar-thumb:hover {
     background: var(--scrollbar-hover);
 }
+.monaco-editor-container {
+    width: 100%;
+    height: 100%;
+    min-height: 300px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    overflow: hidden;
+}
 
-.code-editor {
-    height: 100% !important;
+.code-editor-content .monaco-editor-container {
+    height: calc(100vh -400px);
     width: 100% !important;
 }
 
+.monaco-editor-container {
+    width: 100%;
+    height: 100%;
+    min-height: 200px;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .monaco-editor {
+    --vscode-editor-background: #1e1e1e;
+    --vscode-editor-foreground: #d4d4d4;
+    --vscode-editor-lineHighlightBackground: #2a2a2a;
+    --vscode-editor-lineHighlightBorder: #3a3a3a;
+}
+
+[data-theme="light"] .monaco-editor {
+    --vscode-editor-background: #ffffff;
+    --vscode-editor-foreground: #000000;
+    --vscode-editor-lineHighlightBackground: #f0f0f0;
+    --vscode-editor-lineHighlightBorder: #e0e0e0;
+}
+
+/* Ensure Monaco editor respects container size */
+.monaco-editor .overflow-guard {
+    border-radius: 4px;
+}
+
+/* Fix Monaco scrollbar styling */
+.monaco-editor .scrollbar.vertical .slider {
+    background: var(--vs-accent);
+    opacity: 0.3;
+}
+
+.monaco-editor .scrollbar.vertical .slider:hover {
+    opacity: 0.6;
+}
+
 .code-editor-container {
-    height: 100% !important;
-    width: 100% !important;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    width: 100%;
+}
+
+.code-editor-content {
+    flex: 1;
+    padding: 12px;
+    background: var(--bg-primary);
+    overflow: hidden;
+}
+
+#ui-xml-tab .code-editor-content {
+    height: 100%;
 }
 
 /* Tab Content */

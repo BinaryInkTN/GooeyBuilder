@@ -5,7 +5,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>GooeyBuilder</title>
         <link rel="stylesheet" href="styles.css" />
-        <link rel="stylesheet" href="codemirror.min.css" />
+        <!-- Monaco Editor CSS -->
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/editor/editor.main.min.css"
+        />
         <link
             rel="stylesheet"
             href="https://fonts.googleapis.com/icon?family=Material+Icons"
@@ -32,7 +36,17 @@
             href="/favicon-16x16.png"
         />
         <link rel="manifest" href="/site.webmanifest" />
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/xml/xml.min.js"></script>
+        <!-- Monaco Editor Loader -->
+        <script>
+            var require = {
+                paths: {
+                    vs: "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs",
+                },
+            };
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/editor/editor.main.nls.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/editor/editor.main.js"></script>
     </head>
     <body>
         <!-- Terminal Console Panel -->
@@ -433,9 +447,10 @@
                                             </select>
                                         </div>
                                         <div class="code-editor-content">
-                                            <textarea
+                                            <div
                                                 id="callback-editor"
-                                            ></textarea>
+                                                class="monaco-editor-container"
+                                            ></div>
                                         </div>
                                         <div class="callback-actions">
                                             <button
@@ -466,10 +481,10 @@
                                 id="ui-xml-tab"
                             >
                                 <div class="code-editor-content">
-                                    <textarea
+                                    <div
                                         id="ui-xml-editor"
-                                        data-codemirror="xml"
-                                    ></textarea>
+                                        class="monaco-editor-container"
+                                    ></div>
                                 </div>
                             </div>
                         </div>
@@ -525,7 +540,6 @@
                                         class="debug-item"
                                         id="window-debug-is-visible"
                                         type="checkbox"
-                                        checked
                                     />
                                 </label>
                             </div>
@@ -536,7 +550,6 @@
                                         class="debug-item"
                                         id="window-debug-is-resizable"
                                         type="checkbox"
-                                        checked
                                     />
                                 </label>
                             </div>
@@ -914,19 +927,11 @@
                     </button>
                 </div>
                 <div class="code-editor-content">
-                    <textarea id="editor"></textarea>
+                    <div id="editor" class="monaco-editor-container"></div>
                 </div>
             </div>
         </div>
         <script type="text/javascript" src="/eel.js"></script>
-
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/prettier/2.0.3/standalone.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/prettier/2.0.3/parser-babel.js"></script>
-        <script src="codemirror.min.js"></script>
-        <script src="clike.min.js"></script>
-        <script src="xml.min.js"></script>
-        <script src="show-hint.min.js"></script>
-        <link rel="stylesheet" href="show-hint.min.css" />
         <script type="module" src="app.js"></script>
     </body>
 </html>

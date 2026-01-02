@@ -737,6 +737,7 @@ function updateCallbackSelector(widgetId) {
             selector.innerHTML +=
                 '<option value="">No callbacks available for this widget type</option>';
     }
+
     selector.addEventListener("change", function () {
         const callbackType = this.value;
         if (!callbackType) {
@@ -753,43 +754,43 @@ function updateCallbackSelector(widgetId) {
 
             switch (callbackType) {
                 case "button":
-                    callbackSignature = `void ${callbackName}(void* user_data) {\n    // Your code here\n}`;
+                    callbackSignature = `void ${callbackName}(AppState* state) {\n    // Access widgets: state->buttons[0], state->window, etc.\n    // Your code here\n}`;
                     break;
                 case "slider":
-                    callbackSignature = `void ${callbackName}(long value, void* user_data) {\n    // value contains the current slider position\n}`;
+                    callbackSignature = `void ${callbackName}(AppState* state, long value) {\n    // value contains the current slider position\n    // Access widgets: state->sliders[0], state->window, etc.\n}`;
                     break;
                 case "checkbox":
-                    callbackSignature = `void ${callbackName}(bool checked, void* user_data) {\n    // checked is true if checkbox is checked\n}`;
+                    callbackSignature = `void ${callbackName}(AppState* state, bool checked) {\n    // checked is true if checkbox is checked\n    // Access widgets: state->checkboxes[0], state->window, etc.\n}`;
                     break;
                 case "input":
-                    callbackSignature = `void ${callbackName}(char* text, void* user_data) {\n    // text contains the current input text\n}`;
+                    callbackSignature = `void ${callbackName}(AppState* state, char* text) {\n    // text contains the current input text\n    // Access widgets: state->textboxes[0], state->window, etc.\n}`;
                     break;
                 case "image":
-                    callbackSignature = `void ${callbackName}(void* user_data) {\n    // Your code here\n}`;
+                    callbackSignature = `void ${callbackName}(AppState* state) {\n    // Access widgets: state->images[0], state->window, etc.\n    // Your code here\n}`;
                     break;
                 case "dropdown":
-                    callbackSignature = `void ${callbackName}(int selected_index, void* user_data) {\n    // selected_index contains the index of the selected option\n}`;
+                    callbackSignature = `void ${callbackName}(AppState* state, int selected_index) {\n    // selected_index contains the index of the selected option\n    // Access widgets: state->dropdowns[0], state->window, etc.\n}`;
                     break;
                 case "dropsurface":
-                    callbackSignature = `void ${callbackName}(char* mime, char* file_path, void* user_data) {\n    // mime: MIME type, file_path: path to dropped file\n}`;
+                    callbackSignature = `void ${callbackName}(AppState* state, char* mime, char* file_path) {\n    // mime: MIME type, file_path: path to dropped file\n    // Access widgets: state->dropsurfaces[0], state->window, etc.\n}`;
                     break;
                 case "list":
-                    callbackSignature = `void ${callbackName}(int selected_index, void* user_data) {\n    // selected_index: Index of selected item\n}`;
+                    callbackSignature = `void ${callbackName}(AppState* state, int selected_index) {\n    // selected_index: Index of selected item\n    // Access widgets: state->lists[0], state->window, etc.\n}`;
                     break;
                 case "switch":
-                    callbackSignature = `void ${callbackName}(bool state, void* user_data) {\n    // state: true if switched on\n}`;
+                    callbackSignature = `void ${callbackName}(AppState* state, bool state_val) {\n    // state_val: true if switched on\n    // Access widgets: state->switches[0], state->window, etc.\n}`;
                     break;
                 case "radiobutton":
-                    callbackSignature = `void ${callbackName}(bool selected, void* user_data) {\n    // selected: true if this radio button is selected\n}`;
+                    callbackSignature = `void ${callbackName}(AppState* state, bool selected) {\n    // selected: true if this radio button is selected\n    // Access widgets: state->radiobuttongroups[0], state->window, etc.\n}`;
                     break;
                 case "canvas":
-                    callbackSignature = `void ${callbackName}(int x, int y, void* user_data) {\n    // x, y: coordinates of click on canvas\n}`;
+                    callbackSignature = `void ${callbackName}(AppState* state, int x, int y) {\n    // x, y: coordinates of click on canvas\n    // Access widgets: state->canvases[0], state->window, etc.\n}`;
                     break;
                 case "tabs":
-                    callbackSignature = `void ${callbackName}(int tab_index, void* user_data) {\n    // tab_index: Index of selected tab\n}`;
+                    callbackSignature = `void ${callbackName}(AppState* state, int tab_index) {\n    // tab_index: Index of selected tab\n    // Access widgets: state->tabs[0], state->window, etc.\n}`;
                     break;
                 case "container":
-                    callbackSignature = `void ${callbackName}(int container_index, void* user_data) {\n    // container_index: Index of selected container\n}`;
+                    callbackSignature = `void ${callbackName}(AppState* state, int container_index) {\n    // container_index: Index of selected container\n    // Access widgets: state->containers[0], state->window, etc.\n}`;
                     break;
             }
 

@@ -64,7 +64,7 @@ def execute_app(c_code):
                 "process_id": process_id,
             }
         )
-
+        print(c_code)
         temp_dir = tempfile.mkdtemp()
         c_file = os.path.join(temp_dir, "gui_app.c")
         exe_file = os.path.join(temp_dir, "gui_app")
@@ -116,7 +116,6 @@ def execute_app(c_code):
             [exe_file],
             capture_output=True,
             text=True,
-            timeout=10,
             cwd=temp_dir,
             env=os.environ.copy(),
         )

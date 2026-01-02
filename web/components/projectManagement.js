@@ -201,6 +201,7 @@ export function saveProjectToXML() {
             "Error saving project";
     }
 }
+
 export function loadProjectFromXML() {
     const input = document.createElement("input");
     input.type = "file";
