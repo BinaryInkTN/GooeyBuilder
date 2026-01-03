@@ -511,7 +511,11 @@ function init() {
         themeToggle.addEventListener("click", () => {
             const currentTheme =
                 document.documentElement.getAttribute("data-theme");
+
             const newTheme = currentTheme === "dark" ? "light" : "dark";
+            editor.updateOptions({
+                theme: newTheme === "dark" ? "vs-dark" : "vs-light",
+            });
             document.documentElement.setAttribute("data-theme", newTheme);
             themeToggle.querySelector(".material-icons").textContent =
                 newTheme === "dark" ? "light_mode" : "dark_mode";

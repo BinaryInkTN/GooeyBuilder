@@ -1,25 +1,27 @@
 #!/usr/bin/env python3
+import atexit
 import os
-import sys
-import subprocess
 import shutil
+import subprocess
+import sys
 import tempfile
 import venv
-from pathlib import Path
 from datetime import datetime
-import atexit
+from pathlib import Path
 
-APP_NAME = "GooeyBuilder"
+APP_NAME = "GUIIDE"
 HOME = Path.home()
 XDG_DATA_HOME = Path(os.environ.get("XDG_DATA_HOME", HOME / ".local" / "share"))
 INSTALL_ROOT = XDG_DATA_HOME / "gooey"
-BUILDER_DIR = INSTALL_ROOT / "GooeyBuilder"
+BUILDER_DIR = INSTALL_ROOT / "GUIIDE"
 VENV_DIR = INSTALL_ROOT / "venv"
 BIN_DIR = HOME / ".local" / "bin"
 WRAPPER = BIN_DIR / "gbuilder"
 LOG_FILE = INSTALL_ROOT / "installer.log"
 BUILDER_REPO = "https://github.com/BinaryInkTN/GooeyBuilder.git"
-INSTALLER_URL = "https://raw.githubusercontent.com/BinaryInkTN/GooeyGUI/main/installer.py"
+INSTALLER_URL = (
+    "https://raw.githubusercontent.com/BinaryInkTN/GooeyGUI/main/installer.py"
+)
 RED = "\033[0;31m"
 GREEN = "\033[0;32m"
 YELLOW = "\033[1;33m"
@@ -28,6 +30,7 @@ NC = "\033[0m"
 
 if os.name == "nt":
     import ctypes
+
     kernel32 = ctypes.windll.kernel32
     kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
 
@@ -35,27 +38,33 @@ INSTALL_ROOT.mkdir(parents=True, exist_ok=True)
 LOG_FH = open(LOG_FILE, "a", encoding="utf-8")
 atexit.register(LOG_FH.close)
 
+
 def log(msg):
     LOG_FH.write(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {msg}\n")
     LOG_FH.flush()
+
 
 def info(msg):
     print(f"{BLUE}[INFO]{NC} {msg}")
     log(f"INFO: {msg}")
 
+
 def success(msg):
     print(f"{GREEN}[OK]{NC} {msg}")
     log(f"OK: {msg}")
 
+
 def warn(msg):
     print(f"{YELLOW}[WARN]{NC} {msg}")
     log(f"WARN: {msg}")
+
 
 def error(msg):
     print(f"{RED}[ERROR]{NC} {msg}")
     log(f"ERROR: {msg}")
     LOG_FH.close()
     sys.exit(1)
+
 
 def run(cmd, cwd=None, check=True, capture_output=False):
     log(f"RUN: {' '.join(cmd) if isinstance(cmd, list) else cmd}")
@@ -71,7 +80,9 @@ def run(cmd, cwd=None, check=True, capture_output=False):
                 check=False,
             )
         else:
-            result = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, check=False)
+            result = subprocess.run(
+                cmd, cwd=cwd, capture_output=True, text=True, check=False
+            )
 
         if capture_output:
             if result.stdout:
@@ -80,7 +91,9 @@ def run(cmd, cwd=None, check=True, capture_output=False):
                 log(f"STDERR: {result.stderr.strip()}")
 
         if check and result.returncode != 0:
-            error_msg = f"Command failed: {' '.join(cmd) if isinstance(cmd, list) else cmd}\n"
+            error_msg = (
+                f"Command failed: {' '.join(cmd) if isinstance(cmd, list) else cmd}\n"
+            )
             error_msg += f"Exit code: {result.returncode}\n"
             if result.stdout:
                 error_msg += f"Stdout: {result.stdout[-500:]}\n"
@@ -95,8 +108,10 @@ def run(cmd, cwd=None, check=True, capture_output=False):
     except FileNotFoundError as e:
         error(f"Command not found: {cmd[0] if isinstance(cmd, list) else cmd}")
 
+
 def which(cmd):
     return shutil.which(cmd) is not None
+
 
 def check_requirements():
     info("Checking system requirements")
@@ -110,6 +125,7 @@ def check_requirements():
     if sys.version_info < (3, 8):
         error("Python 3.8+ required")
     success("System requirements OK")
+
 
 def create_virtual_environment():
     if not VENV_DIR.exists():
@@ -167,6 +183,7 @@ def create_virtual_environment():
     success("Virtual environment ready")
     return python_bin
 
+
 def launch_gooeygui_installer(python_bin):
     info("Downloading GooeyGUI installer")
     tmp_dir = Path(tempfile.mkdtemp())
@@ -211,11 +228,12 @@ def launch_gooeygui_installer(python_bin):
         warn(f"Failed to launch GooeyGUI installer: {e}")
         return False
 
-def install_gooeybuilder(python_bin):
+
+def install_GUIIDE(python_bin):
     BUILDER_DIR.mkdir(parents=True, exist_ok=True)
 
     if (BUILDER_DIR / ".git").exists():
-        info("Updating GooeyBuilder")
+        info("Updating GUIIDE")
         subprocess.run(
             ["git", "fetch", "origin"],
             cwd=BUILDER_DIR,
@@ -230,19 +248,19 @@ def install_gooeybuilder(python_bin):
             text=True,
             check=False,
         )
-        success("GooeyBuilder updated")
+        success("GUIIDE updated")
     else:
-        info("Cloning GooeyBuilder")
+        info("Cloning GUIIDE")
         subprocess.run(
             ["git", "clone", BUILDER_REPO, str(BUILDER_DIR)],
             capture_output=True,
             text=True,
             check=False,
         )
-        success("GooeyBuilder cloned")
+        success("GUIIDE cloned")
 
     if not (BUILDER_DIR / "main.py").exists():
-        error("main.py missing in GooeyBuilder repository")
+        error("main.py missing in GUIIDE repository")
 
     reqs = BUILDER_DIR / "requirements.txt"
     if reqs.exists():
@@ -259,6 +277,7 @@ def install_gooeybuilder(python_bin):
             warn("Failed to install some dependencies")
     else:
         warn("No requirements.txt found")
+
 
 def create_wrapper(python_bin):
     info(f"Creating gbuilder command in {BIN_DIR}")
@@ -318,8 +337,9 @@ exec "{python_bin}" "{BUILDER_DIR / "main.py"}" "$@"
     except Exception as e:
         error(f"Failed to create wrapper: {e}")
 
+
 def main():
-    print(f"{BLUE}=== GooeyBuilder Installer ==={NC}")
+    print(f"{BLUE}=== GUIIDE Installer ==={NC}")
     print()
 
     try:
@@ -337,11 +357,11 @@ def main():
 
         print()
         print(f"{BLUE}╔══════════════════════════════════════════════════════╗{NC}")
-        print(f"{BLUE}║       Step 2: Installing GooeyBuilder                ║{NC}")
+        print(f"{BLUE}║       Step 2: Installing GUIIDE                ║{NC}")
         print(f"{BLUE}╚══════════════════════════════════════════════════════╝{NC}")
         print()
 
-        install_gooeybuilder(python_bin)
+        install_GUIIDE(python_bin)
 
         wrapper_path = create_wrapper(python_bin)
 
@@ -360,7 +380,7 @@ def main():
             print(f"{GREEN}✓ GooeyGUI was successfully installed{NC}")
 
         print()
-        print("To run GooeyBuilder:")
+        print("To run GUIIDE:")
 
         if os.name == "nt":
             print("  1. Open a new Command Prompt or PowerShell")
@@ -370,7 +390,9 @@ def main():
             print("  2. Type: gbuilder")
 
         print()
-        print(f"If 'gbuilder' doesn't work, try: {python_bin} {BUILDER_DIR / 'main.py'}")
+        print(
+            f"If 'gbuilder' doesn't work, try: {python_bin} {BUILDER_DIR / 'main.py'}"
+        )
         print()
 
         if os.name != "nt":
@@ -386,6 +408,7 @@ def main():
         sys.exit(1)
     except Exception as e:
         error(f"Unexpected error: {e}")
+
 
 if __name__ == "__main__":
     main()

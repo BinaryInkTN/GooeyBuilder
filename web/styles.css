@@ -1666,7 +1666,9 @@ body {
     gap: 8px;
     white-space: nowrap;
 }
-
+[data-theme="dark"] .button {
+    color: white !important;
+}
 .button:hover {
     background: var(--button-hover);
     transform: none;
@@ -1756,14 +1758,6 @@ body {
     --vscode-editor-lineHighlightBackground: #2a2a2a;
     --vscode-editor-lineHighlightBorder: #3a3a3a;
 }
-
-[data-theme="light"] .monaco-editor {
-    --vscode-editor-background: #ffffff;
-    --vscode-editor-foreground: #000000;
-    --vscode-editor-lineHighlightBackground: #f0f0f0;
-    --vscode-editor-lineHighlightBorder: #e0e0e0;
-}
-
 /* Ensure Monaco editor respects container size */
 .monaco-editor .overflow-guard {
     border-radius: 4px;
