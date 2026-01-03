@@ -84,8 +84,7 @@ export function setupEditors() {
                 startColumn: word.startColumn,
                 endColumn: word.endColumn,
             };
-            // Gooey GUI Monaco Editor Autocomplete Suggestions
-            // Production-ready with full parameter support and documentation
+
             const suggestions = [
                 // ============================================================================
                 // CORE INITIALIZATION
