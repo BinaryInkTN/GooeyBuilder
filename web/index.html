@@ -53,34 +53,33 @@
         <div class="title-bar" id="title-bar">
             <div class="title-bar-drag-area"></div>
             <div class="title-bar-left">
-
                 <div class="app-title">GUIIDE Beta</div>
                 <div class="platform-indicator" id="platform-indicator"></div>
             </div>
 
-                <div class="window-controls-group">
-                    <button
-                        class="window-control-btn"
-                        title="Back to Start"
-                        id="titlebar-home-btn"
-                    >
-                        <span class="material-icons">home</span>
-                    </button>
-                    <button
-                        class="window-control-btn"
-                        title="Save Project"
-                        id="titlebar-save-btn"
-                    >
-                        <span class="material-icons">save</span>
-                    </button>
-                    <button
-                        class="window-control-btn"
-                        title="Toggle Console"
-                        id="titlebar-console-btn"
-                    >
-                        <span class="material-icons">terminal</span>
-                    </button>
-                </div>
+            <div class="window-controls-group">
+                <button
+                    class="window-control-btn"
+                    title="Back to Start"
+                    id="titlebar-home-btn"
+                >
+                    <span class="material-icons">home</span>
+                </button>
+                <button
+                    class="window-control-btn"
+                    title="Save Project"
+                    id="titlebar-save-btn"
+                >
+                    <span class="material-icons">save</span>
+                </button>
+                <button
+                    class="window-control-btn"
+                    title="Toggle Console"
+                    id="titlebar-console-btn"
+                >
+                    <span class="material-icons">terminal</span>
+                </button>
+            </div>
 
             <div class="title-bar-right">
                 <div class="window-controls">
@@ -226,10 +225,7 @@
                             API Documentation
                         </a>
                         <div class="menu-divider"></div>
-                        <a
-                            href="https://github.com/BinaryInkTN/GooeyBuilder/issues"
-                            target="_blank"
-                        >
+                        <a id="report-issue">
                             <span class="material-icons">bug_report</span>
                             Report Issue
                         </a>
@@ -240,7 +236,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
 
         <!-- Terminal Console Panel -->
@@ -321,7 +316,11 @@
                     >
                         Cancel
                     </button>
-                    <button class="btn-primary" id="validate-project-settings" style="display: none;">
+                    <button
+                        class="btn-primary"
+                        id="validate-project-settings"
+                        style="display: none"
+                    >
                         Validate
                     </button>
                     <button
@@ -341,10 +340,11 @@
                 <!-- IDE Header -->
                 <div class="ide-header">
                     <div class="ide-header-left">
-
                         <div>
                             <h1 class="app-title-large">GUIIDE</h1>
-                            <div class="app-subtitle">Build stunning applications with ease</div>
+                            <div class="app-subtitle">
+                                Build stunning applications with ease
+                            </div>
                         </div>
                     </div>
                     <div class="platform-indicator" id="platform-indicator">
@@ -363,33 +363,49 @@
                         </div>
 
                         <div class="action-buttons">
-                            <button class="action-button" onclick="showPlatformSelection()">
+                            <button
+                                class="action-button"
+                                onclick="showPlatformSelection()"
+                            >
                                 <div class="action-icon">
-                                    <span class="material-icons">add_circle</span>
+                                    <span class="material-icons"
+                                        >add_circle</span
+                                    >
                                 </div>
                                 <div class="action-content">
                                     <div class="action-title">New Project</div>
-                                    <div class="action-description">Create a new project from scratch</div>
+                                    <div class="action-description">
+                                        Create a new project from scratch
+                                    </div>
                                 </div>
                             </button>
 
                             <button class="action-button" id="load-xml-button">
                                 <div class="action-icon">
-                                    <span class="material-icons">folder_open</span>
+                                    <span class="material-icons"
+                                        >folder_open</span
+                                    >
                                 </div>
                                 <div class="action-content">
                                     <div class="action-title">Open Project</div>
-                                    <div class="action-description">Open an existing project file</div>
+                                    <div class="action-description">
+                                        Open an existing project file
+                                    </div>
                                 </div>
                             </button>
 
-                            <button class="action-button" id="open-recent-button">
+                            <button
+                                class="action-button"
+                                id="open-recent-button"
+                            >
                                 <div class="action-icon">
                                     <span class="material-icons">history</span>
                                 </div>
                                 <div class="action-content">
                                     <div class="action-title">Open Recent</div>
-                                    <div class="action-description">Quickly open a recent project</div>
+                                    <div class="action-description">
+                                        Quickly open a recent project
+                                    </div>
                                 </div>
                             </button>
                         </div>
@@ -399,7 +415,10 @@
                                 <span class="material-icons">schedule</span>
                                 Recent Projects
                             </h3>
-                            <div class="recent-project-list" id="recent-projects-list">
+                            <div
+                                class="recent-project-list"
+                                id="recent-projects-list"
+                            >
                                 <!-- Recent projects will be populated here -->
                             </div>
                         </div>
@@ -414,47 +433,73 @@
                                 Resources
                             </h3>
                             <div class="resource-list">
-                                <a href="https://binaryinktn.github.io/GooeyGUI/docs/index.html#guides" target="_blank" class="resource-link">
+                                <a
+                                    href="https://binaryinktn.github.io/GooeyGUI/docs/index.html#guides"
+                                    target="_blank"
+                                    class="resource-link"
+                                >
                                     <div class="resource-icon">
                                         <span class="material-icons">book</span>
                                     </div>
                                     <div class="resource-details">
-                                        <div class="resource-title">Quickstart Guide</div>
-                                        <div class="resource-description">Learn the basics of GUIIDE</div>
+                                        <div class="resource-title">
+                                            Quickstart Guide
+                                        </div>
+                                        <div class="resource-description">
+                                            Learn the basics of GUIIDE
+                                        </div>
                                     </div>
                                 </a>
 
-                                <a href="https://binaryinktn.github.io/GooeyGUI/docs/index.html" target="_blank" class="resource-link">
+                                <a
+                                    href="https://binaryinktn.github.io/GooeyGUI/docs/index.html"
+                                    target="_blank"
+                                    class="resource-link"
+                                >
                                     <div class="resource-icon">
                                         <span class="material-icons">api</span>
                                     </div>
                                     <div class="resource-details">
-                                        <div class="resource-title">API Documentation</div>
-                                        <div class="resource-description">Complete API reference</div>
+                                        <div class="resource-title">
+                                            API Documentation
+                                        </div>
+                                        <div class="resource-description">
+                                            Complete API reference
+                                        </div>
                                     </div>
                                 </a>
 
-                                <a href="https://github.com/BinaryInkTN/GooeyBuilder/issues" target="_blank" class="resource-link">
+                                <a
+                                    href="https://github.com/BinaryInkTN/GooeyBuilder/issues"
+                                    target="_blank"
+                                    class="resource-link"
+                                >
                                     <div class="resource-icon">
-                                        <span class="material-icons">bug_report</span>
+                                        <span class="material-icons"
+                                            >bug_report</span
+                                        >
                                     </div>
                                     <div class="resource-details">
-                                        <div class="resource-title">Report Issue</div>
-                                        <div class="resource-description">Found a bug or want a feature?</div>
+                                        <div class="resource-title">
+                                            Report Issue
+                                        </div>
+                                        <div class="resource-description">
+                                            Found a bug or want a feature?
+                                        </div>
                                     </div>
                                 </a>
                             </div>
                         </div>
-
                     </div>
                 </div>
 
                 <!-- Footer -->
                 <div class="ide-footer">
                     <div class="footer-links">
-                        <a href="#" class="footer-link" id="check-updates">Check for Updates</a>
+                        <a href="#" class="footer-link" id="check-updates"
+                            >Check for Updates</a
+                        >
                     </div>
-
                 </div>
             </div>
         </div>

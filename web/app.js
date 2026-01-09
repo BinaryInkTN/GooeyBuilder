@@ -749,6 +749,18 @@ function init() {
     document.getElementById("status-text").textContent = "Ready";
 }
 
+// Initialize report issue link
+const reportIssueLink = document.getElementById("report-issue");
+if (reportIssueLink) {
+    reportIssueLink.addEventListener("click", () => {
+        window.open(
+            "https://github.com",
+            "_blank",
+            "top=500,left=200,frame=false,nodeIntegration=no",
+        );
+    });
+}
+
 // Cleanup on page unload
 window.addEventListener("beforeunload", () => {
     if (window.electronAPI) {
