@@ -1,0 +1,1112 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>GUIIDE</title>
+        <link rel="stylesheet" href="styles.css" />
+        <!-- Monaco Editor CSS -->
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/editor/editor.main.min.css"
+        />
+        <link
+            rel="stylesheet"
+            href="https://fonts.googleapis.com/icon?family=Material+Icons"
+        />
+        <link
+            rel="stylesheet"
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        />
+        <link
+            rel="apple-touch-icon"
+            sizes="180x180"
+            href="/apple-touch-icon.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="32x32"
+            href="/favicon-32x32.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="16x16"
+            href="/favicon-16x16.png"
+        />
+        <link rel="manifest" href="/site.webmanifest" />
+        <!-- Monaco Editor Loader -->
+        <script>
+            var require = {
+                paths: {
+                    vs: "https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs",
+                },
+            };
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/editor/editor.main.nls.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/editor/editor.main.js"></script>
+    </head>
+    <body>
+        <!-- Custom Title Bar -->
+        <div class="title-bar" id="title-bar">
+            <div class="title-bar-drag-area"></div>
+            <div class="title-bar-left">
+
+                <div class="app-title">GUIIDE Beta</div>
+                <div class="platform-indicator" id="platform-indicator"></div>
+            </div>
+
+                <div class="window-controls-group">
+                    <button
+                        class="window-control-btn"
+                        title="Back to Start"
+                        id="titlebar-home-btn"
+                    >
+                        <span class="material-icons">home</span>
+                    </button>
+                    <button
+                        class="window-control-btn"
+                        title="Save Project"
+                        id="titlebar-save-btn"
+                    >
+                        <span class="material-icons">save</span>
+                    </button>
+                    <button
+                        class="window-control-btn"
+                        title="Toggle Console"
+                        id="titlebar-console-btn"
+                    >
+                        <span class="material-icons">terminal</span>
+                    </button>
+                </div>
+
+            <div class="title-bar-right">
+                <div class="window-controls">
+                    <button
+                        class="window-control minimize"
+                        id="minimize-btn"
+                        title="Minimize"
+                    ></button>
+                    <button
+                        class="window-control maximize"
+                        id="maximize-btn"
+                        title="Maximize"
+                    ></button>
+                    <button
+                        class="window-control close"
+                        id="close-btn"
+                        title="Close"
+                    ></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menu Bar -->
+        <div class="top-menu-bar" id="top-menu-bar">
+            <div class="menu-left">
+                <div class="menu-item" id="file-menu">
+                    <span>File</span>
+                    <div class="menu-dropdown">
+                        <a href="#" id="menu-new-project">
+                            <span class="material-icons">add_circle</span>
+                            New Project
+                        </a>
+                        <a href="#" id="menu-open-project">
+                            <span class="material-icons">folder_open</span>
+                            Open Project
+                        </a>
+                        <a href="#" id="menu-save-project">
+                            <span class="material-icons">save</span>
+                            Save Project
+                        </a>
+                        <a href="#" id="menu-save-project-as">
+                            <span class="material-icons">save_as</span>
+                            Save Project As...
+                        </a>
+                        <div class="menu-divider"></div>
+                        <a href="#" id="menu-export-c-code">
+                            <span class="material-icons">download</span>
+                            Export C Code
+                        </a>
+                    </div>
+                </div>
+                <div class="menu-item" id="edit-menu">
+                    <span>Edit</span>
+                    <div class="menu-dropdown">
+                        <a href="#" id="edit-undo">
+                            <span class="material-icons">undo</span>
+                            Undo
+                        </a>
+                        <a href="#" id="edit-redo">
+                            <span class="material-icons">redo</span>
+                            Redo
+                        </a>
+                        <div class="menu-divider"></div>
+                        <a href="#" id="edit-cut">
+                            <span class="material-icons">content_cut</span>
+                            Cut
+                        </a>
+                        <a href="#" id="edit-copy">
+                            <span class="material-icons">content_copy</span>
+                            Copy
+                        </a>
+                        <a href="#" id="edit-paste">
+                            <span class="material-icons">content_paste</span>
+                            Paste
+                        </a>
+                        <div class="menu-divider"></div>
+                        <a href="#" id="edit-delete">
+                            <span class="material-icons">delete</span>
+                            Delete
+                        </a>
+                    </div>
+                </div>
+                <div class="menu-item" id="view-menu">
+                    <span>View</span>
+                    <div class="menu-dropdown">
+                        <a href="#" id="view-toggle-console">
+                            <span class="material-icons">terminal</span>
+                            Toggle Console
+                        </a>
+                        <a href="#" id="view-toggle-theme">
+                            <span class="material-icons">dark_mode</span>
+                            Toggle Theme
+                        </a>
+                        <div class="menu-divider"></div>
+                        <a href="#" id="view-zoom-in">
+                            <span class="material-icons">zoom_in</span>
+                            Zoom In
+                        </a>
+                        <a href="#" id="view-zoom-out">
+                            <span class="material-icons">zoom_out</span>
+                            Zoom Out
+                        </a>
+                        <a href="#" id="view-reset-zoom">
+                            <span class="material-icons"
+                                >filter_center_focus</span
+                            >
+                            Reset Zoom
+                        </a>
+                    </div>
+                </div>
+                <div class="menu-item" id="build-menu">
+                    <span>Build</span>
+                    <div class="menu-dropdown">
+                        <a href="#" id="build-generate-code">
+                            <span class="material-icons">code</span>
+                            Generate C Code
+                        </a>
+                        <a href="#" id="build-run-project">
+                            <span class="material-icons">play_arrow</span>
+                            Run Project
+                        </a>
+                        <a href="#" id="build-stop-project">
+                            <span class="material-icons">stop</span>
+                            Stop Project
+                        </a>
+                    </div>
+                </div>
+                <div class="menu-item" id="help-menu">
+                    <span>Help</span>
+                    <div class="menu-dropdown">
+                        <a
+                            href="https://binaryinktn.github.io/GooeyGUI/docs/index.html#guides"
+                            target="_blank"
+                        >
+                            <span class="material-icons">book</span>
+                            Quickstart Guide
+                        </a>
+                        <a
+                            href="https://binaryinktn.github.io/GooeyGUI/docs/index.html"
+                            target="_blank"
+                        >
+                            <span class="material-icons">api</span>
+                            API Documentation
+                        </a>
+                        <div class="menu-divider"></div>
+                        <a
+                            href="https://github.com/BinaryInkTN/GooeyBuilder/issues"
+                            target="_blank"
+                        >
+                            <span class="material-icons">bug_report</span>
+                            Report Issue
+                        </a>
+                        <a href="#" id="help-about">
+                            <span class="material-icons">info</span>
+                            About GUIIDE
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Terminal Console Panel -->
+        <div class="console-panel" id="console-panel">
+            <div class="console-header">
+                <div class="console-title">
+                    <span class="material-icons">bug_report</span>
+                    <span>Debug Console</span>
+                    <div class="console-status" id="console-status">
+                        <span class="status-indicator idle"></span>
+                        <span class="status-text">Idle</span>
+                    </div>
+                </div>
+                <div class="console-controls">
+                    <button id="console-run" title="Run Program">
+                        <span class="material-icons">play_arrow</span>
+                    </button>
+                    <button id="console-stop" title="Stop Program" disabled>
+                        <span class="material-icons">stop</span>
+                    </button>
+                    <button id="console-clear" title="Clear Console">
+                        <span class="material-icons">delete_sweep</span>
+                    </button>
+                    <button id="console-toggle" title="Toggle Console">
+                        <span class="material-icons">keyboard_arrow_down</span>
+                    </button>
+                </div>
+            </div>
+            <div class="console-content" id="console-content"></div>
+        </div>
+
+        <!-- Platform Selection Modal -->
+        <div class="platform-selection-modal" id="platform-selection-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Create New Project</h2>
+                    <p>Select a target platform</p>
+                </div>
+                <div class="modal-section">
+                    <div class="section-content" id="platform-settings">
+                        <div class="platform-grid">
+                            <button
+                                class="platform-card"
+                                data-platform="desktop"
+                            >
+                                <div class="platform-icon">
+                                    <span class="material-icons"
+                                        >desktop_windows</span
+                                    >
+                                </div>
+                                <div class="platform-info">
+                                    <h3>Desktop Development</h3>
+                                    <p>Windows, and Linux applications</p>
+                                </div>
+                                <div class="platform-badge">Desktop</div>
+                            </button>
+                            <button
+                                class="platform-card"
+                                data-platform="embedded"
+                                disabled
+                            >
+                                <div class="platform-icon">
+                                    <span class="material-icons">memory</span>
+                                </div>
+                                <div class="platform-info">
+                                    <h3>Embedded Development (Soon)</h3>
+                                    <p>Microcontrollers and IoT devices</p>
+                                </div>
+                                <div class="platform-badge">Embedded</div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button
+                        class="btn-secondary"
+                        id="cancel-platform-selection"
+                    >
+                        Cancel
+                    </button>
+                    <button class="btn-primary" id="validate-project-settings" style="display: none;">
+                        Validate
+                    </button>
+                    <button
+                        class="btn-primary"
+                        id="confirm-platform-selection"
+                        disabled
+                    >
+                        Create Project
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Start Screen -->
+        <div class="start-screen" id="start-screen">
+            <div class="ide-splash-container">
+                <!-- IDE Header -->
+                <div class="ide-header">
+                    <div class="ide-header-left">
+
+                        <div>
+                            <h1 class="app-title-large">GUIIDE</h1>
+                            <div class="app-subtitle">Build stunning applications with ease</div>
+                        </div>
+                    </div>
+                    <div class="platform-indicator" id="platform-indicator">
+                        <span class="material-icons">desktop_windows</span>
+                        <span>Desktop</span>
+                    </div>
+                </div>
+
+                <!-- Main Content -->
+                <div class="ide-content">
+                    <!-- Left Column - Start Actions -->
+                    <div class="start-actions">
+                        <div class="section-header">
+                            <h2>Start</h2>
+                            <p>Quickly get started with your project</p>
+                        </div>
+
+                        <div class="action-buttons">
+                            <button class="action-button" onclick="showPlatformSelection()">
+                                <div class="action-icon">
+                                    <span class="material-icons">add_circle</span>
+                                </div>
+                                <div class="action-content">
+                                    <div class="action-title">New Project</div>
+                                    <div class="action-description">Create a new project from scratch</div>
+                                </div>
+                            </button>
+
+                            <button class="action-button" id="load-xml-button">
+                                <div class="action-icon">
+                                    <span class="material-icons">folder_open</span>
+                                </div>
+                                <div class="action-content">
+                                    <div class="action-title">Open Project</div>
+                                    <div class="action-description">Open an existing project file</div>
+                                </div>
+                            </button>
+
+                            <button class="action-button" id="open-recent-button">
+                                <div class="action-icon">
+                                    <span class="material-icons">history</span>
+                                </div>
+                                <div class="action-content">
+                                    <div class="action-title">Open Recent</div>
+                                    <div class="action-description">Quickly open a recent project</div>
+                                </div>
+                            </button>
+                        </div>
+
+                        <div class="recent-projects">
+                            <h3>
+                                <span class="material-icons">schedule</span>
+                                Recent Projects
+                            </h3>
+                            <div class="recent-project-list" id="recent-projects-list">
+                                <!-- Recent projects will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column - Quick Links -->
+                    <div class="quick-links">
+                        <!-- Resources Section -->
+                        <div class="resources-section">
+                            <h3>
+                                <span class="material-icons">help</span>
+                                Resources
+                            </h3>
+                            <div class="resource-list">
+                                <a href="https://binaryinktn.github.io/GooeyGUI/docs/index.html#guides" target="_blank" class="resource-link">
+                                    <div class="resource-icon">
+                                        <span class="material-icons">book</span>
+                                    </div>
+                                    <div class="resource-details">
+                                        <div class="resource-title">Quickstart Guide</div>
+                                        <div class="resource-description">Learn the basics of GUIIDE</div>
+                                    </div>
+                                </a>
+
+                                <a href="https://binaryinktn.github.io/GooeyGUI/docs/index.html" target="_blank" class="resource-link">
+                                    <div class="resource-icon">
+                                        <span class="material-icons">api</span>
+                                    </div>
+                                    <div class="resource-details">
+                                        <div class="resource-title">API Documentation</div>
+                                        <div class="resource-description">Complete API reference</div>
+                                    </div>
+                                </a>
+
+                                <a href="https://github.com/BinaryInkTN/GooeyBuilder/issues" target="_blank" class="resource-link">
+                                    <div class="resource-icon">
+                                        <span class="material-icons">bug_report</span>
+                                    </div>
+                                    <div class="resource-details">
+                                        <div class="resource-title">Report Issue</div>
+                                        <div class="resource-description">Found a bug or want a feature?</div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="ide-footer">
+                    <div class="footer-links">
+                        <a href="#" class="footer-link" id="check-updates">Check for Updates</a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Editor Screen -->
+        <div class="editor-screen" id="editor-screen">
+            <div class="container">
+                <div class="toolbar" style="display: none">
+                    <button
+                        class="toolbar-button"
+                        id="save-xml-button"
+                        title="Save Project"
+                    >
+                        <span class="material-icons">save</span>
+                    </button>
+
+                    <button
+                        class="toolbar-button"
+                        id="start-screen-btn"
+                        title="Back to Start"
+                    >
+                        <span class="material-icons">home</span>
+                    </button>
+
+                    <button
+                        class="toolbar-button console-toggle-btn"
+                        id="toolbar-console-toggle"
+                        title="Toggle Terminal (Ctrl+`)"
+                    >
+                        <span class="material-icons">terminal</span>
+                    </button>
+
+                    <button
+                        class="toolbar-button"
+                        id="theme-toggle"
+                        title="Toggle Theme"
+                    >
+                        <span class="material-icons">dark_mode</span>
+                    </button>
+                </div>
+                <div class="main-content">
+                    <div class="toolbox">
+                        <div class="toolbox-section">
+                            <h4>Window</h4>
+                            <div class="toolbox-item" data-type="Menu">
+                                <span class="material-icons">menu</span>
+                                Menu
+                            </div>
+                        </div>
+                        <div class="toolbox-section">
+                            <h4>Widgets</h4>
+                            <div class="toolbox-item" data-type="Label">
+                                <span class="material-icons">label</span>
+                                Label
+                            </div>
+                            <div class="toolbox-item" data-type="Slider">
+                                <span class="material-icons">tune</span>
+                                Slider
+                            </div>
+                            <div
+                                class="toolbox-item"
+                                data-type="RadioButtonGroup"
+                            >
+                                <span class="material-icons"
+                                    >radio_button_checked</span
+                                >
+                                RadioButtonGroup
+                            </div>
+                            <div class="toolbox-item" data-type="Checkbox">
+                                <span class="material-icons">check_box</span>
+                                Checkbox
+                            </div>
+                            <div class="toolbox-item" data-type="Button">
+                                <span class="material-icons">smart_button</span>
+                                Button
+                            </div>
+                            <div class="toolbox-item" data-type="Input">
+                                <span class="material-icons">input</span>
+                                Textbox
+                            </div>
+                            <div class="toolbox-item" data-type="Dropdown">
+                                <span class="material-icons"
+                                    >arrow_drop_down_circle</span
+                                >
+                                Dropdown
+                            </div>
+                            <div class="toolbox-item" data-type="Plot">
+                                <span class="material-icons">bar_chart</span>
+                                Plot
+                            </div>
+                            <div class="toolbox-item" data-type="DropSurface">
+                                <span class="material-icons">cloud_upload</span>
+                                File Drop Surface
+                            </div>
+                            <div class="toolbox-item" data-type="Image">
+                                <span class="material-icons">image</span>
+                                Image
+                            </div>
+                            <div class="toolbox-item" data-type="List">
+                                <span class="material-icons">list</span>
+                                List
+                            </div>
+                            <div class="toolbox-item" data-type="Progressbar">
+                                <span class="material-icons">linear_scale</span>
+                                Progress Bar
+                            </div>
+                            <div class="toolbox-item" data-type="Meter">
+                                <span class="material-icons">speed</span>
+                                Meter
+                            </div>
+                            <div class="toolbox-item" data-type="Container">
+                                <span class="material-icons">view_compact</span>
+                                Container
+                            </div>
+                            <div class="toolbox-item" data-type="GSwitch">
+                                <span class="material-icons">toggle_on</span>
+                                Switch
+                            </div>
+                            <div class="toolbox-item" data-type="Tabs">
+                                <span class="material-icons">tab</span>
+                                Tabs
+                            </div>
+                        </div>
+                        <div class="toolbox-section">
+                            <h4>Primitive Drawing</h4>
+                            <div class="toolbox-item" data-type="Canvas">
+                                <span class="material-icons">draw</span>
+                                Canvas
+                            </div>
+                        </div>
+                    </div>
+                    <div class="workspace-container">
+                        <div class="document-tabs">
+                            <div
+                                class="document-tab active"
+                                data-tab="designer"
+                            >
+                                <span class="material-icons"
+                                    >design_services</span
+                                >
+                                Designer
+                            </div>
+                            <div class="document-tab" data-tab="code">
+                                <span class="material-icons">code</span>
+                                Code
+                            </div>
+                            <div class="document-tab" data-tab="ui-xml">
+                                <span class="material-icons">description</span>
+                                UI.xml
+                            </div>
+                        </div>
+                        <div class="workspace" id="workspace">
+                            <div
+                                class="tab-content active"
+                                id="designer-tab"
+                            ></div>
+                            <div class="tab-content" id="code-tab">
+                                <div class="code-tab-container">
+                                    <div id="widget-list"></div>
+                                    <div class="code-editor-container">
+                                        <div class="callback-selector">
+                                            <select id="callback-selector">
+                                                <option value="">
+                                                    Select a callback to edit
+                                                </option>
+                                            </select>
+                                        </div>
+                                        <div class="code-editor-content">
+                                            <div
+                                                id="callback-editor"
+                                                class="monaco-editor-container"
+                                            ></div>
+                                        </div>
+                                        <div class="callback-actions">
+                                            <button
+                                                class="button"
+                                                id="cancel-callback"
+                                            >
+                                                <span class="material-icons"
+                                                    >cancel</span
+                                                >
+                                                Cancel
+                                            </button>
+                                            <button
+                                                class="button primary"
+                                                id="save-callback"
+                                            >
+                                                <span class="material-icons"
+                                                    >save</span
+                                                >
+                                                Save
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div
+                                class="tab-content"
+                                style="height: 100vh !important"
+                                id="ui-xml-tab"
+                            >
+                                <div class="code-editor-content">
+                                    <div
+                                        id="ui-xml-editor"
+                                        class="monaco-editor-container"
+                                    ></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="properties-panel" id="right-panel">
+                        <div class="properties-section" id="window-properties">
+                            <h4>Window Properties</h4>
+                            <div class="property-item">
+                                <label>Title:</label>
+                                <input id="win-title" value="My Window" />
+                            </div>
+                            <div class="property-item">
+                                <label>Width:</label>
+                                <input
+                                    type="number"
+                                    id="win-width"
+                                    value="800"
+                                />
+                            </div>
+                            <div class="property-item">
+                                <label>Height:</label>
+                                <input
+                                    type="number"
+                                    id="win-height"
+                                    value="600"
+                                />
+                            </div>
+                            <h4>Window Hints</h4>
+                            <div class="property-item">
+                                <label
+                                    >enableOverlay
+                                    <input
+                                        class="debug-item"
+                                        id="window-debug-enable-overlay"
+                                        type="checkbox"
+                                    />
+                                </label>
+                            </div>
+                            <div class="property-item">
+                                <label
+                                    >enableContRedraw (inefficient)
+                                    <input
+                                        class="debug-item"
+                                        id="window-debug-enable-cont-redraw"
+                                        type="checkbox"
+                                    />
+                                </label>
+                            </div>
+                            <div class="property-item">
+                                <label
+                                    >isVisible
+                                    <input
+                                        class="debug-item"
+                                        id="window-debug-is-visible"
+                                        type="checkbox"
+                                    />
+                                </label>
+                            </div>
+                            <div class="property-item">
+                                <label
+                                    >isResizable
+                                    <input
+                                        class="debug-item"
+                                        id="window-debug-is-resizable"
+                                        type="checkbox"
+                                    />
+                                </label>
+                            </div>
+                            <button
+                                class="button primary"
+                                id="apply-window-settings"
+                            >
+                                <span class="material-icons">check</span>
+                                Apply
+                            </button>
+                        </div>
+                        <div
+                            class="properties-section"
+                            id="widget-properties"
+                            style="display: none"
+                        >
+                            <h4>Widget Properties</h4>
+                            <div class="property-item">
+                                <label>Type:</label>
+                                <input type="text" id="prop-type" disabled />
+                            </div>
+                            <div class="property-item">
+                                <label>X:</label>
+                                <input type="number" id="prop-x" />
+                            </div>
+                            <div class="property-item">
+                                <label>Y:</label>
+                                <input type="number" id="prop-y" />
+                            </div>
+                            <div class="property-item">
+                                <label>Width:</label>
+                                <input type="number" id="prop-width" />
+                            </div>
+                            <div class="property-item">
+                                <label>Height:</label>
+                                <input type="number" id="prop-height" />
+                            </div>
+                            <div class="property-item">
+                                <label>Text:</label>
+                                <input type="text" id="prop-text" />
+                            </div>
+                            <div class="property-item">
+                                <label>Callback Name:</label>
+                                <input
+                                    type="text"
+                                    id="prop-callback"
+                                    placeholder="my_callback"
+                                />
+                            </div>
+                            <div id="menu-properties" style="display: none">
+                                <h4>Menu Properties</h4>
+                            </div>
+                            <div
+                                id="progressbar-properties"
+                                style="display: none"
+                            >
+                                <h4>Progressbar Properties</h4>
+                                <div class="property-item">
+                                    <label>Value:</label>
+                                    <input
+                                        type="number"
+                                        id="progressbar-value"
+                                        value="50"
+                                        min="0"
+                                        max="100"
+                                    />
+                                </div>
+                            </div>
+                            <div id="meter-properties" style="display: none">
+                                <h4>Meter Properties</h4>
+                                <div class="property-item">
+                                    <label>Value:</label>
+                                    <input
+                                        type="number"
+                                        id="meter-value"
+                                        value="50"
+                                    />
+                                </div>
+                                <div class="property-item">
+                                    <label>Label:</label>
+                                    <input
+                                        type="text"
+                                        id="meter-label"
+                                        value="Meter"
+                                    />
+                                </div>
+                            </div>
+                            <div id="switch-properties" style="display: none">
+                                <h4>Switch Properties</h4>
+                                <div class="property-item">
+                                    <label>State:</label>
+                                    <input type="checkbox" id="switch-state" />
+                                </div>
+                                <div class="property-item">
+                                    <label>Show Hints:</label>
+                                    <select id="switch-show-hints">
+                                        <option value="true">Enabled</option>
+                                        <option value="false">Disabled</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="tabs-properties" style="display: none">
+                                <h4>Tabs Properties</h4>
+                                <div class="property-item">
+                                    <label>Is Sidebar:</label>
+                                    <input
+                                        type="checkbox"
+                                        id="tabs-is-sidebar"
+                                    />
+                                </div>
+                            </div>
+                            <div
+                                id="radiobutton-properties"
+                                style="display: none"
+                            >
+                                <h4>RadioButton Properties</h4>
+                                <div id="radiobutton-options">
+                                    <ul></ul>
+                                </div>
+                                <div class="property-item">
+                                    <label>Add more options:</label>
+                                    <div class="property-input-group">
+                                        <input
+                                            type="text"
+                                            id="radiobutton-option-input"
+                                            placeholder="Ex: Option 1.."
+                                        />
+                                        <button
+                                            id="radiobutton-option-add-button"
+                                            class="button"
+                                        >
+                                            <span class="material-icons"
+                                                >add</span
+                                            >
+                                            Add
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="plot-properties" style="display: none">
+                                <h4>Plot Properties</h4>
+                                <div class="property-item">
+                                    <label
+                                        >Plot Title (eg: Egg consumption
+                                        2025):</label
+                                    >
+                                    <input type="text" id="plot-title" />
+                                </div>
+                                <div class="property-item">
+                                    <label
+                                        >X-Axis Label (eg: Egg
+                                        consumption):</label
+                                    >
+                                    <input type="text" id="x-axis-label" />
+                                </div>
+                                <div class="property-item">
+                                    <label>X-Axis Data List (eg: 1,2,3):</label>
+                                    <input type="text" id="x-axis-data-list" />
+                                </div>
+                                <div class="property-item">
+                                    <label>Y-Axis Label (eg: Sales):</label>
+                                    <input type="text" id="y-axis-label" />
+                                </div>
+                                <div class="property-item">
+                                    <label>Y-Axis Data List (eg: 1,2,3):</label>
+                                    <input type="text" id="y-axis-data-list" />
+                                </div>
+                                <div class="property-item">
+                                    <label>Plot Type:</label>
+                                    <select id="plot-type">
+                                        <option value="line">Line Chart</option>
+                                        <option value="bar">Bar Chart</option>
+                                        <option value="scatter">
+                                            Scatter Plot
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="canvas-properties" style="display: none">
+                                <h4>Canvas Properties</h4>
+                                <div class="property-item">
+                                    <label>Background Color:</label>
+                                    <input
+                                        type="color"
+                                        id="canvas-bg-color"
+                                        value="#ffffff"
+                                    />
+                                </div>
+                                <div class="property-item">
+                                    <label>Grid Enabled:</label>
+                                    <input
+                                        type="checkbox"
+                                        id="canvas-show-grid"
+                                    />
+                                </div>
+                            </div>
+                            <div
+                                id="container-properties"
+                                style="display: none"
+                            >
+                                <h4>Container Properties</h4>
+                                <div class="property-item">
+                                    <label>Border Width:</label>
+                                    <input
+                                        type="number"
+                                        id="container-border-width"
+                                        value="1"
+                                        min="0"
+                                        max="10"
+                                    />
+                                </div>
+                                <div class="property-item">
+                                    <label>Border Radius:</label>
+                                    <input
+                                        type="number"
+                                        id="container-border-radius"
+                                        value="4"
+                                        min="0"
+                                        max="20"
+                                    />
+                                </div>
+                            </div>
+                            <div id="overlay-properties" style="display: none">
+                                <h4>Overlay Properties</h4>
+                                <div class="property-item">
+                                    <label>Opacity:</label>
+                                    <input
+                                        type="range"
+                                        id="overlay-opacity"
+                                        min="0"
+                                        max="100"
+                                        value="70"
+                                    />
+                                    <span id="overlay-opacity-value">70%</span>
+                                </div>
+                            </div>
+                            <div id="slider-properties" style="display: none">
+                                <h4>Slider Properties</h4>
+                                <div class="property-item">
+                                    <label>Min Value:</label>
+                                    <input
+                                        type="number"
+                                        id="slider-min-value"
+                                        value="0"
+                                    />
+                                </div>
+                                <div class="property-item">
+                                    <label>Max Value:</label>
+                                    <input
+                                        type="number"
+                                        id="slider-max-value"
+                                        value="100"
+                                    />
+                                </div>
+                                <div class="property-item">
+                                    <label>Show Hints:</label>
+                                    <select id="slider-show-hints">
+                                        <option value="true">Enabled</option>
+                                        <option value="false">Disabled</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="image-properties" style="display: none">
+                                <h4>Image Properties</h4>
+                                <div class="property-item">
+                                    <label>Image Path:</label>
+                                    <input
+                                        type="text"
+                                        id="image-relative-path"
+                                        placeholder="./assets/example.png"
+                                    />
+                                </div>
+                            </div>
+                            <div
+                                id="dropsurface-properties"
+                                style="display: none"
+                            >
+                                <h4>DropSurface Properties</h4>
+                                <div class="property-item">
+                                    <label>Message:</label>
+                                    <input
+                                        type="text"
+                                        id="dropsurface-message"
+                                        placeholder="Drop files here.."
+                                    />
+                                </div>
+                            </div>
+                            <div id="dropdown-properties" style="display: none">
+                                <h4>Dropdown Properties</h4>
+                                <div id="dropdown-options">
+                                    <ul></ul>
+                                </div>
+                                <div class="property-item">
+                                    <label>Add more options:</label>
+                                    <div class="property-input-group">
+                                        <input
+                                            type="text"
+                                            id="dropdown-option-input"
+                                            placeholder="Ex: apple.."
+                                        />
+                                        <button
+                                            id="dropdown-option-add-button"
+                                            class="button"
+                                        >
+                                            <span class="material-icons"
+                                                >add</span
+                                            >
+                                            Add
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="list-properties" style="display: none">
+                                <h4>List Properties</h4>
+                                <div id="list-options">
+                                    <ul></ul>
+                                </div>
+                                <div class="property-item">
+                                    <label>Add more options:</label>
+                                    <div class="property-input-group">
+                                        <input
+                                            type="text"
+                                            id="list-option-input"
+                                            placeholder="Ex: apple.."
+                                        />
+                                        <input
+                                            type="text"
+                                            id="list-option-input-desc"
+                                            placeholder="Ex: apples are fruit..."
+                                        />
+                                        <button
+                                            id="list-option-add-button"
+                                            class="button"
+                                        >
+                                            <span class="material-icons"
+                                                >add</span
+                                            >
+                                            Add
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="property-actions">
+                                <button
+                                    class="button primary"
+                                    id="apply-widget-properties"
+                                >
+                                    <span class="material-icons">check</span>
+                                    Apply
+                                </button>
+                                <button
+                                    class="button danger"
+                                    id="delete-widget"
+                                >
+                                    <span class="material-icons">delete</span>
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="status-bar">
+                    <span id="status-text">Ready</span>
+                </div>
+            </div>
+            <div class="code-editor" id="code-editor" style="display: none">
+                <div class="code-editor-header">
+                    <div>
+                        <span class="material-icons">code</span>
+                        Code Editor
+                    </div>
+                    <button id="close-code-editor">
+                        <span class="material-icons">close</span>
+                    </button>
+                </div>
+                <div class="code-editor-content">
+                    <div id="editor" class="monaco-editor-container"></div>
+                </div>
+            </div>
+        </div>
+        <script type="module" src="app.js"></script>
+    </body>
+</html>
