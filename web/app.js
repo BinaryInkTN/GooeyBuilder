@@ -577,10 +577,541 @@ function toggleTheme() {
 
 function showAboutDialog() {
     alert(
-        "GUIIDE Beta\nVersion 1.0.0\n\nBuild stunning applications with ease.\nCreate, design, and deploy across platforms.",
+        "GUIIDE Beta\nVersion 1.0.0\n\n Certainly more stable than any of the STMicroelectronics IDEs.",
     );
 }
+// Command Palette System
+class CommandPalette {
+    constructor() {
+        this.palette = document.getElementById("command-palette");
+        this.overlay = document.createElement("div");
+        this.overlay.className = "command-palette-overlay";
+        document.body.appendChild(this.overlay);
 
+        this.input = document.getElementById("command-palette-input");
+        this.content = document.getElementById("command-palette-content");
+
+        this.commands = [];
+        this.filteredCommands = [];
+        this.selectedIndex = 0;
+
+        this.initCommands();
+        this.setupEventListeners();
+    }
+
+    initCommands() {
+        this.commands = [
+            // File Commands
+            {
+                id: "new-project",
+                title: "Create New Project",
+                description: "Start a new project from scratch",
+                icon: "add_circle",
+                category: "File",
+                shortcut: "Ctrl+N",
+                action: () => showPlatformSelection(),
+            },
+            {
+                id: "open-project",
+                title: "Open Project",
+                description: "Open an existing project file",
+                icon: "folder_open",
+                category: "File",
+                shortcut: "Ctrl+O",
+                action: () => loadProjectFromXML(),
+            },
+            {
+                id: "save-project",
+                title: "Save Project",
+                description: "Save the current project",
+                icon: "save",
+                category: "File",
+                shortcut: "Ctrl+S",
+                action: () => saveProjectToXML(),
+            },
+            {
+                id: "save-project-as",
+                title: "Save Project As...",
+                description: "Save the current project with a new name",
+                icon: "save_as",
+                category: "File",
+                action: () => saveProjectToXML(true),
+            },
+            {
+                id: "export-c-code",
+                title: "Export C Code",
+                description:
+                    "Generate and export C code for the current project",
+                icon: "download",
+                category: "File",
+                shortcut: "Ctrl+E",
+                action: () => exportCCode(),
+            },
+
+            // Edit Commands
+            {
+                id: "undo",
+                title: "Undo",
+                description: "Undo the last action",
+                icon: "undo",
+                category: "Edit",
+                shortcut: "Ctrl+Z",
+                action: () => console.log("Undo"),
+            },
+            {
+                id: "redo",
+                title: "Redo",
+                description: "Redo the last undone action",
+                icon: "redo",
+                category: "Edit",
+                shortcut: "Ctrl+Shift+Z",
+                action: () => console.log("Redo"),
+            },
+            {
+                id: "cut",
+                title: "Cut",
+                description: "Cut selected content to clipboard",
+                icon: "content_cut",
+                category: "Edit",
+                shortcut: "Ctrl+X",
+                action: () => document.execCommand("cut"),
+            },
+            {
+                id: "copy",
+                title: "Copy",
+                description: "Copy selected content to clipboard",
+                icon: "content_copy",
+                category: "Edit",
+                shortcut: "Ctrl+C",
+                action: () => document.execCommand("copy"),
+            },
+            {
+                id: "paste",
+                title: "Paste",
+                description: "Paste content from clipboard",
+                icon: "content_paste",
+                category: "Edit",
+                shortcut: "Ctrl+V",
+                action: () => document.execCommand("paste"),
+            },
+            {
+                id: "delete",
+                title: "Delete",
+                description: "Delete selected widget",
+                icon: "delete",
+                category: "Edit",
+                shortcut: "Delete",
+                action: () => deleteSelectedWidget(),
+            },
+
+            // View Commands
+            {
+                id: "toggle-console",
+                title: "Toggle Console",
+                description: "Show or hide the debug console",
+                icon: "terminal",
+                category: "View",
+                shortcut: "Ctrl+`",
+                action: () => window.terminalConsole?.toggle(),
+            },
+            {
+                id: "toggle-theme",
+                title: "Toggle Theme",
+                description: "Switch between light and dark themes",
+                icon: "dark_mode",
+                category: "View",
+                shortcut: "Ctrl+T",
+                action: () => toggleTheme(),
+            },
+            {
+                id: "zoom-in",
+                title: "Zoom In",
+                description: "Increase zoom level",
+                icon: "zoom_in",
+                category: "View",
+                shortcut: "Ctrl+=",
+                action: () => {
+                    document.body.style.zoom =
+                        parseFloat(document.body.style.zoom || 1) + 0.1;
+                },
+            },
+            {
+                id: "zoom-out",
+                title: "Zoom Out",
+                description: "Decrease zoom level",
+                icon: "zoom_out",
+                category: "View",
+                shortcut: "Ctrl+-",
+                action: () => {
+                    document.body.style.zoom =
+                        parseFloat(document.body.style.zoom || 1) - 0.1;
+                },
+            },
+            {
+                id: "reset-zoom",
+                title: "Reset Zoom",
+                description: "Reset zoom level to 100%",
+                icon: "filter_center_focus",
+                category: "View",
+                shortcut: "Ctrl+0",
+                action: () => {
+                    document.body.style.zoom = 1;
+                },
+            },
+            {
+                id: "show-command-palette",
+                title: "Show Command Palette",
+                description: "Open the command palette",
+                icon: "keyboard",
+                category: "View",
+                shortcut: "Ctrl+Shift+P",
+                action: () => this.show(),
+            },
+
+            // Build Commands
+            {
+                id: "generate-code",
+                title: "Generate C Code",
+                description: "Generate C code for the current project",
+                icon: "code",
+                category: "Build",
+                action: () => generateC(),
+            },
+            {
+                id: "run-project",
+                title: "Run Project",
+                description: "Execute the current project",
+                icon: "play_arrow",
+                category: "Build",
+                shortcut: "F5",
+                action: () => window.terminalConsole?.runProgram(),
+            },
+            {
+                id: "stop-project",
+                title: "Stop Project",
+                description: "Stop the running project",
+                icon: "stop",
+                category: "Build",
+                shortcut: "Shift+F5",
+                action: () => window.terminalConsole?.stopProgram(),
+            },
+
+            // Navigation Commands
+            {
+                id: "go-to-start",
+                title: "Go to Start Screen",
+                description: "Return to the start screen",
+                icon: "home",
+                category: "Navigation",
+                shortcut: "Ctrl+H",
+                action: () => showStartScreen(),
+            },
+            {
+                id: "go-to-designer",
+                title: "Go to Designer",
+                description: "Switch to the designer tab",
+                icon: "design_services",
+                category: "Navigation",
+                shortcut: "Ctrl+1",
+                action: () => this.switchTab("designer"),
+            },
+            {
+                id: "go-to-code",
+                title: "Go to Code Editor",
+                description: "Switch to the code editor tab",
+                icon: "code",
+                category: "Navigation",
+                shortcut: "Ctrl+2",
+                action: () => this.switchTab("code"),
+            },
+            {
+                id: "go-to-ui-xml",
+                title: "Go to UI.xml",
+                description: "Switch to the UI.xml tab",
+                icon: "description",
+                category: "Navigation",
+                shortcut: "Ctrl+3",
+                action: () => this.switchTab("ui-xml"),
+            },
+
+            // Help Commands
+            {
+                id: "quickstart-guide",
+                title: "Open Quickstart Guide",
+                description: "Open the quickstart guide documentation",
+                icon: "book",
+                category: "Help",
+                action: () =>
+                    window.open(
+                        "https://binaryinktn.github.io/GooeyGUI/docs/index.html#guides",
+                        "_blank",
+                    ),
+            },
+            {
+                id: "api-docs",
+                title: "Open API Documentation",
+                description: "Open the complete API reference",
+                icon: "api",
+                category: "Help",
+                action: () =>
+                    window.open(
+                        "https://binaryinktn.github.io/GooeyGUI/docs/index.html",
+                        "_blank",
+                    ),
+            },
+            {
+                id: "report-issue",
+                title: "Report Issue",
+                description: "Report a bug or request a feature",
+                icon: "bug_report",
+                category: "Help",
+                action: () =>
+                    window.open(
+                        "https://github.com/BinaryInkTN/GooeyBuilder/issues",
+                        "_blank",
+                    ),
+            },
+            {
+                id: "about",
+                title: "About GUIIDE",
+                description: "Show information about GUIIDE",
+                icon: "info",
+                category: "Help",
+                action: () => showAboutDialog(),
+            },
+        ];
+    }
+
+    setupEventListeners() {
+        // Overlay click
+        this.overlay.addEventListener("click", () => this.hide());
+
+        // Input events
+        this.input.addEventListener("input", () => this.filterCommands());
+        this.input.addEventListener("keydown", (e) => this.handleKeyDown(e));
+
+        // Global shortcut
+        document.addEventListener("keydown", (e) => {
+            if (e.ctrlKey && e.shiftKey && e.key === "P") {
+                e.preventDefault();
+                this.show();
+            }
+
+            if (e.key === "Escape" && this.isVisible()) {
+                e.preventDefault();
+                this.hide();
+            }
+        });
+    }
+
+    show() {
+        this.palette.classList.add("active");
+        this.overlay.classList.add("active");
+        this.input.value = "";
+        this.filterCommands();
+        this.input.focus();
+        this.selectedIndex = 0;
+    }
+
+    hide() {
+        this.palette.classList.remove("active");
+        this.overlay.classList.remove("active");
+    }
+
+    isVisible() {
+        return this.palette.classList.contains("active");
+    }
+
+    filterCommands() {
+        const query = this.input.value.toLowerCase().trim();
+        this.filteredCommands = [];
+
+        if (!query) {
+            this.filteredCommands = [...this.commands];
+        } else {
+            this.filteredCommands = this.commands.filter(
+                (cmd) =>
+                    cmd.title.toLowerCase().includes(query) ||
+                    cmd.description.toLowerCase().includes(query) ||
+                    cmd.category.toLowerCase().includes(query) ||
+                    (cmd.shortcut &&
+                        cmd.shortcut.toLowerCase().includes(query)),
+            );
+        }
+
+        this.renderCommands();
+    }
+
+    renderCommands() {
+        this.content.innerHTML = "";
+
+        if (this.filteredCommands.length === 0) {
+            const emptyDiv = document.createElement("div");
+            emptyDiv.className = "command-palette-empty";
+            emptyDiv.innerHTML = `
+                <span class="material-icons">search_off</span>
+                <div>No commands found</div>
+                <div style="font-size: 12px; margin-top: 8px;">Try a different search term</div>
+            `;
+            this.content.appendChild(emptyDiv);
+            return;
+        }
+
+        let currentCategory = null;
+
+        this.filteredCommands.forEach((cmd, index) => {
+            if (cmd.category !== currentCategory) {
+                currentCategory = cmd.category;
+                const categoryDiv = document.createElement("div");
+                categoryDiv.className = "command-category";
+                categoryDiv.textContent = currentCategory;
+                this.content.appendChild(categoryDiv);
+            }
+
+            const itemDiv = document.createElement("div");
+            itemDiv.className = `command-item ${index === this.selectedIndex ? "selected" : ""}`;
+            itemDiv.innerHTML = `
+                <div class="command-icon">
+                    <span class="material-icons">${cmd.icon}</span>
+                </div>
+                <div class="command-details">
+                    <div class="command-title">${cmd.title}</div>
+                    <div class="command-description">${cmd.description}</div>
+                </div>
+                ${cmd.shortcut ? `<div class="command-shortcut">${cmd.shortcut}</div>` : ""}
+            `;
+
+            itemDiv.addEventListener("click", () => this.executeCommand(cmd));
+
+            this.content.appendChild(itemDiv);
+        });
+
+        // Scroll selected item into view
+        const selectedItem = this.content.querySelector(
+            ".command-item.selected",
+        );
+        if (selectedItem) {
+            selectedItem.scrollIntoView({ block: "nearest" });
+        }
+    }
+
+    handleKeyDown(e) {
+        switch (e.key) {
+            case "ArrowDown":
+                e.preventDefault();
+                this.selectedIndex = Math.min(
+                    this.selectedIndex + 1,
+                    this.filteredCommands.length - 1,
+                );
+                this.renderCommands();
+                break;
+
+            case "ArrowUp":
+                e.preventDefault();
+                this.selectedIndex = Math.max(this.selectedIndex - 1, 0);
+                this.renderCommands();
+                break;
+
+            case "Enter":
+                e.preventDefault();
+                if (this.filteredCommands[this.selectedIndex]) {
+                    this.executeCommand(
+                        this.filteredCommands[this.selectedIndex],
+                    );
+                }
+                break;
+
+            case "Escape":
+                e.preventDefault();
+                this.hide();
+                break;
+        }
+    }
+
+    executeCommand(command) {
+        this.hide();
+        try {
+            command.action();
+            if (window.terminalConsole) {
+                window.terminalConsole.addLine(
+                    `Executed: ${command.title}`,
+                    "system",
+                );
+            }
+        } catch (error) {
+            console.error("Error executing command:", error);
+            if (window.terminalConsole) {
+                window.terminalConsole.addLine(
+                    `Error executing ${command.title}: ${error.message}`,
+                    "stderr",
+                );
+            }
+        }
+    }
+
+    switchTab(tabName) {
+        const tab = document.querySelector(
+            `.document-tab[data-tab="${tabName}"]`,
+        );
+        if (tab) {
+            tab.click();
+        }
+    }
+
+    // Add custom command dynamically
+    addCommand(command) {
+        this.commands.push(command);
+        if (this.isVisible()) {
+            this.filterCommands();
+        }
+    }
+
+    // Remove command by id
+    removeCommand(commandId) {
+        this.commands = this.commands.filter((cmd) => cmd.id !== commandId);
+        if (this.isVisible()) {
+            this.filterCommands();
+        }
+    }
+}
+
+// Initialize command palette
+let commandPalette;
+
+function initCommandPalette() {
+    commandPalette = new CommandPalette();
+
+    // Add to window for global access
+    window.commandPalette = commandPalette;
+
+    // Add command palette toggle to menu
+    const commandPaletteItem = document.createElement("div");
+    commandPaletteItem.className = "menu-item";
+    commandPaletteItem.innerHTML = `
+        <span>Command Palette</span>
+        <div class="menu-dropdown" style="min-width: 250px;">
+            <a href="#" id="open-command-palette">
+                <span class="material-icons">keyboard</span>
+                Open Command Palette
+                <span style="margin-left: auto; font-size: 12px; color: var(--text-secondary);">Ctrl+Shift+P</span>
+            </a>
+        </div>
+    `;
+
+    // Insert before Help menu
+    const helpMenu = document.getElementById("help-menu");
+    if (helpMenu && helpMenu.parentNode) {
+        helpMenu.parentNode.insertBefore(commandPaletteItem, helpMenu);
+    }
+
+    // Add event listener
+    document
+        .getElementById("open-command-palette")
+        ?.addEventListener("click", (e) => {
+            e.preventDefault();
+            commandPalette.show();
+        });
+}
 function init() {
     document.addEventListener("contextmenu", (event) => event.preventDefault());
 
@@ -744,7 +1275,7 @@ function init() {
 
         themeToggle.addEventListener("click", toggleTheme);
     }
-
+    initCommandPalette();
     // Initialize status
     document.getElementById("status-text").textContent = "Ready";
 }

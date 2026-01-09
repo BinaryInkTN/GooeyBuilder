@@ -1152,6 +1152,27 @@
                 </div>
             </div>
         </div>
+        <!-- Command Palette -->
+        <div class="command-palette" id="command-palette">
+            <div class="command-palette-header">
+                <div class="command-palette-search">
+                    <span class="material-icons search-icon">search</span>
+                    <input
+                        type="text"
+                        id="command-palette-input"
+                        placeholder="Type a command or search..."
+                        autocomplete="off"
+                    />
+                    <div class="command-palette-hint">
+                        <kbd>↑</kbd><kbd>↓</kbd> to navigate •
+                        <kbd>Enter</kbd> to run • <kbd>Esc</kbd> to close
+                    </div>
+                </div>
+            </div>
+            <div class="command-palette-content" id="command-palette-content">
+                <!-- Commands will be populated here -->
+            </div>
+        </div>
         <script type="module" src="app.js"></script>
     </body>
 </html>
