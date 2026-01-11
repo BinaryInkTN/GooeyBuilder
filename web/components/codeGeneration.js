@@ -131,7 +131,7 @@ typedef struct
         cCode += `    GooeyProgressBar **progressbars;\n`;
     if (usedWidgetTypes.has("Meter")) cCode += `    GooeyMeter **meters;\n`;
     if (usedWidgetTypes.has("GSwitch"))
-        cCode += `    GooeySwitch **switches;\n`;
+        cCode += `    GooeySwitch **gswitchs;\n`;
     if (usedWidgetTypes.has("Container"))
         cCode += `    GooeyContainer **containers;\n`;
     if (usedWidgetTypes.has("Tabs")) cCode += `    GooeyTabs **tabs;\n`;
@@ -151,7 +151,7 @@ typedef struct
     uint32_t list_count;
     uint32_t progressbar_count;
     uint32_t meter_count;
-    uint32_t switch_count;
+    uint32_t gswitch_count;
     uint32_t container_count;
     uint32_t tabs_count;
     uint32_t plot_count;
@@ -772,7 +772,7 @@ ${indent}state.meters[${widgetIndices.meter++}] = ${widgetVar};
                 const showSwitchHints = widget.dataset.showHints || "false";
                 widgetCode += `${indent}/* Create switch${macroComment} */
 ${indent}GooeySwitch* ${widgetVar} = GooeySwitch_Create(${x}, ${y}, ${isToggled}, ${showSwitchHints}, ${callbackWithData});
-${indent}state.switches[${widgetIndices.gswitch++}] = ${widgetVar};
+${indent}state.gswitchs[${widgetIndices.gswitch++}] = ${widgetVar};
 `;
                 break;
 

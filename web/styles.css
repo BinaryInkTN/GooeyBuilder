@@ -1,6 +1,4 @@
-/* CSS Variables - Modern Discord Flat Design */
 :root {
-    /* Discord-inspired Color Palette */
     --primary-color: #1976D2;
     --primary-hover: #2196F3;
     --secondary-color: #747f8d;
@@ -1007,7 +1005,7 @@ position: fixed;
 
 /* Toolbox */
 .toolbox {
-    width: 200px;
+    width: auto;
     background: var(--toolbox-bg);
     border-right: 1px solid var(--border-color);
     overflow-y: auto;
@@ -1540,8 +1538,8 @@ position: fixed;
     cursor: pointer;
     transition: background-color var(--transition-normal);
     overflow: hidden;
-    height: 24px;
-    width: 48px;
+    height: 30px;
+    width: 55px;
 }
 
 .widget-gswitch.checked {
@@ -2924,6 +2922,8 @@ position: fixed;
     overflow: hidden;
     font-family: var(--font-family);
 }
+
+
 
 .command-palette.active {
     display: block;

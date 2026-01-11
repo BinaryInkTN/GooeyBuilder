@@ -32,7 +32,6 @@ import {
     showPlatformSelection,
 } from "./components/uiHelpers.js";
 
-// Replace Eel-based console output with Electron-based
 export function jsConsoleOutput(outputData) {
     try {
         if (outputData) {
@@ -131,7 +130,11 @@ export const createTerminalConsoleManager = () => {
 
     const toggle = () => {
         terminalState.isConsoleVisible = !terminalState.isConsoleVisible;
-
+        if (
+            window.document.getElementById("start-screen").style.display !==
+            "none"
+        )
+            return;
         if (terminalState.isConsoleVisible) {
             terminalState.consolePanel.classList.add("active");
             terminalState.toolbarConsoleBtn?.classList.add("active");
@@ -201,7 +204,6 @@ export const createTerminalConsoleManager = () => {
                     setTimeout(() => updateStatus("idle"), 3000);
                 }
             } else {
-                // Fallback for web version
                 addLine(
                     "Web version: Simulating program execution...",
                     "system",
@@ -325,7 +327,6 @@ export const createTerminalConsoleManager = () => {
     };
 };
 
-// Setup window controls
 function setupWindowControls() {
     const minimizeBtn = document.getElementById("minimize-btn");
     const maximizeBtn = document.getElementById("maximize-btn");
@@ -340,7 +341,7 @@ function setupWindowControls() {
     if (maximizeBtn && window.electronAPI) {
         maximizeBtn.addEventListener("click", () => {
             window.electronAPI.maximizeWindow();
-            // Update maximize button icon
+
             updateMaximizeButton();
         });
     }
@@ -351,10 +352,8 @@ function setupWindowControls() {
         });
     }
 
-    // Initial update of maximize button
     updateMaximizeButton();
 
-    // Listen for window state changes
     if (window.electronAPI) {
         window.electronAPI.getWindowState().then((state) => {
             updateMaximizeButton(state.isMaximized);
@@ -373,11 +372,9 @@ function updateMaximizeButton(isMaximized) {
     }
 }
 
-// Setup menu handlers
 function setupMenuHandlers() {
     if (!window.electronAPI) return;
 
-    // Listen for menu events from main process
     window.electronAPI.onMenuEvent((event) => {
         switch (event) {
             case "new-project":
@@ -396,7 +393,6 @@ function setupMenuHandlers() {
         }
     });
 
-    // Setup local menu handlers
     const menuHandlers = [
         "menu-new-project",
         "menu-open-project",
@@ -447,10 +443,8 @@ function handleMenuAction(actionId) {
             exportCCode();
             break;
         case "edit-undo":
-            // Implement undo
             break;
         case "edit-redo":
-            // Implement redo
             break;
         case "edit-cut":
             document.execCommand("cut");
@@ -519,7 +513,6 @@ async function exportCCode() {
                 );
             }
         } else {
-            // Web version fallback
             const blob = new Blob([cCode], { type: "text/plain" });
             const url = URL.createObjectURL(blob);
             const a = document.createElement("a");
@@ -545,7 +538,6 @@ function toggleTheme() {
 
     document.documentElement.setAttribute("data-theme", newTheme);
 
-    // Update Monaco editors
     if (state.editor) {
         state.editor.updateOptions({
             theme: newTheme === "dark" ? "vs-dark" : "vs-light",
@@ -562,7 +554,6 @@ function toggleTheme() {
         });
     }
 
-    // Update theme toggle button
     const themeToggle = document.getElementById("theme-toggle");
     if (themeToggle) {
         themeToggle.querySelector(".material-icons").textContent =
@@ -577,10 +568,10 @@ function toggleTheme() {
 
 function showAboutDialog() {
     alert(
-        "GUIIDE Beta\nVersion 1.0.0\n\n Certainly more stable than any of the STMicroelectronics IDEs.",
+        "GUIIDE Beta\nVersion 1.0.0\n\n A POS but still certainly more stable than any of the STMicroelectronics IDEs.",
     );
 }
-// Command Palette System
+
 class CommandPalette {
     constructor() {
         this.palette = document.getElementById("command-palette");
@@ -601,7 +592,6 @@ class CommandPalette {
 
     initCommands() {
         this.commands = [
-            // File Commands
             {
                 id: "new-project",
                 title: "Create New Project",
@@ -648,7 +638,6 @@ class CommandPalette {
                 action: () => exportCCode(),
             },
 
-            // Edit Commands
             {
                 id: "undo",
                 title: "Undo",
@@ -704,7 +693,6 @@ class CommandPalette {
                 action: () => deleteSelectedWidget(),
             },
 
-            // View Commands
             {
                 id: "toggle-console",
                 title: "Toggle Console",
@@ -768,7 +756,6 @@ class CommandPalette {
                 action: () => this.show(),
             },
 
-            // Build Commands
             {
                 id: "generate-code",
                 title: "Generate C Code",
@@ -796,7 +783,6 @@ class CommandPalette {
                 action: () => window.terminalConsole?.stopProgram(),
             },
 
-            // Navigation Commands
             {
                 id: "go-to-start",
                 title: "Go to Start Screen",
@@ -834,7 +820,6 @@ class CommandPalette {
                 action: () => this.switchTab("ui-xml"),
             },
 
-            // Help Commands
             {
                 id: "quickstart-guide",
                 title: "Open Quickstart Guide",
@@ -883,14 +868,11 @@ class CommandPalette {
     }
 
     setupEventListeners() {
-        // Overlay click
         this.overlay.addEventListener("click", () => this.hide());
 
-        // Input events
         this.input.addEventListener("input", () => this.filterCommands());
         this.input.addEventListener("keydown", (e) => this.handleKeyDown(e));
 
-        // Global shortcut
         document.addEventListener("keydown", (e) => {
             if (e.ctrlKey && e.shiftKey && e.key === "P") {
                 e.preventDefault();
@@ -986,7 +968,6 @@ class CommandPalette {
             this.content.appendChild(itemDiv);
         });
 
-        // Scroll selected item into view
         const selectedItem = this.content.querySelector(
             ".command-item.selected",
         );
@@ -1058,7 +1039,6 @@ class CommandPalette {
         }
     }
 
-    // Add custom command dynamically
     addCommand(command) {
         this.commands.push(command);
         if (this.isVisible()) {
@@ -1066,7 +1046,6 @@ class CommandPalette {
         }
     }
 
-    // Remove command by id
     removeCommand(commandId) {
         this.commands = this.commands.filter((cmd) => cmd.id !== commandId);
         if (this.isVisible()) {
@@ -1075,16 +1054,13 @@ class CommandPalette {
     }
 }
 
-// Initialize command palette
 let commandPalette;
 
 function initCommandPalette() {
     commandPalette = new CommandPalette();
 
-    // Add to window for global access
     window.commandPalette = commandPalette;
 
-    // Add command palette toggle to menu
     const commandPaletteItem = document.createElement("div");
     commandPaletteItem.className = "menu-item";
     commandPaletteItem.innerHTML = `
@@ -1098,13 +1074,11 @@ function initCommandPalette() {
         </div>
     `;
 
-    // Insert before Help menu
     const helpMenu = document.getElementById("help-menu");
     if (helpMenu && helpMenu.parentNode) {
         helpMenu.parentNode.insertBefore(commandPaletteItem, helpMenu);
     }
 
-    // Add event listener
     document
         .getElementById("open-command-palette")
         ?.addEventListener("click", (e) => {
@@ -1115,23 +1089,18 @@ function initCommandPalette() {
 function init() {
     document.addEventListener("contextmenu", (event) => event.preventDefault());
 
-    // Initialize terminal console
     window.terminalConsole = createTerminalConsoleManager();
     window.terminalConsole.init();
 
-    // Setup Electron window controls
     setupWindowControls();
 
-    // Setup menu handlers
     setupMenuHandlers();
 
-    // Initialize editors
     const { editor, callbackEditor, uiXmlEditor } = setupEditors();
     state.editor = editor;
     state.callbackEditor = callbackEditor;
     state.uiXmlEditor = uiXmlEditor;
 
-    // Setup UI components
     setupEditorDrag(document.getElementById("code-editor"));
 
     state.previewWindow = document.createElement("div");
@@ -1160,14 +1129,12 @@ function init() {
 
     setupPreviewWindowDrag(state.previewWindow, state.previewTitleBar);
 
-    // Setup toolbox
     document.querySelectorAll(".toolbox-item").forEach((item) => {
         item.addEventListener("click", function () {
             createWidget(this.dataset.type, 10, 10);
         });
     });
 
-    // Setup button handlers
     document
         .getElementById("close-code-editor")
         .addEventListener("click", function () {
@@ -1201,7 +1168,6 @@ function init() {
             showStartScreen();
         });
 
-    // Setup titlebar buttons
     document
         .getElementById("titlebar-home-btn")
         .addEventListener("click", () => {
@@ -1214,7 +1180,6 @@ function init() {
             saveProjectToXML();
         });
 
-    // Setup tabs
     document.querySelectorAll(".document-tab").forEach((tab) => {
         tab.addEventListener("click", function () {
             const tabName = this.dataset.tab;
@@ -1236,7 +1201,6 @@ function init() {
         });
     });
 
-    // Keyboard shortcuts
     document.addEventListener("keydown", function (e) {
         if (e.key === "Delete") {
             deleteSelectedWidget();
@@ -1251,7 +1215,6 @@ function init() {
         }
     });
 
-    // Widget selection
     state.previewContent.addEventListener("click", function (e) {
         if (e.target === this) {
             if (state.selectedWidget) {
@@ -1264,7 +1227,6 @@ function init() {
         }
     });
 
-    // Theme initialization
     const initialTheme = "dark";
     document.documentElement.setAttribute("data-theme", initialTheme);
 
@@ -1276,11 +1238,10 @@ function init() {
         themeToggle.addEventListener("click", toggleTheme);
     }
     initCommandPalette();
-    // Initialize status
+
     document.getElementById("status-text").textContent = "Ready";
 }
 
-// Initialize report issue link
 const reportIssueLink = document.getElementById("report-issue");
 if (reportIssueLink) {
     reportIssueLink.addEventListener("click", () => {
@@ -1292,14 +1253,12 @@ if (reportIssueLink) {
     });
 }
 
-// Cleanup on page unload
 window.addEventListener("beforeunload", () => {
     if (window.electronAPI) {
         window.electronAPI.removeMenuListeners();
     }
 });
 
-// Export functions to window
 window.deleteListOption = deleteListOption;
 window.deleteDropdownOption = deleteDropdownOption;
 window.showPlatformSelection = function (language = "c") {
@@ -1321,7 +1280,6 @@ window.updatePropertiesPanel = updatePropertiesPanel;
 window.updateWidgetList = updateWidgetList;
 window.generateProjectXML = generateProjectXML;
 
-// Initialize app
 if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", init);
 } else {

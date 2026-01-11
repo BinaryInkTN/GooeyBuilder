@@ -8,7 +8,9 @@ const execPromise = util.promisify(exec);
 
 let mainWindow;
 let currentProjectPath = null;
-
+function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
 function createWindow() {
     mainWindow = new BrowserWindow({
         width: 1400,
@@ -26,9 +28,19 @@ function createWindow() {
         backgroundColor: "#1e1e1e",
     });
 
+    splash = new BrowserWindow({
+        width: 700,
+        height: 420,
+        transparent: true,
+        frame: false,
+        alwaysOnTop: true,
+    });
+    splash.loadFile("web/splash.html");
     mainWindow.loadFile("web/index.html");
 
-    mainWindow.once("ready-to-show", () => {
+    mainWindow.once("ready-to-show", async () => {
+        await sleep(5000);
+        splash.destroy();
         mainWindow.show();
     });
 
@@ -422,6 +434,7 @@ function createApplicationMenu() {
     const menu = Menu.buildFromTemplate(template);
     Menu.setApplicationMenu(menu);
 }
+let splash;
 
 // App lifecycle
 app.whenReady().then(() => {

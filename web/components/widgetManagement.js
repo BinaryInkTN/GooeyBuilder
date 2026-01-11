@@ -129,8 +129,8 @@ export function createWidget(
             break;
         case "GSwitch":
             newWidget.className += " widget-gswitch";
-            newWidget.style.width = "40px";
-            newWidget.style.height = "20px";
+            newWidget.style.width = "50px";
+            newWidget.style.height = "26px";
             newWidget.innerHTML = '<div class="switch-toggle"></div>';
             newWidget.addEventListener("click", function (e) {
                 e.stopPropagation();
