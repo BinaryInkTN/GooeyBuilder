@@ -568,7 +568,7 @@ function toggleTheme() {
 
 function showAboutDialog() {
     alert(
-        "GUIIDE Beta\nVersion 1.0.0\n\n A POS but still certainly more stable than any of the STMicroelectronics IDEs.",
+        "GUIIDE Beta\nOfficial Open Source IDE for Gooey Framework.\nDeveloped and maintained by BinaryInk.",
     );
 }
 

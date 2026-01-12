@@ -2,12 +2,15 @@ import state from "./state.js";
 import { updateWidgetList } from "./propertiesPanel.js";
 import { showEditor } from "./uiHelpers.js";
 import { createWidget } from "./widgetManagement.js";
+import { updateWidgetHierarchy } from "./hierarchyManager.js";
+
 export function generateProjectXML() {
     const xmlDoc = document.implementation.createDocument(null, "project");
     const root = xmlDoc.documentElement;
     root.setAttribute("version", "1.0");
     root.setAttribute("platform", state.projectSettings.platform || "desktop");
     root.setAttribute("language", state.projectSettings.language || "c");
+
     const windowElement = xmlDoc.createElement("window");
     windowElement.setAttribute(
         "title",
@@ -34,17 +37,85 @@ export function generateProjectXML() {
         state.previewWindow.dataset.is_resizable || "true",
     );
     root.appendChild(windowElement);
+
     const widgetsElement = xmlDoc.createElement("widgets");
     root.appendChild(widgetsElement);
-    function saveWidget(widget, parentElement) {
+
+    function saveWidget(
+        widget,
+        parentElement,
+        parentId = null,
+        containerId = null,
+        tabId = null,
+    ) {
         const widgetElement = xmlDoc.createElement("widget");
         widgetElement.setAttribute("type", widget.dataset.type);
         widgetElement.setAttribute("id", widget.dataset.id);
+
+        // Save widget variable name
+        if (widget.dataset.widgetVar) {
+            widgetElement.setAttribute("widgetVar", widget.dataset.widgetVar);
+        }
+
+        // Save hierarchy information
+        if (parentId) {
+            widgetElement.setAttribute("parentId", parentId);
+        }
+
+        if (containerId) {
+            widgetElement.setAttribute("containerId", containerId);
+        }
+
+        if (tabId) {
+            widgetElement.setAttribute("tabId", tabId);
+        }
+
         widgetElement.setAttribute("x", widget.style.left || "0");
         widgetElement.setAttribute("y", widget.style.top || "0");
         widgetElement.setAttribute("width", widget.style.width);
         widgetElement.setAttribute("height", widget.style.height);
+
+        // Save widget-specific attributes
         switch (widget.dataset.type) {
+            case "Button":
+                widgetElement.setAttribute(
+                    "text",
+                    widget.textContent || "Button",
+                );
+                break;
+            case "Label":
+                widgetElement.setAttribute(
+                    "text",
+                    widget.textContent || "Label",
+                );
+                break;
+            case "Textbox":
+                widgetElement.setAttribute("text", widget.textContent || "");
+                break;
+            case "Checkbox":
+                widgetElement.setAttribute(
+                    "text",
+                    widget.textContent || "Checkbox",
+                );
+                widgetElement.setAttribute(
+                    "checked",
+                    widget.classList.contains("checked") ? "true" : "false",
+                );
+                break;
+            case "Radio":
+                widgetElement.setAttribute(
+                    "text",
+                    widget.textContent || "Radio",
+                );
+                widgetElement.setAttribute(
+                    "checked",
+                    widget.classList.contains("checked") ? "true" : "false",
+                );
+                widgetElement.setAttribute(
+                    "group",
+                    widget.dataset.group || "default",
+                );
+                break;
             case "Slider":
                 widgetElement.setAttribute(
                     "minValue",
@@ -57,6 +128,10 @@ export function generateProjectXML() {
                 widgetElement.setAttribute(
                     "showHints",
                     widget.dataset.showHints || "false",
+                );
+                widgetElement.setAttribute(
+                    "value",
+                    widget.dataset.value || "50",
                 );
                 break;
             case "Image":
@@ -76,11 +151,19 @@ export function generateProjectXML() {
                     "dropdownOptions",
                     widget.dataset.dropdownOptions || "",
                 );
+                widgetElement.setAttribute(
+                    "selectedIndex",
+                    widget.dataset.selectedIndex || "0",
+                );
                 break;
             case "List":
                 widgetElement.setAttribute(
                     "listOptions",
                     widget.dataset.listOptions || "[]",
+                );
+                widgetElement.setAttribute(
+                    "selectedIndex",
+                    widget.dataset.selectedIndex || "-1",
                 );
                 break;
             case "Progressbar":
@@ -114,6 +197,199 @@ export function generateProjectXML() {
                     "isSidebar",
                     widget.dataset.isSidebar || "false",
                 );
+
+                // Save tab structure
+                const tabs = [];
+                const tabContents = [];
+
+                widget.querySelectorAll(".tab").forEach((tab, index) => {
+                    tabs.push({
+                        id: tab.dataset.tab,
+                        title: tab.textContent,
+                        active: tab.classList.contains("active"),
+                    });
+                });
+
+                widget
+                    .querySelectorAll(".tab-content")
+                    .forEach((content, index) => {
+                        const tabId = content.dataset.tabContent;
+                        const tabWidgets = [];
+
+                        content
+                            .querySelectorAll(".widget")
+                            .forEach((childWidget) => {
+                                const childWidgetElement =
+                                    xmlDoc.createElement("widget");
+                                childWidgetElement.setAttribute(
+                                    "type",
+                                    childWidget.dataset.type,
+                                );
+                                childWidgetElement.setAttribute(
+                                    "id",
+                                    childWidget.dataset.id,
+                                );
+                                childWidgetElement.setAttribute("tabId", tabId);
+                                childWidgetElement.setAttribute(
+                                    "parentId",
+                                    widget.dataset.id,
+                                );
+
+                                if (childWidget.dataset.widgetVar) {
+                                    childWidgetElement.setAttribute(
+                                        "widgetVar",
+                                        childWidget.dataset.widgetVar,
+                                    );
+                                }
+
+                                childWidgetElement.setAttribute(
+                                    "x",
+                                    childWidget.style.left || "0",
+                                );
+                                childWidgetElement.setAttribute(
+                                    "y",
+                                    childWidget.style.top || "0",
+                                );
+                                childWidgetElement.setAttribute(
+                                    "width",
+                                    childWidget.style.width,
+                                );
+                                childWidgetElement.setAttribute(
+                                    "height",
+                                    childWidget.style.height,
+                                );
+
+                                // Save widget-specific attributes for tab children
+                                switch (childWidget.dataset.type) {
+                                    case "Button":
+                                    case "Label":
+                                    case "Textbox":
+                                    case "Checkbox":
+                                    case "Radio":
+                                        childWidgetElement.setAttribute(
+                                            "text",
+                                            childWidget.textContent || "",
+                                        );
+                                        break;
+                                }
+
+                                tabWidgets.push(childWidgetElement);
+                            });
+
+                        tabContents.push({
+                            id: tabId,
+                            widgets: tabWidgets,
+                        });
+                    });
+
+                widgetElement.setAttribute("tabs", JSON.stringify(tabs));
+                widgetElement.setAttribute("tabContents", "[]"); // Placeholder, widgets are saved separately
+
+                // Save tab widget children to main widgets list
+                tabContents.forEach((tabContent) => {
+                    tabContent.widgets.forEach((childWidgetElement) => {
+                        widgetsElement.appendChild(childWidgetElement);
+                    });
+                });
+                break;
+            case "Container":
+                widgetElement.setAttribute(
+                    "containerType",
+                    widget.dataset.containerType || "default",
+                );
+
+                // Save container structure
+                const containers = [];
+
+                widget
+                    .querySelectorAll(".container-content")
+                    .forEach((content, index) => {
+                        const containerId = content.dataset.containerId;
+                        const containerWidgets = [];
+
+                        content
+                            .querySelectorAll(".widget")
+                            .forEach((childWidget) => {
+                                const childWidgetElement =
+                                    xmlDoc.createElement("widget");
+                                childWidgetElement.setAttribute(
+                                    "type",
+                                    childWidget.dataset.type,
+                                );
+                                childWidgetElement.setAttribute(
+                                    "id",
+                                    childWidget.dataset.id,
+                                );
+                                childWidgetElement.setAttribute(
+                                    "containerId",
+                                    containerId,
+                                );
+                                childWidgetElement.setAttribute(
+                                    "parentId",
+                                    widget.dataset.id,
+                                );
+
+                                if (childWidget.dataset.widgetVar) {
+                                    childWidgetElement.setAttribute(
+                                        "widgetVar",
+                                        childWidget.dataset.widgetVar,
+                                    );
+                                }
+
+                                childWidgetElement.setAttribute(
+                                    "x",
+                                    childWidget.style.left || "0",
+                                );
+                                childWidgetElement.setAttribute(
+                                    "y",
+                                    childWidget.style.top || "0",
+                                );
+                                childWidgetElement.setAttribute(
+                                    "width",
+                                    childWidget.style.width,
+                                );
+                                childWidgetElement.setAttribute(
+                                    "height",
+                                    childWidget.style.height,
+                                );
+
+                                // Save widget-specific attributes for container children
+                                switch (childWidget.dataset.type) {
+                                    case "Button":
+                                    case "Label":
+                                    case "Textbox":
+                                    case "Checkbox":
+                                    case "Radio":
+                                        childWidgetElement.setAttribute(
+                                            "text",
+                                            childWidget.textContent || "",
+                                        );
+                                        break;
+                                }
+
+                                containerWidgets.push(childWidgetElement);
+                            });
+
+                        containers.push({
+                            id: containerId,
+                            widgets: containerWidgets,
+                        });
+                    });
+
+                // Save container widget children to main widgets list
+                containers.forEach((container) => {
+                    container.widgets.forEach((childWidgetElement) => {
+                        widgetsElement.appendChild(childWidgetElement);
+                    });
+                });
+                break;
+            case "VerticalLayout":
+            case "HorizontalLayout":
+                // Layout widgets save their children through parentId
+                break;
+            case "Canvas":
+                widgetElement.setAttribute("width", widget.style.width);
+                widgetElement.setAttribute("height", widget.style.height);
                 break;
             case "Plot":
                 widgetElement.setAttribute(
@@ -121,18 +397,14 @@ export function generateProjectXML() {
                     widget.dataset.plotType || "line",
                 );
                 break;
+            default:
+                // For other widget types, save text if exists
+                if (widget.textContent) {
+                    widgetElement.setAttribute("text", widget.textContent);
+                }
+                break;
         }
-        if (
-            widget.dataset.type !== "Slider" &&
-            widget.dataset.type !== "Image" &&
-            widget.dataset.type !== "DropSurface" &&
-            widget.dataset.type !== "Canvas" &&
-            widget.dataset.type !== "Plot" &&
-            widget.dataset.type !== "Progressbar" &&
-            widget.dataset.type !== "Meter"
-        ) {
-            widgetElement.setAttribute("text", widget.textContent || "");
-        }
+
         if (state.widgetCallbacks[widget.dataset.id]) {
             const callbackElement = xmlDoc.createElement("callback");
             callbackElement.setAttribute(
@@ -149,32 +421,48 @@ export function generateProjectXML() {
             }
             widgetElement.appendChild(callbackElement);
         }
+
         parentElement.appendChild(widgetElement);
+
+        // For layouts, save direct children
         if (
             widget.dataset.type === "VerticalLayout" ||
-            widget.dataset.type === "HorizontalLayout" ||
-            widget.dataset.type === "Container"
+            widget.dataset.type === "HorizontalLayout"
         ) {
-            const childrenElement = xmlDoc.createElement("children");
-            widgetElement.appendChild(childrenElement);
             Array.from(widget.children).forEach((child) => {
                 if (
                     child.classList.contains("widget") &&
                     !child.classList.contains("resize-handle")
                 ) {
-                    saveWidget(child, childrenElement);
+                    saveWidget(child, widgetsElement, widget.dataset.id);
                 }
             });
         }
+
+        return widgetElement;
     }
-    state.previewContent.querySelectorAll(".widget").forEach((widget) => {
-        if (!widget.parentElement.classList.contains("layout")) {
-            saveWidget(widget, widgetsElement);
+
+    // Save all widgets in the preview
+    const allWidgets = state.previewContent.querySelectorAll(".widget");
+    const rootWidgets = [];
+
+    // Find root widgets (not inside other widgets)
+    allWidgets.forEach((widget) => {
+        const parentWidget = widget.parentElement.closest(".widget");
+        if (!parentWidget) {
+            rootWidgets.push(widget);
         }
     });
+
+    // Save root widgets
+    rootWidgets.forEach((widget) => {
+        saveWidget(widget, widgetsElement);
+    });
+
     const serializer = new XMLSerializer();
     return serializer.serializeToString(xmlDoc);
 }
+
 export function saveProjectToXML() {
     try {
         const xmlString = generateProjectXML();
@@ -217,8 +505,14 @@ export function loadProjectFromXML() {
                     event.target.result,
                     "application/xml",
                 );
+
+                // Clear existing state
                 state.previewContent.innerHTML = "";
                 state.widgetCallbacks = {};
+                state.widgetHierarchy.clear();
+                state.widgetVarNames.clear();
+                state.widgetCounter = 0;
+
                 const windowElement = xmlDoc.querySelector("window");
                 if (windowElement) {
                     state.previewTitleBar.querySelector(
@@ -233,6 +527,7 @@ export function loadProjectFromXML() {
                         windowElement.getAttribute("x") || "0px";
                     state.previewWindow.style.top =
                         windowElement.getAttribute("y") || "0px";
+
                     document.getElementById("win-title").value =
                         windowElement.getAttribute("title") || "My Window";
                     document.getElementById("win-width").value = parseInt(
@@ -241,6 +536,7 @@ export function loadProjectFromXML() {
                     document.getElementById("win-height").value = parseInt(
                         windowElement.getAttribute("height") || "600",
                     );
+
                     state.previewWindow.dataset.debug_overlay =
                         windowElement.getAttribute("debug_overlay") || "false";
                     state.previewWindow.dataset.cont_redraw =
@@ -250,141 +546,437 @@ export function loadProjectFromXML() {
                     state.previewWindow.dataset.is_resizable =
                         windowElement.getAttribute("is_resizable") || "true";
                 }
+
                 const widgetsElement = xmlDoc.querySelector("widgets");
-                if (widgetsElement) {
-                    function loadWidget(widgetElement, parent = null) {
-                        const type = widgetElement.getAttribute("type");
-                        const x = parseInt(
-                            widgetElement.getAttribute("x") || "0",
-                        );
-                        const y = parseInt(
-                            widgetElement.getAttribute("y") || "0",
-                        );
-                        const width =
-                            widgetElement.getAttribute("width") || "100px";
-                        const height =
-                            widgetElement.getAttribute("height") || "30px";
-                        const widget = createWidget(type, x, y, parent);
-                        widget.style.width = width;
-                        widget.style.height = height;
-                        switch (type) {
-                            case "Slider":
-                                widget.dataset.minValue =
-                                    widgetElement.getAttribute("minValue") ||
-                                    "0";
-                                widget.dataset.maxValue =
-                                    widgetElement.getAttribute("maxValue") ||
-                                    "100";
-                                widget.dataset.showHints =
-                                    widgetElement.getAttribute("showHints") ||
-                                    "false";
-                                break;
-                            case "Image":
-                                widget.dataset.relativePath =
-                                    widgetElement.getAttribute(
-                                        "relativePath",
-                                    ) || "./assets/example.png";
-                                break;
-                            case "DropSurface":
-                                widget.dataset.dropsurfaceMessage =
-                                    widgetElement.getAttribute(
-                                        "dropsurfaceMessage",
-                                    ) || "Drop files here..";
-                                break;
-                            case "Dropdown":
-                                widget.dataset.dropdownOptions =
-                                    widgetElement.getAttribute(
-                                        "dropdownOptions",
-                                    ) || "";
-                                break;
-                            case "List":
-                                widget.dataset.listOptions =
-                                    widgetElement.getAttribute("listOptions") ||
-                                    "[]";
-                                break;
-                            case "Progressbar":
-                                widget.dataset.value =
-                                    widgetElement.getAttribute("value") || "50";
-                                break;
-                            case "Meter":
-                                widget.dataset.value =
-                                    widgetElement.getAttribute("value") || "50";
-                                widget.dataset.label =
-                                    widgetElement.getAttribute("label") ||
-                                    "Meter";
-                                break;
-                            case "GSwitch":
-                                widget.dataset.showHints =
-                                    widgetElement.getAttribute("showHints") ||
-                                    "false";
-                                if (
-                                    widgetElement.getAttribute("state") ===
-                                    "true"
-                                ) {
-                                    widget.classList.add("checked");
-                                }
-                                break;
-                            case "Tabs":
-                                widget.dataset.isSidebar =
-                                    widgetElement.getAttribute("isSidebar") ||
-                                    "false";
-                                break;
-                            case "Plot":
-                                widget.dataset.plotType =
-                                    widgetElement.getAttribute("plotType") ||
-                                    "line";
-                                break;
-                        }
-                        if (
-                            type !== "Slider" &&
-                            type !== "Image" &&
-                            type !== "DropSurface"
-                        ) {
-                            widget.textContent =
-                                widgetElement.getAttribute("text") || "";
-                        }
-                        const callbackElement =
-                            widgetElement.querySelector("callback");
-                        if (callbackElement) {
-                            const callbackName =
-                                callbackElement.getAttribute("name") || "";
-                            state.widgetCallbacks[
-                                widget.dataset.id
-                            ].callbackName = callbackName;
-                            for (const codeElement of callbackElement.children) {
-                                const type = codeElement.tagName;
-                                state.widgetCallbacks[widget.dataset.id][type] =
-                                    codeElement.textContent;
-                            }
-                        }
-                        if (
-                            type === "VerticalLayout" ||
-                            type === "HorizontalLayout" ||
-                            type === "Container"
-                        ) {
-                            const childrenElement =
-                                widgetElement.querySelector("children");
-                            if (childrenElement) {
-                                childrenElement
-                                    .querySelectorAll("widget")
-                                    .forEach((childElement) => {
-                                        loadWidget(childElement, widget);
-                                    });
-                            }
-                        }
-                        return widget;
+                if (!widgetsElement) return;
+
+                const widgetElements = Array.from(
+                    widgetsElement.querySelectorAll("widget"),
+                );
+                const widgetMap = new Map();
+
+                // Helper function to create widget with all attributes
+                function createWidgetFromElement(
+                    widgetElement,
+                    parentWidget = null,
+                ) {
+                    const type = widgetElement.getAttribute("type");
+                    const id = widgetElement.getAttribute("id");
+                    const parentId = widgetElement.getAttribute("parentId");
+                    const containerId =
+                        widgetElement.getAttribute("containerId");
+                    const tabId = widgetElement.getAttribute("tabId");
+                    const widgetVar = widgetElement.getAttribute("widgetVar");
+
+                    const x = parseInt(widgetElement.getAttribute("x") || "0");
+                    const y = parseInt(widgetElement.getAttribute("y") || "0");
+                    const width =
+                        widgetElement.getAttribute("width") || "100px";
+                    const height =
+                        widgetElement.getAttribute("height") || "30px";
+
+                    // Create widget
+                    let widget;
+
+                    if (parentWidget) {
+                        widget = createWidget(type, x, y, parentWidget);
+                    } else {
+                        widget = createWidget(type, x, y);
                     }
-                    widgetsElement
-                        .querySelectorAll("widget")
-                        .forEach((widgetElement) => {
-                            loadWidget(widgetElement);
+
+                    widget.dataset.id = id;
+
+                    if (widgetVar) {
+                        widget.dataset.widgetVar = widgetVar;
+                        state.widgetVarNames.set(id, widgetVar);
+                    }
+
+                    if (containerId) {
+                        widget.dataset.containerId = containerId;
+                    }
+
+                    if (tabId) {
+                        widget.dataset.tabId = tabId;
+                    }
+
+                    widget.style.width = width;
+                    widget.style.height = height;
+                    widget.style.left = x + "px";
+                    widget.style.top = y + "px";
+
+                    // Set widget-specific attributes
+                    switch (type) {
+                        case "Button":
+                        case "Label":
+                        case "Textbox":
+                            const text = widgetElement.getAttribute("text");
+                            if (text !== null) {
+                                widget.textContent = text;
+                            }
+                            break;
+                        case "Checkbox":
+                            const checkboxText =
+                                widgetElement.getAttribute("text");
+                            if (checkboxText !== null) {
+                                widget.textContent = checkboxText;
+                            }
+                            if (
+                                widgetElement.getAttribute("checked") === "true"
+                            ) {
+                                widget.classList.add("checked");
+                            }
+                            break;
+                        case "Radio":
+                            const radioText =
+                                widgetElement.getAttribute("text");
+                            if (radioText !== null) {
+                                widget.textContent = radioText;
+                            }
+                            if (
+                                widgetElement.getAttribute("checked") === "true"
+                            ) {
+                                widget.classList.add("checked");
+                            }
+                            widget.dataset.group =
+                                widgetElement.getAttribute("group") ||
+                                "default";
+                            break;
+                        case "Slider":
+                            widget.dataset.minValue =
+                                widgetElement.getAttribute("minValue") || "0";
+                            widget.dataset.maxValue =
+                                widgetElement.getAttribute("maxValue") || "100";
+                            widget.dataset.showHints =
+                                widgetElement.getAttribute("showHints") ||
+                                "false";
+                            widget.dataset.value =
+                                widgetElement.getAttribute("value") || "50";
+                            break;
+                        case "Image":
+                            widget.dataset.relativePath =
+                                widgetElement.getAttribute("relativePath") ||
+                                "./assets/example.png";
+                            break;
+                        case "DropSurface":
+                            widget.dataset.dropsurfaceMessage =
+                                widgetElement.getAttribute(
+                                    "dropsurfaceMessage",
+                                ) || "Drop files here..";
+                            break;
+                        case "Dropdown":
+                            widget.dataset.dropdownOptions =
+                                widgetElement.getAttribute("dropdownOptions") ||
+                                "";
+                            widget.dataset.selectedIndex =
+                                widgetElement.getAttribute("selectedIndex") ||
+                                "0";
+                            break;
+                        case "List":
+                            widget.dataset.listOptions =
+                                widgetElement.getAttribute("listOptions") ||
+                                "[]";
+                            widget.dataset.selectedIndex =
+                                widgetElement.getAttribute("selectedIndex") ||
+                                "-1";
+                            break;
+                        case "Progressbar":
+                            widget.dataset.value =
+                                widgetElement.getAttribute("value") || "50";
+                            break;
+                        case "Meter":
+                            widget.dataset.value =
+                                widgetElement.getAttribute("value") || "50";
+                            widget.dataset.label =
+                                widgetElement.getAttribute("label") || "Meter";
+                            break;
+                        case "GSwitch":
+                            widget.dataset.showHints =
+                                widgetElement.getAttribute("showHints") ||
+                                "false";
+                            if (
+                                widgetElement.getAttribute("state") === "true"
+                            ) {
+                                widget.classList.add("checked");
+                            }
+                            break;
+                        case "Tabs":
+                            widget.dataset.isSidebar =
+                                widgetElement.getAttribute("isSidebar") ||
+                                "false";
+
+                            // Restore tab structure
+                            const tabsJSON = widgetElement.getAttribute("tabs");
+
+                            if (tabsJSON) {
+                                try {
+                                    const tabs = JSON.parse(tabsJSON);
+
+                                    // Clear existing tabs
+                                    const tabsContainer =
+                                        widget.querySelector(".tabs-container");
+                                    const tabContentsContainer = widget;
+
+                                    if (tabsContainer) {
+                                        tabsContainer.innerHTML = "";
+
+                                        tabs.forEach((tabInfo, index) => {
+                                            const tab =
+                                                document.createElement("div");
+                                            tab.className = "tab";
+                                            tab.textContent =
+                                                tabInfo.title ||
+                                                `Tab ${index + 1}`;
+                                            tab.dataset.tab =
+                                                tabInfo.id || `tab${index + 1}`;
+
+                                            // Set active state
+                                            if (tabInfo.active) {
+                                                tab.classList.add("active");
+                                            } else if (
+                                                index === 0 &&
+                                                !tabs.find((t) => t.active)
+                                            ) {
+                                                tab.classList.add("active");
+                                            }
+
+                                            tabsContainer.appendChild(tab);
+                                        });
+
+                                        // Force CSS recalculation
+                                        void tabsContainer.offsetHeight;
+                                    }
+
+                                    // Clear existing tab contents
+                                    const existingContents =
+                                        widget.querySelectorAll(".tab-content");
+                                    existingContents.forEach((tc) =>
+                                        tc.remove(),
+                                    );
+
+                                    // Create new tab content containers
+                                    tabs.forEach((tabInfo, index) => {
+                                        const tabContent =
+                                            document.createElement("div");
+                                        tabContent.className = "tab-content";
+                                        tabContent.dataset.tabContent =
+                                            tabInfo.id || `tab${index + 1}`;
+
+                                        // Set active state
+                                        if (
+                                            tabInfo.active ||
+                                            (index === 0 &&
+                                                !tabs.find((t) => t.active))
+                                        ) {
+                                            tabContent.classList.add("active");
+                                        }
+
+                                        widget.appendChild(tabContent);
+                                    });
+
+                                    // Reattach click handlers
+                                    widget
+                                        .querySelector(".tabs-container")
+                                        .addEventListener("click", (e) => {
+                                            if (
+                                                e.target.classList.contains(
+                                                    "tab",
+                                                )
+                                            ) {
+                                                const tabId =
+                                                    e.target.dataset.tab;
+
+                                                // Deactivate all tabs and contents
+                                                widget
+                                                    .querySelectorAll(".tab")
+                                                    .forEach((t) => {
+                                                        t.classList.remove(
+                                                            "active",
+                                                        );
+                                                        t.style.fontWeight =
+                                                            "normal";
+                                                    });
+                                                widget
+                                                    .querySelectorAll(
+                                                        ".tab-content",
+                                                    )
+                                                    .forEach((tc) => {
+                                                        tc.classList.remove(
+                                                            "active",
+                                                        );
+                                                        tc.style.display =
+                                                            "none";
+                                                    });
+
+                                                // Activate clicked tab
+                                                e.target.classList.add(
+                                                    "active",
+                                                );
+                                                e.target.style.fontWeight =
+                                                    "bold";
+                                                const targetContent =
+                                                    widget.querySelector(
+                                                        `.tab-content[data-tab-content="${tabId}"]`,
+                                                    );
+                                                if (targetContent) {
+                                                    targetContent.classList.add(
+                                                        "active",
+                                                    );
+                                                    targetContent.style.display =
+                                                        "block";
+                                                }
+                                            }
+                                        });
+
+                                    // Trigger initial tab activation
+                                    const firstTab =
+                                        widget.querySelector(".tab.active");
+                                    if (firstTab) {
+                                        firstTab.click();
+                                    }
+                                } catch (e) {
+                                    console.error(
+                                        "Error parsing tabs JSON:",
+                                        e,
+                                    );
+                                }
+                            }
+                            break;
+                        case "Container":
+                            widget.dataset.containerType =
+                                widgetElement.getAttribute("containerType") ||
+                                "default";
+                            break;
+                        case "Plot":
+                            widget.dataset.plotType =
+                                widgetElement.getAttribute("plotType") ||
+                                "line";
+                            break;
+                    }
+
+                    // Store callback if exists
+                    const callbackElement =
+                        widgetElement.querySelector("callback");
+                    if (callbackElement) {
+                        const callbackName =
+                            callbackElement.getAttribute("name") || "";
+                        if (!state.widgetCallbacks[id]) {
+                            state.widgetCallbacks[id] = {};
+                        }
+                        state.widgetCallbacks[id].callbackName = callbackName;
+                        for (const codeElement of callbackElement.children) {
+                            const type = codeElement.tagName;
+                            state.widgetCallbacks[id][type] =
+                                codeElement.textContent;
+                        }
+                    }
+
+                    // Update hierarchy
+                    if (parentWidget) {
+                        updateWidgetHierarchy(
+                            widget,
+                            parentWidget,
+                            containerId,
+                            tabId,
+                        );
+                    }
+
+                    return { widget, type, id, parentId, containerId, tabId };
+                }
+
+                // First pass: create all widgets except tab/container children
+                const rootWidgets = [];
+                const childWidgets = [];
+
+                widgetElements.forEach((widgetElement) => {
+                    const parentId = widgetElement.getAttribute("parentId");
+                    const containerId =
+                        widgetElement.getAttribute("containerId");
+                    const tabId = widgetElement.getAttribute("tabId");
+                    const type = widgetElement.getAttribute("type");
+
+                    if (parentId && (containerId || tabId)) {
+                        // This is a child inside container or tab - save for second pass
+                        childWidgets.push(widgetElement);
+                    } else {
+                        // This is a root widget or direct child of layout
+                        const widgetInfo =
+                            createWidgetFromElement(widgetElement);
+                        const widget = widgetInfo.widget;
+
+                        widgetMap.set(widgetInfo.id, {
+                            widget: widget,
+                            type: widgetInfo.type,
+                            parentId: widgetInfo.parentId,
+                            containerId: widgetInfo.containerId,
+                            tabId: widgetInfo.tabId,
                         });
-                }
-                if (state.uiXmlEditor) {
-                    state.uiXmlEditor.setValue(event.target.result);
-                }
+
+                        if (!parentId) {
+                            rootWidgets.push(widget);
+                        }
+                    }
+                });
+
+                // Second pass: handle container and tab children
+                childWidgets.forEach((widgetElement) => {
+                    const parentId = widgetElement.getAttribute("parentId");
+                    const containerId =
+                        widgetElement.getAttribute("containerId");
+                    const tabId = widgetElement.getAttribute("tabId");
+
+                    const parentInfo = widgetMap.get(parentId);
+                    if (!parentInfo) return;
+
+                    const parentWidget = parentInfo.widget;
+                    const parentType = parentInfo.type;
+
+                    let targetContainer = null;
+
+                    if (parentType === "Tabs" && tabId) {
+                        // Find the tab content container
+                        targetContainer = parentWidget.querySelector(
+                            `.tab-content[data-tab-content="${tabId}"]`,
+                        );
+                    } else if (parentType === "Container" && containerId) {
+                        // Find the container content
+                        targetContainer = parentWidget.querySelector(
+                            `.container-content[data-container-id="${containerId}"]`,
+                        );
+                    } else {
+                        // Direct child of layout
+                        targetContainer = parentWidget;
+                    }
+
+                    if (!targetContainer) return;
+
+                    const widgetInfo = createWidgetFromElement(
+                        widgetElement,
+                        targetContainer,
+                    );
+                    const widget = widgetInfo.widget;
+
+                    // Move widget to correct container
+                    if (targetContainer !== parentWidget) {
+                        // Remove from parent if it was added there by createWidget
+                        if (widget.parentElement === parentWidget) {
+                            parentWidget.removeChild(widget);
+                        }
+                        targetContainer.appendChild(widget);
+                    }
+
+                    widgetMap.set(widgetInfo.id, {
+                        widget: widget,
+                        type: widgetInfo.type,
+                        parentId: widgetInfo.parentId,
+                        containerId: widgetInfo.containerId,
+                        tabId: widgetInfo.tabId,
+                    });
+                });
+
+                // Update UI
                 updateWidgetList();
                 showEditor();
+
                 document.getElementById("status-text").textContent =
                     "Project loaded from XML";
                 setTimeout(() => {
@@ -405,6 +997,7 @@ export function loadProjectFromXML() {
     };
     input.click();
 }
+
 export function setupEditors() {
     const editor = CodeMirror.fromTextArea(document.getElementById("editor"), {
         mode: "text/x-csrc",
@@ -529,6 +1122,7 @@ export function setupEditors() {
     state.uiXmlEditor = uiXmlEditor;
     return { editor, callbackEditor, uiXmlEditor };
 }
+
 document.querySelectorAll(".document-tab").forEach((tab) => {
     tab.addEventListener("click", () => {
         document

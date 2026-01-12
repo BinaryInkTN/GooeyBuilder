@@ -319,7 +319,9 @@ export function createWidget(
         window.updateProjectXML();
     }
     state.widgetMacroNames.set(newWidget.dataset.id, "");
-
+    if (window.updatePropertiesPanel) {
+        window.updatePropertiesPanel();
+    }
     return newWidget;
 }
 export function setupContainerTabsListeners(widget) {

@@ -601,8 +601,8 @@ int main(void)
         processedWidgetIds.add(widgetId);
 
         const type = widget.dataset.type;
-        const x = parseInt(widget.style.left) || 0;
-        const y = parseInt(widget.style.top) || 0;
+        let x = parseInt(widget.style.left) || 0;
+        let y = parseInt(widget.style.top) || 0;
         const width = parseInt(widget.style.width) || 100;
         const height = parseInt(widget.style.height) || 30;
 
@@ -746,6 +746,24 @@ ${indent}state.menu = ${widgetVar};
 ${indent}GooeyRadioButtonGroup* ${widgetVar} = GooeyRadioButtonGroup_Create();
 ${indent}state.radiobuttongroups[${widgetIndices.radiobuttongroup++}] = ${widgetVar};
 `;
+                // Remove [ and ] from the start and end, then split by comma
+                const rawString = widget.dataset.radioOptions.replace(
+                    /^\[|\]$/g,
+                    "",
+                );
+                const radioOptions = rawString.split(",");
+
+                for (let i = 0; i < radioOptions.length; i++) {
+                    // Remove leading/trailing quotes if they exist
+                    let label = radioOptions[i]
+                        .trim()
+                        .replace(/^["']|["']$/g, "");
+
+                    y = (y || 0) + i * 10;
+
+                    // Wrap label in quotes for the C code
+                    widgetCode += `${indent}GooeyRadioButtonGroup_AddChild(state.window, ${widgetVar}, ${x}, ${y}, "${label}", ${widget.dataset.callback || "NULL"}, ${widget.dataset.user_data || "NULL"});\n`;
+                }
                 break;
 
             case "Progressbar":
@@ -880,7 +898,7 @@ ${indent}float y_data_${widgetVar}[]  = {${widget.dataset.yAxisDataList || "1.0f
 ${indent}*plotData_${widgetVar} = (GooeyPlotData) {
 ${indent}    .x_data = x_data_${widgetVar},
 ${indent}    .y_data = y_data_${widgetVar},
-${indent}    .data_points = ${widget.dataset.xAxisDataList ? widget.dataset.xAxisDataList.split(",").length : 3},
+${indent}    .data_count = ${widget.dataset.xAxisDataList ? widget.dataset.xAxisDataList.split(",").length : 3},
 ${indent}    .x_label = "${widget.dataset.xAxisLabel || "X-Axis Label"}",
 ${indent}    .x_step = 1.0f,
 ${indent}    .y_label = "${widget.dataset.yAxisLabel || "Y-Axis Label"}",
@@ -894,7 +912,7 @@ ${indent}state.plots[${widgetIndices.plot++}] = ${widgetVar};
                 break;
         }
 
-        if (type !== "Menu" && type !== "RadioButtonGroup" && !parentVar) {
+        if (type !== "Menu" && !parentVar) {
             widgetRegistrations.push(
                 `${indent}GooeyWindow_RegisterWidget(state.window, ${widgetVar});\n`,
             );
