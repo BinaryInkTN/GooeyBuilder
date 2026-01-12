@@ -1,15 +1,31 @@
 {
-    "name": "my-electron-app",
+    "name": "guiide",
     "version": "1.0.0",
-    "description": "Hello World!",
+    "description": "GooeyGUI Drag and Drop IDE.",
     "main": "main.js",
     "scripts": {
         "start": "electron .",
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "app:dir": "electron-builder --dir",
+        "app:dist": "electron-builder"
     },
-    "author": "Jane Doe",
+    "build": {
+        "appId": "binaryink.guiide",
+        "mac": {
+            "category": "development"
+        },
+        "linux": {
+            "target": [
+                "deb"
+            ]
+        }
+    },
+    "author": "BinaryInk <contact@binaryink.dev>",
+    "homepage": "https://binaryink.dev",
     "license": "MIT",
     "devDependencies": {
-        "electron": "^39.2.7"
-    }
+        "electron": "^39.2.7",
+        "electron-builder": "^26.4.0"
+    },
+    "dependencies": {}
 }

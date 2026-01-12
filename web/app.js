@@ -1282,6 +1282,7 @@ window.generateProjectXML = generateProjectXML;
 
 if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", init);
+    document.getElementById("recent-projects-list").append("test");
 } else {
     init();
 }

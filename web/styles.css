@@ -755,7 +755,11 @@ position: fixed;
     z-index: 1;
 }
 
+.widget-menu {
+    background-color: var(--background-color);
+    border-radius: var(--radius-sm);
 
+}
 
 .app-title {
     font-size: 14px;
@@ -773,7 +777,7 @@ position: fixed;
     display: flex;
     gap: var(--spacing-xs);
     background: var(--titlebar-bg-secondary);
-    padding: 8px 8px;
+    padding: 4px 4px;
     -webkit-app-region: no-drag;
 
 }
@@ -849,27 +853,13 @@ position: fixed;
     font-weight: 600;
 }
 
-/* Menu Bar */
-.top-menu-bar {
-    height: 36px;
-    background: var(--menu-bg);
-    border-bottom: 1px solid var(--border-color);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 var(--spacing);
-    position: fixed;
-    top: 40px;
-    left: 0;
-    right: 0;
-    z-index: 999;
-}
 
 .menu-left,
 .menu-right {
     display: flex;
     align-items: center;
     gap: 4px;
+    -webkit-app-region: no-drag;
 }
 
 .menu-item {
@@ -943,12 +933,12 @@ position: fixed;
  height: calc(
         100vh - 40px
     ); /* Account for titlebar (40px) + menubar (36px) */
-    margin-top: 76px;
+    margin-top: 42px;
 }
 
 .editor-screen .container {
     height: calc(100vh - 76px);
-    margin-top: 76px;
+    margin-top: 42px;
     overflow: hidden;
 }
 

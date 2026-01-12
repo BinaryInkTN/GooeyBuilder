@@ -34,7 +34,7 @@ export function createWidget(
         case "Menu":
             newWidget.className += " widget-menu";
             newWidget.textContent = "Menu";
-            newWidget.style.width = "100px";
+            newWidget.style.width = "100%";
             newWidget.style.height = "30px";
             break;
         case "Button":
@@ -147,8 +147,8 @@ export function createWidget(
                     <div class="tab-item active" data-tab-id="0">Tab 1</div>
                     <div class="tab-item" data-tab-id="1">Tab 2</div>
                     <div class="tab-controls">
-                        <button class="tab-add-btn" title="Add Tab">+</button>
-                        <button class="tab-remove-btn" title="Remove Tab">-</button>
+                        <button class="tab-add-btn" onclick="addTab(document.querySelector('.widget.selected'))" title="Add Tab">+</button>
+                        <button class="tab-remove-btn"  onclick="removeTab(document.querySelector('.widget.selected'))" title="Remove Tab">-</button>
                     </div>
                 </div>
                 <div class="tab-contents">

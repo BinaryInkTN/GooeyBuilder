@@ -29,6 +29,11 @@ export function updatePropertiesPanel() {
             "Overlay",
             "Container",
             "Tabs",
+            "RadioButtonGroup",
+            "Menu",
+            "Dropdown",
+            "List",
+            "GSwitch",
         ];
         if (!nonTextWidgets.includes(widgetType)) {
             textInput.value = state.selectedWidget.textContent || "";
@@ -288,42 +293,59 @@ function updateTabsManagement() {
     );
     const activeTab = parseInt(state.selectedWidget.dataset.activeTab || "0");
 
+    // Create or update tabs management section
     let tabsManagementHTML = `
-        <h4>Tab Management</h4>
-        <div class="property-item">
-            <label>Current Tabs:</label>
-            <div id="current-tabs-list" style="margin: 10px 0; max-height: 150px; overflow-y: auto;">
+        <div class="tabs-management-section">
+            <h4>Tab Management</h4>
+            <div class="property-item">
+                <label>Current Tabs:</label>
+                <div id="current-tabs-list" class="management-list">
     `;
 
     tabNames.forEach((name, index) => {
         const isActive = index === activeTab;
         tabsManagementHTML += `
-            <div class="tab-management-item ${isActive ? "active" : ""}" style="padding: 5px; border-bottom: 1px solid var(--border-color);">
-                <span>${name} ${isActive ? "(Active)" : ""}</span>
-                <div style="float: right;">
-                    <button onclick="setActiveTab(document.querySelector('.widget.selected'), ${index})"
-                            style="font-size: 11px; padding: 2px 5px; margin-left: 5px;">
-                        Activate
-                    </button>
+            <div class="management-item ${isActive ? "active" : ""}">
+                <div class="management-item-content">
+                    <div class="tab-name-display">${name}</div>
+                    <div class="management-item-actions">
+                        <input type="text"
+                               class="tab-rename-input"
+                               value="${name}"
+                               data-tab-index="${index}"
+                               placeholder="Tab name"
+                               style="display: none;" />
+                        <button class="button small rename-tab-btn"
+                                onclick="renameTab(${index}, this)"
+                                title="Rename tab">
+                                Edit
+                        </button>
+                        <button class="button small activate-tab-btn ${isActive ? "active" : ""}"
+                                onclick="setActiveTab(document.querySelector('.widget.selected'), ${index})"
+                                title="${isActive ? "Active" : "Activate"}">
+                            ${isActive ? "Active" : "Activate"}
+                        </button>
+                    </div>
                 </div>
             </div>
         `;
     });
 
     tabsManagementHTML += `
+                </div>
             </div>
-        </div>
-        <div class="property-actions" style="margin-top: 10px;">
-            <button onclick="addTab(document.querySelector('.widget.selected'))"
-                    class="button" style="font-size: 12px; padding: 5px 10px;">
-                <span class="material-icons" style="font-size: 14px;">add</span>
-                Add Tab
-            </button>
-            <button onclick="removeTab(document.querySelector('.widget.selected'))"
-                    class="button danger" style="font-size: 12px; padding: 5px 10px;">
-                <span class="material-icons" style="font-size: 14px;">remove</span>
-                Remove Tab
-            </button>
+            <div class="property-actions" style="margin-top: 10px; display: flex; gap: 8px;">
+                <button onclick="addTab(document.querySelector('.widget.selected'))"
+                        class="button small" style="flex: 1;">
+                    <span class="material-icons" style="font-size: 14px; vertical-align: middle;">add</span>
+                    Add Tab
+                </button>
+                <button onclick="removeTab(document.querySelector('.widget.selected'))"
+                        class="button small danger" style="flex: 1;">
+                    <span class="material-icons" style="font-size: 14px; vertical-align: middle;">remove</span>
+                    Remove Tab
+                </button>
+            </div>
         </div>
     `;
 
@@ -338,6 +360,75 @@ function updateTabsManagement() {
         managementSection.innerHTML = tabsManagementHTML;
         tabsContainer.appendChild(managementSection);
     }
+
+    // Add CSS for better layout
+    if (!document.querySelector("#tabs-management-styles")) {
+        const style = document.createElement("style");
+        style.id = "tabs-management-styles";
+        style.textContent = `
+            .management-list {
+                margin: 10px 0;
+                max-height: 200px;
+                overflow-y: auto;
+                border: 1px solid var(--border-color);
+                border-radius: 4px;
+                padding: 5px;
+            }
+            .management-item {
+                padding: 8px;
+                border-bottom: 1px solid var(--border-color);
+                transition: background-color 0.2s;
+            }
+            .management-item:last-child {
+                border-bottom: none;
+            }
+            .management-item.active {
+                background-color: rgba(var(--vs-accent-rgb), 0.1);
+                border-left: 3px solid var(--vs-accent);
+            }
+            .management-item-content {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 10px;
+            }
+            .tab-name-display {
+                flex: 1;
+                font-weight: 500;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            .management-item-actions {
+                display: flex;
+                gap: 6px;
+                align-items: center;
+                flex-shrink: 0;
+            }
+            .button.small {
+                font-size: 11px;
+                padding: 4px 8px;
+                min-height: unset;
+                line-height: 1.2;
+            }
+            .rename-tab-input {
+                padding: 3px 6px;
+                font-size: 11px;
+                border: 1px solid var(--border-color);
+                border-radius: 3px;
+                flex: 1;
+                min-width: 80px;
+            }
+            .activate-tab-btn.active {
+                background-color: var(--vs-green);
+                color: white;
+            }
+            .activate-tab-btn.active:hover {
+                background-color: var(--vs-green-dark);
+            }
+        `;
+        document.head.appendChild(style);
+    }
 }
 
 function updateContainerManagement() {
@@ -351,42 +442,48 @@ function updateContainerManagement() {
         state.selectedWidget.dataset.activeContainer || "0",
     );
 
+    // Create or update container management section
     let containerManagementHTML = `
-        <h4>Container Management</h4>
-        <div class="property-item">
-            <label>Current Containers:</label>
-            <div id="current-containers-list" style="margin: 10px 0; max-height: 150px; overflow-y: auto;">
+        <div class="container-management-section">
+            <h4>Container Management</h4>
+            <div class="property-item">
+                <label>Current Containers:</label>
+                <div id="current-containers-list" class="management-list">
     `;
 
     containerNames.forEach((name, index) => {
         const isActive = index === activeContainer;
         containerManagementHTML += `
-            <div class="container-management-item ${isActive ? "active" : ""}" style="padding: 5px; border-bottom: 1px solid var(--border-color);">
-                <span>${name} ${isActive ? "(Active)" : ""}</span>
-                <div style="float: right;">
-                    <button onclick="setActiveContainer(document.querySelector('.widget.selected'), ${index})"
-                            style="font-size: 11px; padding: 2px 5px; margin-left: 5px;">
-                        Activate
-                    </button>
+            <div class="management-item ${isActive ? "active" : ""}">
+                <div class="management-item-content">
+                    <div class="container-name-display">${name}</div>
+                    <div class="management-item-actions">
+                        <button class="button small activate-container-btn ${isActive ? "active" : ""}"
+                                onclick="setActiveContainer(document.querySelector('.widget.selected'), ${index})"
+                                title="${isActive ? "Active" : "Activate"}">
+                            ${isActive ? "Active" : "Activate"}
+                        </button>
+                    </div>
                 </div>
             </div>
         `;
     });
 
     containerManagementHTML += `
+                </div>
             </div>
-        </div>
-        <div class="property-actions" style="margin-top: 10px;">
-            <button onclick="addContainer(document.querySelector('.widget.selected'))"
-                    class="button" style="font-size: 12px; padding: 5px 10px;">
-                <span class="material-icons" style="font-size: 14px;">add</span>
-                Add Container
-            </button>
-            <button onclick="removeContainer(document.querySelector('.widget.selected'))"
-                    class="button danger" style="font-size: 12px; padding: 5px 10px;">
-                <span class="material-icons" style="font-size: 14px;">remove</span>
-                Remove Container
-            </button>
+            <div class="property-actions" style="margin-top: 10px; display: flex; gap: 8px;">
+                <button onclick="addContainer(document.querySelector('.widget.selected'))"
+                        class="button small" style="flex: 1;">
+                    <span class="material-icons" style="font-size: 14px; vertical-align: middle;">add</span>
+                    Add
+                </button>
+                <button onclick="removeContainer(document.querySelector('.widget.selected'))"
+                        class="button small danger" style="flex: 1;">
+                    <span class="material-icons" style="font-size: 14px; vertical-align: middle;">remove</span>
+                    Remove
+                </button>
+            </div>
         </div>
     `;
 
@@ -402,6 +499,83 @@ function updateContainerManagement() {
         containerContainer.appendChild(managementSection);
     }
 }
+
+// Rename tab function
+window.renameTab = function (tabIndex, buttonElement) {
+    if (!state.selectedWidget || state.selectedWidget.dataset.type !== "Tabs")
+        return;
+
+    const itemElement = buttonElement.closest(".management-item");
+    const displayElement = itemElement.querySelector(".tab-name-display");
+    const inputElement = itemElement.querySelector(".tab-rename-input");
+    const renameBtn = itemElement.querySelector(".rename-tab-btn");
+
+    if (inputElement.style.display === "none") {
+        // Switch to edit mode
+        displayElement.style.display = "none";
+        inputElement.style.display = "inline-block";
+        inputElement.focus();
+        inputElement.select();
+        renameBtn.textContent = "Save";
+        renameBtn.title = "Save name";
+    } else {
+        // Save the new name
+        const newName = inputElement.value.trim();
+        if (newName) {
+            const tabNames = JSON.parse(state.selectedWidget.dataset.tabNames);
+            tabNames[tabIndex] = newName;
+            state.selectedWidget.dataset.tabNames = JSON.stringify(tabNames);
+
+            // Update the tab header in the UI
+            const tabHeader = state.selectedWidget.querySelector(".tab-header");
+            const tabItem = tabHeader.querySelector(
+                `.tab-item[data-tab-id="${tabIndex}"]`,
+            );
+            if (tabItem) {
+                tabItem.textContent = newName;
+            }
+
+            // Update the display
+            displayElement.textContent = newName;
+            displayElement.style.display = "block";
+            inputElement.style.display = "none";
+            renameBtn.textContent = "Edit";
+            renameBtn.title = "Rename tab";
+
+            // Also update the placeholder in tab content
+            const tabContent = state.selectedWidget.querySelector(
+                `.tab-content[data-tab-content="${tabIndex}"]`,
+            );
+            if (tabContent) {
+                const placeholder =
+                    tabContent.querySelector(".tab-placeholder");
+                if (placeholder) {
+                    placeholder.textContent = `Drop widgets here for ${newName}`;
+                }
+            }
+
+            document.getElementById("status-text").textContent = "Tab renamed";
+            setTimeout(() => {
+                document.getElementById("status-text").textContent = "Ready";
+            }, 2000);
+        }
+    }
+};
+
+// Handle Enter key in rename input
+document.addEventListener("click", function (e) {
+    if (e.target.classList.contains("tab-rename-input")) {
+        e.target.addEventListener("keydown", function (event) {
+            if (event.key === "Enter") {
+                const tabIndex = this.dataset.tabIndex;
+                const renameBtn = this.closest(
+                    ".management-item-actions",
+                ).querySelector(".rename-tab-btn");
+                renameTab(tabIndex, renameBtn);
+            }
+        });
+    }
+});
 
 export function applyWidgetProperties() {
     if (!state.selectedWidget) return;
